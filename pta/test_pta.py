@@ -1,4 +1,3 @@
-from unittest import TestCase
 import pytest
 import networkx as nx
 import pta
