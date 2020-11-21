@@ -2,3 +2,4 @@ networkx
 llist
 matplotlib
 randomcolor
+pygraphviz
