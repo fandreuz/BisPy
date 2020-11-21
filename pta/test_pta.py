@@ -2,29 +2,6 @@ import pytest
 import networkx as nx
 import pta
 from llist import dllist, dllistnode
-from networkx.drawing.nx_agraph import to_agraph
-import matplotlib.pyplot as plt
-
-
-def draw(graph, file_name):
-    for node in graph.nodes:
-        graph.nodes[node]["height"] = 0.1
-        graph.nodes[node]["shape"] = "circle"
-
-        graph.nodes[node]["width"] = 0.3
-        graph.nodes[node]["height"] = 0.3
-        graph.nodes[node]["fixedsize"] = True
-        graph.nodes[node]["fontsize"] = 6
-
-    for edge in graph.edges:
-        graph.edges[edge]["arrowsize"] = 0.2
-
-    A = to_agraph(graph)
-    A.layout("sfdp")
-    A.graph_attr["nodesep"] = 1
-    A.graph_attr["dpi"] = 300
-    A.graph_attr["height"] = 500
-    A.draw("{}.png".format(file_name))
 
 
 def test_qpartition():
