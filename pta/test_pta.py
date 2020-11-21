@@ -296,7 +296,6 @@ def test_check_block_stability():
 
 def test_split():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
-    draw(graph, "graph")
     initial_partition = set(
         [
             frozenset([0, 3, 4]),
