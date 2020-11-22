@@ -232,7 +232,7 @@ def extract_splitter(compound_block: XBlock):
 
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
-# remember to reset the value of aux_count between two refinements
+# remember to reset the value of aux_count after the refinement
 def build_block_counterimage(B_qblock: QBlock):
     qblock_counterimage = []
 
