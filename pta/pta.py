@@ -262,7 +262,7 @@ def build_block_counterimage(B_qblock: QBlock):
 
 
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the XBlock which contained the QBlock B.
-def build_second_splitter(B_qblock_vertexes: list[Vertex], S_XBlock: XBlock):
+def build_second_splitter(B_qblock_vertexes: list[Vertex]):
     splitter = []
 
     for vertex in B_qblock_vertexes:
