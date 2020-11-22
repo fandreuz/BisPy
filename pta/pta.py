@@ -200,6 +200,7 @@ def parse_graph(graph, initial_partition):
         q_partition.append(qblock)
 
     # holds the references to Count objects to assign to the edges (this is OK because we can consider |V| = O(|E|))
+    # count(x) = count(x,V) = |V \cap E({x})| = |E({x})|
     vertex_count = [None for _ in graph.nodes]
 
     # a vertex should always refer to a ddllistnode, in order to help if fellows to be splitted (i.e. not obtain the error "dllistnode belongs to another list")
@@ -210,6 +211,7 @@ def parse_graph(graph, initial_partition):
         # if this is the first outgoing edge for the vertex edge[0], we need to create a new Count instance
         if not vertex_count[edge[0]]:
             vertex_count[edge[0]] = Count(my_edge.source.value, initial_x_block)
+
         my_edge.count = vertex_count[edge[0]]
         my_edge.count.value += 1
 
@@ -230,6 +232,7 @@ def extract_splitter(compound_block: XBlock):
 
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
+# remember to reset the value of aux_count between two refinements
 def build_block_counterimage(B_qblock: QBlock):
     qblock_counterimage = []
 
