@@ -344,7 +344,7 @@ def refine(compound_xblocks, xblocks):
     # step 3 (compute E^{-1}(B))
 
     # keep a copy of the vertexes in B_qblock, since it can be modifed by split
-    B_vertexes_copy = list(map(lambda dllistnode: dllistnode.value, B_qblock.vertexes))
+    B_vertexes_copy = list(map(lambda dllistnode: dllistnode, B_qblock.vertexes))
 
     B_counterimage = build_block_counterimage(B_qblock)
 
