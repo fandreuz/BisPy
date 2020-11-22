@@ -6,6 +6,7 @@ class Edge:
         self.source = source
         self.destination = destination
 
+        # holds the value count(source,S) = |E({source}) \cap S|
         self.count = None
 
     # this is only used for testing purposes
@@ -257,8 +258,22 @@ def build_block_counterimage(B_qblock_vertexes: dllist):
     return qblock_counterimage
 
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the XBlock which contained the QBlock B.
-def build_second_splitter_set(B_qblock_vertexes: QBlock, S_XBlock: XBlock):
+def build_second_splitter(B_qblock_vertexes: list[Vertex], S_XBlock: XBlock):
+    splitter = []
 
+    for vertex in B_qblock_vertexes:
+        for edge in vertex.counterimage:
+            # determine count(vertex,B) = |B \cap E({vertex})|
+            count_B = vertex.aux_count
+
+            # determine count(vertex,S) = |S \cap E({vertex})|
+            count_S = edge.count
+
+            if count_B.value == count_S.value:
+                splitter.append(vertex)
+                break
+
+    return splitter
 
 # perform a Split with respect to B_qblock
 def split(B_counterimage: list[dllistnode]):
