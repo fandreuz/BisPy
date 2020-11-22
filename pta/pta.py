@@ -260,6 +260,7 @@ def build_block_counterimage(B_qblock: QBlock):
 
     return qblock_counterimage
 
+
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the XBlock which contained the QBlock B.
 def build_second_splitter(B_qblock_vertexes: list[Vertex], S_XBlock: XBlock):
     splitter = []
@@ -277,6 +278,7 @@ def build_second_splitter(B_qblock_vertexes: list[Vertex], S_XBlock: XBlock):
                 break
 
     return splitter
+
 
 # perform a Split with respect to B_qblock
 def split(B_counterimage: list[dllistnode]):
@@ -319,7 +321,7 @@ def split(B_counterimage: list[dllistnode]):
 
 
 # be careful: you should only work with llist in order to get O(1) deletion from x/qblocks
-def refine(compound_xblocks, xblocks, count):
+def refine(compound_xblocks, xblocks):
     # refinement step (following the steps at page 10 of "Three partition refinement algorithms")
 
     # step 1 (select a refining block B)
@@ -334,7 +336,9 @@ def refine(compound_xblocks, xblocks, count):
         compound_xblocks.add(S_compound_xblock)
 
     # add the extracted qblock to xblocks
-    B_xblock = XBlock(len(count), B_qblock)
+    B_xblock = XBlock(len(xblocks))
+    B_xblock.append_qblock(B_qblock)
+
     xblocks.add(B_xblock)
 
     # step 3 (compute E^{-1}(B))
@@ -353,7 +357,7 @@ def refine(compound_xblocks, xblocks, count):
     second_splitter = build_second_splitter(B_vertexes_copy)
 
 
-def pta(q_partition, count):
+def pta(q_partition):
     compound_xblocks = set()
     xblocks = set()
 
