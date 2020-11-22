@@ -356,6 +356,12 @@ def refine(compound_xblocks, xblocks):
     # note that, since we are employing the strategy proposed in the paper, we don't even need to pass the XBLock S
     second_splitter = build_second_splitter(B_vertexes_copy)
 
+    # step 6
+
+    # reset aux_count
+    # we only care about the vertexes in B_counterimage since we only set aux_count for those vertexes x such that |E({x}) \cap B_qblock| > 0
+    for vertex_dllistobject in B_counterimage:
+        vertex_dllistobject.value.aux_count = None
 
 def pta(q_partition):
     compound_xblocks = set()
