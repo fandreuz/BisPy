@@ -26,6 +26,7 @@ def test_qpartition_parse_graph():
         [idx for idx, _ in enumerate(graph.nodes)]
     )
 
+
 def test_parse_right_types():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
@@ -51,6 +52,7 @@ def test_parse_right_types():
                 assert isinstance(v, pta.Edge)
             assert isinstance(vertex.qblock, dllistnode)
 
+
 def test_count_parse_graph():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
@@ -68,6 +70,7 @@ def test_count_parse_graph():
     for vertex_dllistobject in vertexes_dllistobject:
         for edge in vertex_dllistobject.value.image:
             assert edge.count.value == len(vertex_dllistobject.value.image)
+
 
 def test_vertex_image_parse_graph():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
@@ -93,6 +96,7 @@ def test_vertex_image_parse_graph():
         for vertex in block.vertexes:
             vertex_image = set(vertex.image)
             assert vertex_image == right_image[vertex.label]
+
 
 # test if parse_graph computed the vertexes counterimages properly
 def test_vertex_counterimage_parse_graph():
@@ -177,6 +181,7 @@ def test_build_block_counterimage():
 
         assert right_block_counterimage == block_counterimage
 
+
 def test_build_block_counterimage_aux_count():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
@@ -213,6 +218,7 @@ def test_build_block_counterimage_aux_count():
 
         for vertex in block_counterimage:
             vertex.aux_count = None
+
 
 # error "dllistnode belongs to another list" triggered by split when using the result of build_block_counterimage
 # error "dllistnode doesn't belong to a list"
@@ -396,6 +402,7 @@ def test_split():
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
 
+
 def test_reset_aux_count_after_refinement():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
@@ -414,7 +421,7 @@ def test_reset_aux_count_after_refinement():
 
     qblock_splitter = q_partition[0]
     block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.refine(xblock, [xblock])
+    pta.refine([xblock], [xblock])
 
     for vertex_dllistobject in vertexes_dllistobejct:
         assert vertex_dllistobject.value.aux_count == None
