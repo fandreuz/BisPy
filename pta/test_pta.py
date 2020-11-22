@@ -395,3 +395,26 @@ def test_split():
         assert pta.check_block_stability(
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
+
+def test_reset_aux_count_after_refinement():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    (q_partition, vertexes_dllistobejct) = pta.parse_graph(graph, initial_partition)
+
+    xblock = q_partition[0].xblock
+
+    qblock_splitter = q_partition[0]
+    block_counterimage = pta.build_block_counterimage(qblock_splitter)
+    pta.refine(xblock, [xblock])
+
+    for vertex_dllistobject in vertexes_dllistobejct:
+        assert vertex_dllistobject.value.aux_count == None
