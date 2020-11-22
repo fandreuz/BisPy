@@ -229,10 +229,10 @@ def extract_splitter(compound_block: XBlock):
 
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
-def build_block_counterimage(qblock: QBlock):
+def build_block_counterimage(B_qblock_vertexes: dllist):
     qblock_counterimage = []
 
-    for vertex in qblock.vertexes:
+    for vertex in B_qblock_vertexes:
         for edge in vertex.counterimage:
             counterimage_vertex = edge.source
 
@@ -255,6 +255,9 @@ def build_block_counterimage(qblock: QBlock):
         vertex.value.release()
 
     return qblock_counterimage
+
+# compute the set E^{-1}(B) - E^{-1}(S-B) where S is the XBlock which contained the QBlock B.
+def build_second_splitter_set(B_qblock_vertexes: QBlock, S_XBlock: XBlock):
 
 
 # perform a Split with respect to B_qblock
@@ -317,6 +320,10 @@ def refine(compound_xblocks, xblocks, count):
     xblocks.add(B_xblock)
 
     # step 3 (compute E^{-1}(B))
+
+    # keep a copy of the vertexes in B_qblock, since it can be modifed by split
+    B_vertexes_copy = list(map(lambda dllistnode: dllistnode.value, B_qblock.vertexes))
+
     B_counterimage = build_block_counterimage(B_qblock)
 
     # step 4 (refine Q with respect to B)
