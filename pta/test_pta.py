@@ -4,7 +4,7 @@ import pta
 from llist import dllist, dllistnode
 
 
-def test_qpartition():
+def test_qpartition_parse_graph():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -25,7 +25,6 @@ def test_qpartition():
     assert set(map(lambda vertex: vertex.label, vertexes)) == set(
         [idx for idx, _ in enumerate(graph.nodes)]
     )
-
 
 def test_parse_right_types():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
@@ -52,9 +51,51 @@ def test_parse_right_types():
                 assert isinstance(v, pta.Edge)
             assert isinstance(vertex.qblock, dllistnode)
 
+def test_count_parse_graph():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    (_, vertexes_dllistobject) = pta.parse_graph(graph, initial_partition)
+
+    for vertex_dllistobject in vertexes_dllistobject:
+        for edge in vertex_dllistobject.value.image:
+            assert edge.count.value == len(vertex_dllistobject.value.image)
+
+def test_vertex_image_parse_graph():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    (q_partition, vertexes_dllistnode) = pta.parse_graph(graph, initial_partition)
+
+    right_image = [set() for node in graph.nodes]
+    for edge in graph.edges:
+        right_image[edge[0]].add(
+            pta.Edge(vertexes_dllistnode[edge[0]], vertexes_dllistnode[edge[1]])
+        )
+
+    for block in q_partition:
+        for vertex in block.vertexes:
+            vertex_image = set(vertex.image)
+            assert vertex_image == right_image[vertex.label]
 
 # test if parse_graph computed the vertexes counterimages properly
-def test_vertex_counterimage():
+def test_vertex_counterimage_parse_graph():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -77,10 +118,6 @@ def test_vertex_counterimage():
     for block in q_partition:
         for vertex in block.vertexes:
             vertex_counterimage = set(vertex.counterimage)
-
-            print(vertex_counterimage)
-            print(right_counterimage[vertex.label])
-
             assert vertex_counterimage == right_counterimage[vertex.label]
 
 
@@ -140,6 +177,39 @@ def test_build_block_counterimage():
 
         assert right_block_counterimage == block_counterimage
 
+def test_build_block_counterimage_aux_count():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+
+    for chosen_index in range(4):
+        chosen_qblock_frozenset = list(initial_partition)[chosen_index]
+
+        block_counterimage = list(
+            map(
+                lambda dllistobject: dllistobject.value,
+                pta.build_block_counterimage(q_partition[chosen_index]),
+            )
+        )
+
+        right_count = [0 for vertex in block_counterimage]
+        for edge in graph.edges:
+            if edge[1] in chosen_qblock_frozenset:
+                # update the count for edge[0]
+                for idx in range(len(block_counterimage)):
+                    if block_counterimage[idx].label == edge[0]:
+                        right_count[idx] += 1
+
+        assert right_count == [vertex.aux_count.value for vertex in block_counterimage]
 
 # error "dllistnode belongs to another list" triggered by split when using the result of build_block_counterimage
 # error "dllistnode doesn't belong to a list"
