@@ -211,6 +211,9 @@ def test_build_block_counterimage_aux_count():
 
         assert right_count == [vertex.aux_count.value for vertex in block_counterimage]
 
+        for vertex in block_counterimage:
+            vertex.aux_count = None
+
 # error "dllistnode belongs to another list" triggered by split when using the result of build_block_counterimage
 # error "dllistnode doesn't belong to a list"
 def test_vertex_taken_from_right_list():
