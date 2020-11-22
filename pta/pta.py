@@ -342,25 +342,22 @@ def refine(compound_xblocks, xblocks):
     xblocks.append(B_xblock)
 
     # step 3 (compute E^{-1}(B))
-
-    # keep a copy of the vertexes in B_qblock, since it can be modifed by split
-    B_vertexes_copy = list(map(lambda dllistnode: dllistnode, B_qblock.vertexes))
-
-    B_counterimage = build_block_counterimage(B_qblock)
+    B_counterimage_dllistobject = build_block_counterimage(B_qblock)
+    B_counterimage = [vertex.value for vertex in B_counterimage_dllistobject]
 
     # step 4 (refine Q with respect to B)
-    split(B_counterimage)
+    split(B_counterimage_dllistobject)
 
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
     # note that, since we are employing the strategy proposed in the paper, we don't even need to pass the XBLock S
-    second_splitter = build_second_splitter(B_vertexes_copy)
+    second_splitter = build_second_splitter(B_counterimage)
 
     # step 6
 
     # reset aux_count
     # we only care about the vertexes in B_counterimage since we only set aux_count for those vertexes x such that |E({x}) \cap B_qblock| > 0
-    for vertex_dllistobject in B_counterimage:
+    for vertex_dllistobject in B_counterimage_dllistobject:
         vertex_dllistobject.value.aux_count = None
 
 
