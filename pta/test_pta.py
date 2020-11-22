@@ -402,6 +402,43 @@ def test_split():
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
 
+# second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
+def test_second_splitter():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    (q_partition, vertexes_dllistobejct) = pta.parse_graph(graph, initial_partition)
+
+    xblock = q_partition[0].xblock
+    qblock_splitter = q_partition[0]
+    block_counterimage = [vertex.value for vertex in pta.build_block_counterimage(qblock_splitter)]
+
+    # compute S-B
+    xblock.remove_qblock(q_partition[0])
+    xblock_leftover_vertexes = []
+    for qblock in xblock.qblocks:
+        xblock_leftover_vertexes.extend([vertex.value for vertex in qblock.vertexes])
+    xblock_leftover_as_qblock = pta.QBlock(xblock_leftover_vertexes, xblock)
+
+    # compute E^{-1}(S-B)
+    xblock_leftover_counterimage = [vertex.value for vertex in pta.build_block_counterimage(xblock_leftover_as_qblock)]
+
+    second_splitter = pta.build_second_splitter(block_counterimage)
+
+    for vertex in second_splitter:
+        # vertex \in E^{-1}(B)
+        assert vertex.value in block_counterimage
+
+        # vertex \not\in E^{-1}(S-B)
+        assert vertex.value not in xblock_leftover_counterimage
 
 def test_reset_aux_count_after_refinement():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
