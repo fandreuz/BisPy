@@ -230,10 +230,10 @@ def extract_splitter(compound_block: XBlock):
 
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
-def build_block_counterimage(B_qblock_vertexes: dllist):
+def build_block_counterimage(B_qblock: QBlock):
     qblock_counterimage = []
 
-    for vertex in B_qblock_vertexes:
+    for vertex in B_qblock.vertexes:
         for edge in vertex.counterimage:
             counterimage_vertex = edge.source
 
@@ -247,7 +247,7 @@ def build_block_counterimage(B_qblock_vertexes: dllist):
             # remember to set it to None
             if not counterimage_vertex.value.aux_count:
                 counterimage_vertex.value.aux_count = Count(
-                    counterimage_vertex.value, qblock
+                    counterimage_vertex.value, B_qblock
                 )
             counterimage_vertex.value.aux_count.value += 1
 
