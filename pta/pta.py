@@ -346,6 +346,9 @@ def refine(compound_xblocks, xblocks, count):
 
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
+    # note that, since we are employing the strategy proposed in the paper, we don't even need to pass the XBLock S
+    second_splitter = build_second_splitter(B_vertexes_copy)
+
 
 def pta(q_partition, count):
     compound_xblocks = set()
