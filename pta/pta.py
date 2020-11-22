@@ -333,13 +333,13 @@ def refine(compound_xblocks, xblocks):
     # step 2 (update X)
     # if compound_xblock is still compund, put it back in compound_xblocks
     if len(S_compound_xblock.qblocks) > 1:
-        compound_xblocks.add(S_compound_xblock)
+        compound_xblocks.append(S_compound_xblock)
 
     # add the extracted qblock to xblocks
     B_xblock = XBlock(len(xblocks))
     B_xblock.append_qblock(B_qblock)
 
-    xblocks.add(B_xblock)
+    xblocks.append(B_xblock)
 
     # step 3 (compute E^{-1}(B))
 
@@ -362,6 +362,7 @@ def refine(compound_xblocks, xblocks):
     # we only care about the vertexes in B_counterimage since we only set aux_count for those vertexes x such that |E({x}) \cap B_qblock| > 0
     for vertex_dllistobject in B_counterimage:
         vertex_dllistobject.value.aux_count = None
+
 
 def pta(q_partition):
     compound_xblocks = set()
