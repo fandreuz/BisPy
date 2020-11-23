@@ -402,43 +402,55 @@ def test_split():
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
 
+
 # second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
 def test_second_splitter():
-    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
-    initial_partition = set(
-        [
-            frozenset([0, 3, 4]),
-            frozenset([1, 2, 9]),
-            frozenset([8, 5]),
-            frozenset([7]),
-            frozenset([6]),
-        ]
-    )
+    graph = nx.DiGraph()
+    graph.add_nodes_from([label for label in range(6)])
+    graph.add_edges_from([(0, 4), (2, 1), (3, 2), (4, 2), (5, 4)])
+
+    initial_partition = set([frozenset([0, 3, 4]), frozenset([1, 2]), frozenset([5])])
 
     (q_partition, vertexes_dllistobejct) = pta.parse_graph(graph, initial_partition)
 
     xblock = q_partition[0].xblock
     qblock_splitter = q_partition[0]
-    block_counterimage = [vertex.value for vertex in pta.build_block_counterimage(qblock_splitter)]
 
     # compute S-B
-    xblock.remove_qblock(q_partition[0])
     xblock_leftover_vertexes = []
-    for qblock in xblock.qblocks:
-        xblock_leftover_vertexes.extend([vertex.value for vertex in qblock.vertexes])
+    for idx in range(1, len(initial_partition)):
+        xblock_leftover_vertexes.extend(
+            [vertex for vertex in xblock.qblocks[idx].vertexes]
+        )
     xblock_leftover_as_qblock = pta.QBlock(xblock_leftover_vertexes, xblock)
 
     # compute E^{-1}(S-B)
-    xblock_leftover_counterimage = [vertex.value for vertex in pta.build_block_counterimage(xblock_leftover_as_qblock)]
+    xblock_leftover_counterimage = [
+        vertex.value
+        for vertex in pta.build_block_counterimage(xblock_leftover_as_qblock)
+    ]
 
-    second_splitter = pta.build_second_splitter(block_counterimage)
+    # we need to reset the aux_counts, since only one build_block_counterimage is expected
+    for vertex in xblock_leftover_counterimage:
+        vertex.aux_count = None
 
-    for vertex in second_splitter:
-        # vertex \in E^{-1}(B)
-        assert vertex.value in block_counterimage
+    # compute E^{-1}(B)
+    # we compute E^{-1}(B) after E^{-1}(S-B) because the computation of E^{-1}(S-B) overwrites the aux_counts, therefore build_second_splitter doesn't work properly
+    block_counterimage = [
+        vertex.value for vertex in pta.build_block_counterimage(qblock_splitter)
+    ]
 
-        # vertex \not\in E^{-1}(S-B)
-        assert vertex.value not in xblock_leftover_counterimage
+    second_splitter = [
+        vertex.value
+        for vertex in pta.build_second_splitter(
+            [vertex for vertex in qblock_splitter.vertexes]
+        )
+    ]
+
+    assert set(second_splitter) == set(block_counterimage) - set(
+        xblock_leftover_counterimage
+    )
+
 
 def test_reset_aux_count_after_refinement():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)

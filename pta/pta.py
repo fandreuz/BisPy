@@ -52,6 +52,9 @@ class Vertex:
         # an auxiliary Count instance used when we're preparing a new split phase. This will hold count(x,B) where B is the (former) QBlock which will be the next splitter
         self.aux_count = None
 
+        # an auxiliary flag which will be set to True the first time this vertex is added to a second splitter set (see the function build_second_splitter). It will be set to False as soon as possible.
+        self.in_second_splitter = False
+
     def add_to_counterimage(self, edge: Edge):
         self.counterimage.append(edge)
 
@@ -63,6 +66,12 @@ class Vertex:
 
     def release(self):
         self.visited = False
+
+    def added_to_second_splitter(self):
+        self.in_second_splitter = True
+
+    def clear_second_splitter_flag(self):
+        self.in_second_splitter = False
 
     def __str__(self):
         return "V{}".format(self.label)
@@ -233,7 +242,7 @@ def extract_splitter(compound_block: XBlock):
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
 # remember to reset the value of aux_count after the refinement
-def build_block_counterimage(B_qblock: QBlock):
+def build_block_counterimage(B_qblock: QBlock) -> list[dllistnode]:
     qblock_counterimage = []
 
     for vertex in B_qblock.vertexes:
@@ -262,20 +271,24 @@ def build_block_counterimage(B_qblock: QBlock):
 
 
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the XBlock which contained the QBlock B.
-def build_second_splitter(B_qblock_vertexes: list[Vertex]):
+def build_second_splitter(B_qblock_vertexes: list[Vertex]) -> list[dllistnode]:
     splitter = []
 
     for vertex in B_qblock_vertexes:
         for edge in vertex.counterimage:
-            # determine count(vertex,B) = |B \cap E({vertex})|
-            count_B = vertex.aux_count
+            if not edge.source.value.in_second_splitter:
+                # determine count(vertex,B) = |B \cap E({vertex})|
+                count_B = edge.source.value.aux_count
 
-            # determine count(vertex,S) = |S \cap E({vertex})|
-            count_S = edge.count
+                # determine count(vertex,S) = |S \cap E({vertex})|
+                count_S = edge.count
 
-            if count_B.value == count_S.value:
-                splitter.append(vertex)
-                break
+                if count_B.value == count_S.value:
+                    splitter.append(edge.source)
+                    edge.source.value.added_to_second_splitter()
+
+    for vertex in splitter:
+        vertex.value.clear_second_splitter_flag()
 
     return splitter
 
@@ -330,6 +343,9 @@ def refine(compound_xblocks, xblocks):
     # select the right qblock from this compound xblock
     B_qblock = extract_splitter(S_compound_xblock)
 
+    # save a copy of the vertexes in B_qblock for the step 5
+    B_qblock_vertexes = [vertex for vertex in B_qblock.vertexes]
+
     # step 2 (update X)
     # if compound_xblock is still compund, put it back in compound_xblocks
     if len(S_compound_xblock.qblocks) > 1:
@@ -343,7 +359,6 @@ def refine(compound_xblocks, xblocks):
 
     # step 3 (compute E^{-1}(B))
     B_counterimage_dllistobject = build_block_counterimage(B_qblock)
-    B_counterimage = [vertex.value for vertex in B_counterimage_dllistobject]
 
     # step 4 (refine Q with respect to B)
     split(B_counterimage_dllistobject)
@@ -351,7 +366,7 @@ def refine(compound_xblocks, xblocks):
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
     # note that, since we are employing the strategy proposed in the paper, we don't even need to pass the XBLock S
-    second_splitter = build_second_splitter(B_counterimage)
+    second_splitter = build_second_splitter(B_qblock_vertexes)
 
     # step 6
 
