@@ -4,6 +4,35 @@ import pta
 from llist import dllist, dllistnode
 
 
+def test_parse_graph_invalid_initial_partition():
+    with pytest.raises(Exception):
+        graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+        initial_partition = set(
+            [
+                frozenset([0, 3, 4]),
+                frozenset([1, 2, 9]),
+                frozenset([8, 5]),
+                frozenset([7]),
+                frozenset([6, 1]),
+            ]
+        )
+
+        (q_partition, _) = pta.parse_graph(graph, initial_partition)
+
+    with pytest.raises(Exception):
+        graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+        initial_partition = set(
+            [
+                frozenset([0, 3, 4]),
+                frozenset([1, 2, 9]),
+                frozenset([8, 5]),
+                frozenset([7]),
+            ]
+        )
+
+        (q_partition, _) = pta.parse_graph(graph, initial_partition)
+
+
 def test_qpartition_parse_graph():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
