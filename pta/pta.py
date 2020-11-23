@@ -1,37 +1,6 @@
 from llist import dllist, dllistnode
 
 
-class Edge:
-    def __init__(self, source: dllistnode, destination: dllistnode):
-        self.source = source
-        self.destination = destination
-
-        # holds the value count(source,S) = |E({source}) \cap S|
-        self.count = None
-
-    # this is only used for testing purposes
-    def __hash__(self):
-        return hash(
-            "{}-{}".format(self.source.value.label, self.destination.value.label)
-        )
-
-    def __eq__(self, other):
-        return (
-            isinstance(other, Edge)
-            and self.source == other.source
-            and self.destination == other.destination
-        )
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __str__(self):
-        return "<{}, {}>".format(self.source, self.destination)
-
-    def __repr__(self):
-        return "<{}, {}>".format(self.source, self.destination)
-
-
 class Vertex:
     def __init__(self, label):
         # unique identifier of the vertex, used for debugging purposes
@@ -55,10 +24,13 @@ class Vertex:
         # an auxiliary flag which will be set to True the first time this vertex is added to a second splitter set (see the function build_second_splitter). It will be set to False as soon as possible.
         self.in_second_splitter = False
 
-    def add_to_counterimage(self, edge: Edge):
+        # a reference to the unique esisting instance of dllistnode associated with this Vertex
+        self.dllistnode = None
+
+    def add_to_counterimage(self, edge):
         self.counterimage.append(edge)
 
-    def add_to_image(self, edge: Edge):
+    def add_to_image(self, edge):
         self.image.append(edge)
 
     def visit(self):
@@ -80,13 +52,34 @@ class Vertex:
         return "V{}".format(self.label)
 
 
-# holds the value of count(vertex,XBlock) = |XBlock \cap E({vertex})|
-class Count:
-    def __init__(self, vertex: Vertex, xblock):
-        self.vertex = vertex
-        self.xblock = xblock
+class Edge:
+    def __init__(self, source: Vertex, destination: Vertex):
+        #  type Vertex
+        self.source = source
+        self.destination = destination
 
-        self.value = 0
+        # holds the value count(source,S) = |E({source}) \cap S|
+        self.count = None
+
+    # this is only used for testing purposes
+    def __hash__(self):
+        return hash("{}-{}".format(self.source.label, self.destination.label))
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Edge)
+            and self.source == other.source
+            and self.destination == other.destination
+        )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return "<{}, {}>".format(self.source, self.destination)
+
+    def __repr__(self):
+        return "<{}, {}>".format(self.source, self.destination)
 
 
 class QBlock:
@@ -98,16 +91,18 @@ class QBlock:
         # an helper field which will be used during the split phase of a QBlock
         self.split_helper_block = None
 
+        self.dllistnode = None
+
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper Vertex, not a dllistnode
     def append_vertex(self, vertex: Vertex):
         self.size += 1
-        return self.vertexes.append(vertex)
+        vertex.dllistnode = self.vertexes.append(vertex)
 
     # throws an error if the vertex isn't inside this qblock
-    def remove_vertex(self, vertex_dllistnode):
+    def remove_vertex(self, vertex: Vertex):
         self.size -= 1
-        return self.vertexes.remove(vertex_dllistnode)
+        self.vertexes.remove(vertex.dllistnode)
 
     def initialize_split_helper_block(self):
         self.split_helper_block = QBlock([], self.xblock)
@@ -123,21 +118,29 @@ class QBlock:
 
 
 class XBlock:
-    def __init__(self, label):
-        self.label = label
+    def __init__(self):
         self.qblocks = dllist([])
 
     def append_qblock(self, qblock: QBlock):
-        return self.qblocks.append(qblock)
+        qblock.dllistnode = self.qblocks.append(qblock)
 
-    def remove_qblock(self, qblock: dllistnode):
-        return self.qblocks.remove(qblock)
+    def remove_qblock(self, qblock: QBlock):
+        self.qblocks.remove(qblock.dllistnode)
 
     def __str__(self):
-        return "[{}]".format(",".join([str(qblock) for qblock in self.qblocks]))
+        return "/[{}]\\".format(",".join([str(qblock) for qblock in self.qblocks]))
 
     def __repr__(self):
-        return "[{}]".format(",".join([str(qblock) for qblock in self.qblocks]))
+        return "/[{}]\\".format(",".join([str(qblock) for qblock in self.qblocks]))
+
+
+# holds the value of count(vertex,XBlock) = |XBlock \cap E({vertex})|
+class Count:
+    def __init__(self, vertex: Vertex, xblock: XBlock):
+        self.vertex = vertex
+        self.xblock = xblock
+
+        self.value = 0
 
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
@@ -154,7 +157,7 @@ def check_block_stability(
     for vertex in A_block_vertexes:
         is_inside_B.append(False)
         for edge in vertex.image:
-            if edge.destination.value in B_block_vertexes:
+            if edge.destination in B_block_vertexes:
                 is_inside_B[-1] = True
 
     # all == True if for each vertex x in A there's a vertex y such that x \in E({x}) AND y \in B
@@ -163,7 +166,7 @@ def check_block_stability(
 
 
 # this also returns a list of dllistobject representing the vertexes in the graph
-def parse_graph(graph, initial_partition):
+def parse_graph(graph, initial_partition: set):
     union = set()
     # check phase
     for block in initial_partition:
@@ -181,12 +184,11 @@ def parse_graph(graph, initial_partition):
         )
     # end
 
-    # create a list of ddllistnode to be filled later. for each Vertex there's only one record of type ddllistnode
-    vertexes_ddllistnode = [None for _ in range(len(graph.nodes))]
-
     # initially X contains only one block
-    initial_x_block = XBlock(0)
+    initial_x_block = XBlock()
     x_partition = [initial_x_block]
+
+    vertexes = [None for _ in range(len(graph.nodes))]
 
     # create the partition Q
     q_partition = []
@@ -196,13 +198,13 @@ def parse_graph(graph, initial_partition):
         qblock = QBlock([], initial_x_block)
 
         # create a new QBlock from the given initial_partition, and obtain a reference to dllistobject
-        qblock_ddllistnode = initial_x_block.append_qblock(qblock)
+        initial_x_block.append_qblock(qblock)
         for idx in block:
-            vertex = Vertex(idx)
-            vertex.qblock = qblock_ddllistnode
+            vertexes[idx] = Vertex(idx)
+            vertexes[idx].qblock = qblock
 
-            # append this vertex to the dllist in qblock, and obtain a UNIQUE reference to ddllistnode for this vertex
-            vertexes_ddllistnode[idx] = qblock.append_vertex(vertex)
+            # append this vertex to the dllist in qblock
+            qblock.append_vertex(vertexes[idx])
 
         q_partition.append(qblock)
 
@@ -213,19 +215,19 @@ def parse_graph(graph, initial_partition):
     # a vertex should always refer to a ddllistnode, in order to help if fellows to be splitted (i.e. not obtain the error "dllistnode belongs to another list")
     for edge in graph.edges:
         # create an instance of my class Edge
-        my_edge = Edge(vertexes_ddllistnode[edge[0]], vertexes_ddllistnode[edge[1]])
+        my_edge = Edge(vertexes[edge[0]], vertexes[edge[1]])
 
         # if this is the first outgoing edge for the vertex edge[0], we need to create a new Count instance
         if not vertex_count[edge[0]]:
-            vertex_count[edge[0]] = Count(my_edge.source.value, initial_x_block)
+            vertex_count[edge[0]] = Count(my_edge.source, initial_x_block)
 
         my_edge.count = vertex_count[edge[0]]
         my_edge.count.value += 1
 
-        my_edge.source.value.add_to_image(my_edge)
-        my_edge.destination.value.add_to_counterimage(my_edge)
+        my_edge.source.add_to_image(my_edge)
+        my_edge.destination.add_to_counterimage(my_edge)
 
-    return (q_partition, vertexes_ddllistnode)
+    return (q_partition, vertexes)
 
 
 # choose the smallest qblock of the first two
@@ -248,47 +250,47 @@ def build_block_counterimage(B_qblock: QBlock) -> list[dllistnode]:
             counterimage_vertex = edge.source
 
             # this vertex should be added to the counterimage only if necessary (avoid duplicates)
-            if not counterimage_vertex.value.visited:
+            if not counterimage_vertex.visited:
                 qblock_counterimage.append(counterimage_vertex)
                 # remember to release this vertex
-                counterimage_vertex.value.visit()
+                counterimage_vertex.visit()
 
             # if this is the first time we found a destination in qblock for whom this node is a source, create a new instance of Count
             # remember to set it to None
-            if not counterimage_vertex.value.aux_count:
-                counterimage_vertex.value.aux_count = Count(
-                    counterimage_vertex.value, B_qblock
-                )
-            counterimage_vertex.value.aux_count.value += 1
+            if not counterimage_vertex.aux_count:
+                counterimage_vertex.aux_count = Count(counterimage_vertex, B_qblock)
+            counterimage_vertex.aux_count.value += 1
 
     for vertex in qblock_counterimage:
         # release this vertex so that it can be visited again in a next splitting phase
-        vertex.value.release()
+        vertex.release()
 
     return qblock_counterimage
 
 
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the XBlock which contained the QBlock B.
-def build_second_splitter(B_qblock_vertexes: list[Vertex]) -> list[dllistnode]:
-    splitter = []
+def build_second_splitter_counterimage(
+    B_qblock_vertexes: list[Vertex],
+) -> list[dllistnode]:
+    splitter_counterimage = []
 
     for vertex in B_qblock_vertexes:
         for edge in vertex.counterimage:
-            if not edge.source.value.in_second_splitter:
+            if not edge.source.in_second_splitter:
                 # determine count(vertex,B) = |B \cap E({vertex})|
-                count_B = edge.source.value.aux_count
+                count_B = edge.source.aux_count
 
                 # determine count(vertex,S) = |S \cap E({vertex})|
                 count_S = edge.count
 
                 if count_B.value == count_S.value:
-                    splitter.append(edge.source)
-                    edge.source.value.added_to_second_splitter()
+                    splitter_counterimage.append(edge.source)
+                    edge.source.added_to_second_splitter()
 
-    for vertex in splitter:
-        vertex.value.clear_second_splitter_flag()
+    for vertex in splitter_counterimage:
+        vertex.clear_second_splitter_flag()
 
-    return splitter
+    return splitter_counterimage
 
 
 # perform a Split with respect to B_qblock
@@ -298,37 +300,35 @@ def split(B_counterimage: list[dllistnode]):
 
     for vertex in B_counterimage:
         # determine the qblock to which vertex belongs to
-        qblock_ddllistnode = vertex.value.qblock
-        # for easier access, preserve a reference to the "plain" QBlock object
-        qblock_value = qblock_ddllistnode.value
+        qblock = vertex.qblock
 
         # remove vertex from this qblock, and place it in the "parallel" qblock
-        vertex_value = qblock_value.remove_vertex(vertex)
+        qblock.remove_vertex(vertex)
 
         # if this is the first time a vertex is splitted from this qblock, create the helper qblock
-        if not qblock_value.split_helper_block:
-            changed_qblocks.append(qblock_ddllistnode)
-            qblock_value.initialize_split_helper_block()
+        if not qblock.split_helper_block:
+            changed_qblocks.append(qblock)
+            qblock.initialize_split_helper_block()
 
-        # put the vertex in the new qblock and obtain a reference to the new ddllistnode
-        vertex_ddllistnode = qblock_value.split_helper_block.append_vertex(vertex_value)
+        new_qblock = qblock.split_helper_block
 
-    for qblock_ddllistnode in changed_qblocks:
-        qblock_value = qblock_ddllistnode.value
+        # put the vertex in the new qblock
+        new_qblock.append_vertex(vertex)
 
-        helper_block = qblock_value.split_helper_block
-        qblock_value.reset_helper_block()
+    for qblock in changed_qblocks:
+        helper_qblock = qblock.split_helper_block
+        qblock.reset_helper_block()
 
         # add the new qblock to the same xblock to which the old qblock belongs, and obtain its ddllistnode
-        helper_qblock_ddllistnode = qblock_value.xblock.qblocks.append(helper_block)
+        qblock.xblock.append_qblock(helper_qblock)
 
         # update the qblock attribute for its vertexes
-        for vertex in helper_block.vertexes:
-            vertex_value.qblock = helper_qblock_ddllistnode
+        for vertex in helper_qblock.vertexes:
+            vertex.qblock = helper_qblock
 
         # if the old qblock has been made empty by the split (Q - E^{-1}(B) = \emptysey), remove it from the xblock
-        if qblock_value.size == 0:
-            qblock_value.xblock.qblocks.remove(qblock_ddllistnode)
+        if qblock.size == 0:
+            qblock.xblock.remove_qblock(qblock)
 
 
 # be careful: you should only work with llist in order to get O(1) deletion from x/qblocks
@@ -339,39 +339,39 @@ def refine(compound_xblocks, xblocks):
     # extract a random compound xblock
     S_compound_xblock = compound_xblocks.pop()
     # select the right qblock from this compound xblock
+    # note that the dllistonodes in this list will most likely be outdated after the first split
     B_qblock = extract_splitter(S_compound_xblock)
-
-    # save a copy of the vertexes in B_qblock for the step 5
     B_qblock_vertexes = [vertex for vertex in B_qblock.vertexes]
 
     # step 2 (update X)
-    # if compound_xblock is still compund, put it back in compound_xblocks
+    # if S_compound_xblock is still compund, put it back in compound_xblocks
     if len(S_compound_xblock.qblocks) > 1:
         compound_xblocks.append(S_compound_xblock)
 
     # add the extracted qblock to xblocks
-    B_xblock = XBlock(len(xblocks))
+    B_xblock = XBlock()
     B_xblock.append_qblock(B_qblock)
 
     xblocks.append(B_xblock)
 
     # step 3 (compute E^{-1}(B))
-    B_counterimage_dllistobject = build_block_counterimage(B_qblock)
+    B_counterimage = build_block_counterimage(B_qblock)
 
     # step 4 (refine Q with respect to B)
-    split(B_counterimage_dllistobject)
+    split(B_counterimage)
 
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
     # note that, since we are employing the strategy proposed in the paper, we don't even need to pass the XBLock S
-    second_splitter = build_second_splitter(B_qblock_vertexes)
+    second_splitter_counterimage = build_second_splitter_counterimage(B_qblock_vertexes)
 
     # step 6
+    split(second_splitter_counterimage)
 
     # reset aux_count
     # we only care about the vertexes in B_counterimage since we only set aux_count for those vertexes x such that |E({x}) \cap B_qblock| > 0
-    for vertex_dllistobject in B_counterimage_dllistobject:
-        vertex_dllistobject.value.aux_count = None
+    for vertex in B_counterimage:
+        vertex.aux_count = None
 
 
 def pta(q_partition):
