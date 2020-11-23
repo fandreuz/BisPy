@@ -127,12 +127,10 @@ class XBlock:
         self.label = label
         self.qblocks = dllist([])
 
-    # make sure that qblock isn't a ddllistnode
-    def append_qblock(self, qblock):
+    def append_qblock(self, qblock: QBlock):
         return self.qblocks.append(qblock)
 
-    # make sure that qblock is a ddllistnode
-    def remove_qblock(self, qblock):
+    def remove_qblock(self, qblock: dllistnode):
         return self.qblocks.remove(qblock)
 
     def __str__(self):
