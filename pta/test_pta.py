@@ -157,16 +157,6 @@ def test_preprocess(graph, initial_partition):
             else:
                 assert leafs_count == 0
 
-
-@pytest.mark.parametrize("graph, initial_partition", test_data)
-def test_initialize_invalid_initial_partition(graph, initial_partition):
-    with pytest.raises(Exception):
-        (q_partition, _) = pta.initialize(graph, initial_partition)
-
-    with pytest.raises(Exception):
-        (q_partition, _) = pta.initialize(graph, initial_partition)
-
-
 @pytest.mark.parametrize("graph, initial_partition", test_data)
 def test_qpartition_initialize(graph, initial_partition):
     (q_partition, _) = pta.initialize(graph, initial_partition)
@@ -504,7 +494,7 @@ def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
 
     qblock_splitter = q_partition[0]
     block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.refine(xblocks, xblocks)
+    pta.refine(xblocks=xblocks, compound_xblocks=compound_xblocks)
 
     assert len(xblocks) == 2
 
