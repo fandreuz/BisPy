@@ -4,7 +4,36 @@ import pta
 from llist import dllist, dllistnode
 
 
-def test_parse_graph_invalid_initial_partition():
+def test_preprocess():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    vertexes = pta.parse_graph(graph)
+    processed_partition = pta.preprocess_initial_partition(vertexes, initial_partition)
+
+    # check if leafs and non-leafs aren't mixed
+    for block in processed_partition:
+        leafs_count = 0
+        for (idx, vertex_idx) in enumerate(block):
+            if len(vertexes[vertex_idx].image) == 0:
+                # fine
+                if idx == 0:
+                    leafs_count += 1
+                else:
+                    assert leafs_count != 0
+            else:
+                assert leafs_count == 0
+
+
+def test_initialize_invalid_initial_partition():
     with pytest.raises(Exception):
         graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
         initial_partition = set(
@@ -17,7 +46,7 @@ def test_parse_graph_invalid_initial_partition():
             ]
         )
 
-        (q_partition, _) = pta.parse_graph(graph, initial_partition)
+        (q_partition, _) = pta.initialize(graph, initial_partition)
 
     with pytest.raises(Exception):
         graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
@@ -30,10 +59,10 @@ def test_parse_graph_invalid_initial_partition():
             ]
         )
 
-        (q_partition, _) = pta.parse_graph(graph, initial_partition)
+        (q_partition, _) = pta.initialize(graph, initial_partition)
 
 
-def test_qpartition_parse_graph():
+def test_qpartition_initialize():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -45,7 +74,7 @@ def test_qpartition_parse_graph():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
 
     vertexes = set()
     for qblock in q_partition:
@@ -56,7 +85,7 @@ def test_qpartition_parse_graph():
     )
 
 
-def test_parse_right_types():
+def test_initialize_right_types():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -68,7 +97,7 @@ def test_parse_right_types():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
 
     for qblock in q_partition:
         assert isinstance(qblock.vertexes, dllist)
@@ -82,7 +111,7 @@ def test_parse_right_types():
             assert isinstance(vertex.qblock, pta.QBlock)
 
 
-def test_count_parse_graph():
+def test_count_initialize():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -94,14 +123,14 @@ def test_count_parse_graph():
         ]
     )
 
-    (_, vertexes) = pta.parse_graph(graph, initial_partition)
+    (_, vertexes) = pta.initialize(graph, initial_partition)
 
     for vertex in vertexes:
         for edge in vertex.image:
             assert edge.count.value == len(vertex.image)
 
 
-def test_vertex_image_parse_graph():
+def test_vertex_image_initialize():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -113,7 +142,7 @@ def test_vertex_image_parse_graph():
         ]
     )
 
-    (q_partition, vertexes) = pta.parse_graph(graph, initial_partition)
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
 
     right_image = [set() for node in graph.nodes]
     for edge in graph.edges:
@@ -125,8 +154,8 @@ def test_vertex_image_parse_graph():
             assert vertex_image == right_image[vertex.label]
 
 
-# test if parse_graph computed the vertexes counterimages properly
-def test_vertex_counterimage_parse_graph():
+# test if initialize computed the vertexes counterimages properly
+def test_vertex_counterimage_initialize():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -138,7 +167,7 @@ def test_vertex_counterimage_parse_graph():
         ]
     )
 
-    (q_partition, vertexes) = pta.parse_graph(graph, initial_partition)
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
 
     right_counterimage = [set() for node in graph.nodes]
     for edge in graph.edges:
@@ -184,24 +213,22 @@ def test_build_block_counterimage():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
 
-    for chosen_index in range(4):
-        chosen_qblock_frozenset = list(initial_partition)[chosen_index]
-
+    for qblock in q_partition:
         def extract_vertex_label(llistobject):
             return llistobject.label
 
         block_counterimage = set(
-            map(
-                extract_vertex_label,
-                pta.build_block_counterimage(q_partition[chosen_index]),
-            )
+            [
+                vertex.label
+                for vertex in pta.build_block_counterimage(qblock)
+            ]
         )
 
         right_block_counterimage = set()
         for edge in graph.edges:
-            if edge[1] in chosen_qblock_frozenset:
+            if edge[1] in list(map(lambda vertex: vertex.label, qblock.vertexes)):
                 right_block_counterimage.add(edge[0])
 
         assert right_block_counterimage == block_counterimage
@@ -219,16 +246,16 @@ def test_build_block_counterimage_aux_count():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
 
     for chosen_index in range(4):
-        chosen_qblock_frozenset = list(initial_partition)[chosen_index]
+        qblock = q_partition[chosen_index]
 
-        block_counterimage = pta.build_block_counterimage(q_partition[chosen_index])
+        block_counterimage = pta.build_block_counterimage(qblock)
 
         right_count = [0 for vertex in block_counterimage]
         for edge in graph.edges:
-            if edge[1] in chosen_qblock_frozenset:
+            if edge[1] in list(map(lambda vertex: vertex.label, qblock.vertexes)):
                 # update the count for edge[0]
                 for idx in range(len(block_counterimage)):
                     if block_counterimage[idx].label == edge[0]:
@@ -255,7 +282,7 @@ def test_vertex_taken_from_right_list():
             ]
         )
 
-        (q_partition, _) = pta.parse_graph(graph, initial_partition)
+        (q_partition, _) = pta.initialize(graph, initial_partition)
 
         block_counterimage = pta.build_block_counterimage(q_partition[0])
 
@@ -280,7 +307,7 @@ def test_can_remove_any_vertex_from_its_list():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
 
     for qblock in q_partition:
         vertex = qblock.vertexes.first
@@ -301,7 +328,7 @@ def test_can_remove_any_vertex_from_its_list():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
     block_counterimage = pta.build_block_counterimage(q_partition[0])
 
     for qblock in q_partition:
@@ -323,7 +350,7 @@ def test_can_remove_any_vertex_from_its_list():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
     block_counterimage = pta.build_block_counterimage(q_partition[0])
     pta.split(block_counterimage)
 
@@ -405,7 +432,7 @@ def test_split():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, _) = pta.initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -434,47 +461,6 @@ def test_split():
 
 # second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
 def test_second_splitter_counterimage():
-    graph = nx.DiGraph()
-    graph.add_nodes_from([label for label in range(6)])
-    graph.add_edges_from([(0, 4), (2, 1), (3, 2), (4, 2), (5, 4)])
-
-    initial_partition = set([frozenset([0, 3, 4]), frozenset([1, 2]), frozenset([5])])
-
-    (q_partition, vertexes_dllistobejct) = pta.parse_graph(graph, initial_partition)
-
-    xblock = q_partition[0].xblock
-    qblock_splitter = q_partition[0]
-
-    # compute S-B
-    xblock_leftover_vertexes = []
-    for idx in range(1, len(initial_partition)):
-        xblock_leftover_vertexes.extend(
-            [vertex for vertex in xblock.qblocks[idx].vertexes]
-        )
-    xblock_leftover_as_qblock = pta.QBlock(xblock_leftover_vertexes, xblock)
-
-    # compute E^{-1}(S-B)
-    xblock_leftover_counterimage = pta.build_block_counterimage(
-        xblock_leftover_as_qblock
-    )
-
-    # we need to reset the aux_counts, since only one build_block_counterimage is expected
-    for vertex in xblock_leftover_counterimage:
-        vertex.aux_count = None
-
-    # compute E^{-1}(B)
-    # we compute E^{-1}(B) after E^{-1}(S-B) because the computation of E^{-1}(S-B) overwrites the aux_counts, therefore build_second_splitter doesn't work properly
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-
-    second_splitter_counterimage = pta.build_second_splitter_counterimage(
-        [vertex for vertex in qblock_splitter.vertexes]
-    )
-    assert set(second_splitter_counterimage) == set(block_counterimage) - set(
-        xblock_leftover_counterimage
-    )
-
-
-def test_second_split():
     graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
@@ -486,7 +472,52 @@ def test_second_split():
         ]
     )
 
-    (q_partition, _) = pta.parse_graph(graph, initial_partition)
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+
+    xblock = q_partition[0].xblock
+    qblock_splitter = q_partition[0]
+
+    # qblock_splitter may be modified by split, therefore we need to keep a copy
+    splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
+
+    block_counterimage = pta.build_block_counterimage(qblock_splitter)
+    pta.split(block_counterimage)
+
+    # compute S - B
+    second_splitter_s_minus_b_vertexes = list(
+        filter(lambda vertex: vertex not in splitter_vertexes, vertexes)
+    )
+
+    # use the pta function to compute E^{-1}(B) - E^{-1}(S-B)
+    second_splitter_counterimage = pta.build_second_splitter_counterimage(
+        splitter_vertexes
+    )
+
+    for vertex in second_splitter_counterimage:
+        assert vertex in block_counterimage and not any(
+            map(lambda edge: edge in second_splitter_s_minus_b_vertexes, vertex.image)
+        )
+
+
+def test_second_split():
+    """graph = nx.erdos_renyi_graph(4, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )"""
+
+    graph = nx.DiGraph()
+    graph.add_nodes_from([0, 1, 2, 3])
+    graph.add_edges_from([(0, 2), (1, 3), (3, 0), (3, 1)])
+
+    initial_partition = set([frozenset([0, 3]), frozenset([1, 2])])
+
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -497,16 +528,21 @@ def test_second_split():
     block_counterimage = pta.build_block_counterimage(qblock_splitter)
     pta.split(block_counterimage)
 
+    second_splitter_vertexes = list(
+        filter(lambda vertex: vertex not in splitter_vertexes, vertexes)
+    )
+    # E^{-1}(B) - E^{-1}(S-B)
     second_splitter_counterimage = pta.build_second_splitter_counterimage(
         splitter_vertexes
     )
 
-    # step 6
     pta.split(second_splitter_counterimage)
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
-        pass
+        assert pta.check_block_stability(
+            [vertex for vertex in qblock.vertexes], second_splitter_vertexes
+        )
 
 
 # a refinement step should increase by one the number of xblocks
@@ -522,7 +558,7 @@ def test_increase_n_of_xblocks_after_refinement():
         ]
     )
 
-    (q_partition, vertexes_dllistobejct) = pta.parse_graph(graph, initial_partition)
+    (q_partition, vertexes_dllistobejct) = pta.initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -548,12 +584,9 @@ def test_reset_aux_count_after_refinement():
         ]
     )
 
-    (q_partition, vertexes) = pta.parse_graph(graph, initial_partition)
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
-
-    qblock_splitter = q_partition[0]
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
     pta.refine([xblock], [xblock])
 
     for vertex in vertexes:

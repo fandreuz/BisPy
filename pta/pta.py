@@ -165,48 +165,8 @@ def check_block_stability(
     return all(is_inside_B) or not any(is_inside_B)
 
 
-# this also returns a list of dllistobject representing the vertexes in the graph
-def parse_graph(graph, initial_partition: set):
-    union = set()
-    # check phase
-    for block in initial_partition:
-        old_length = len(union)
-        union = union.union(block)
-
-        if old_length + len(block) != len(union):
-            raise Exception(
-                "there shouldn't be overlapse within blocks of initial_partition"
-            )
-
-    if len(union) != len(graph.nodes):
-        raise Exception(
-            "initial_partition should contain every vertex in one (and only one) block"
-        )
-    # end
-
-    # initially X contains only one block
-    initial_x_block = XBlock()
-    x_partition = [initial_x_block]
-
-    vertexes = [None for _ in range(len(graph.nodes))]
-
-    # create the partition Q
-    q_partition = []
-    # create the blocks of partition Q using the initial_partition
-    for block in initial_partition:
-        # QBlocks are initially created empty in order to obtain a reference to dllistnode for vertexes and avoid a double visit of vertexes
-        qblock = QBlock([], initial_x_block)
-
-        # create a new QBlock from the given initial_partition, and obtain a reference to dllistobject
-        initial_x_block.append_qblock(qblock)
-        for idx in block:
-            vertexes[idx] = Vertex(idx)
-            vertexes[idx].qblock = qblock
-
-            # append this vertex to the dllist in qblock
-            qblock.append_vertex(vertexes[idx])
-
-        q_partition.append(qblock)
+def parse_graph(graph):
+    vertexes = [Vertex(idx) for idx in range(len(graph.nodes))]
 
     # holds the references to Count objects to assign to the edges (this is OK because we can consider |V| = O(|E|))
     # count(x) = count(x,V) = |V \cap E({x})| = |E({x})|
@@ -219,7 +179,8 @@ def parse_graph(graph, initial_partition: set):
 
         # if this is the first outgoing edge for the vertex edge[0], we need to create a new Count instance
         if not vertex_count[edge[0]]:
-            vertex_count[edge[0]] = Count(my_edge.source, initial_x_block)
+            # in this case None represents the intitial XBlock, namely the whole V
+            vertex_count[edge[0]] = Count(my_edge.source, None)
 
         my_edge.count = vertex_count[edge[0]]
         my_edge.count.value += 1
@@ -227,7 +188,79 @@ def parse_graph(graph, initial_partition: set):
         my_edge.source.add_to_image(my_edge)
         my_edge.destination.add_to_counterimage(my_edge)
 
-    return (q_partition, vertexes)
+    return vertexes
+
+
+# this is a FUNDAMENTAL part of the algorithm: we need a stable initial partition with respect to the set V, but a partition where leafs and non-leafs are in the same block can't be stable
+def preprocess_initial_partition(vertexes, initial_partition):
+    new_partition = []
+    for block in initial_partition:
+        leafs = []
+        non_leafs = []
+
+        for vertex_idx in block:
+            if len(vertexes[vertex_idx].image) == 0:
+                leafs.append(vertex_idx)
+            else:
+                non_leafs.append(vertex_idx)
+
+        # if at least one is zero, this block is OK
+        if len(leafs) * len(non_leafs) == 0:
+            new_partition.append(block)
+        else:
+            new_partition.extend([leafs, non_leafs])
+
+    return new_partition
+
+
+# this also returns a list of dllistobject representing the vertexes in the graph
+def build_qpartition(vertexes, initial_partition: set):
+    union = set()
+    # check phase
+    for block in initial_partition:
+        old_length = len(union)
+        union = union.union(block)
+
+        if old_length + len(block) != len(union):
+            raise Exception(
+                "there shouldn't be overlapse within blocks of initial_partition"
+            )
+
+    if len(union) != len(vertexes):
+        raise Exception(
+            "initial_partition should contain every vertex in one (and only one) block"
+        )
+    # end
+
+    # initially X contains only one block
+    initial_x_block = XBlock()
+    x_partition = [initial_x_block]
+
+    # create the partition Q
+    q_partition = []
+    # create the blocks of partition Q using the initial_partition
+    for block in initial_partition:
+        # QBlocks are initially created empty in order to obtain a reference to dllistnode for vertexes and avoid a double visit of vertexes
+        qblock = QBlock([], initial_x_block)
+
+        # create a new QBlock from the given initial_partition, and obtain a reference to dllistobject
+        initial_x_block.append_qblock(qblock)
+        for idx in block:
+            vertexes[idx] = vertexes[idx]
+            vertexes[idx].qblock = qblock
+
+            # append this vertex to the dllist in qblock
+            qblock.append_vertex(vertexes[idx])
+
+        q_partition.append(qblock)
+
+    return q_partition
+
+
+def initialize(graph, initial_partition):
+    vertexes = parse_graph(graph)
+    processed_partition = preprocess_initial_partition(vertexes, initial_partition)
+    return (build_qpartition(vertexes, processed_partition), vertexes)
 
 
 # choose the smallest qblock of the first two
@@ -242,7 +275,7 @@ def extract_splitter(compound_block: XBlock):
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
 # remember to reset the value of aux_count after the refinement
-def build_block_counterimage(B_qblock: QBlock) -> list[dllistnode]:
+def build_block_counterimage(B_qblock: QBlock) -> list[Vertex]:
     qblock_counterimage = []
 
     for vertex in B_qblock.vertexes:
@@ -269,9 +302,10 @@ def build_block_counterimage(B_qblock: QBlock) -> list[dllistnode]:
 
 
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the XBlock which contained the QBlock B.
+# in order to get the right result, you need to run the method build_splitter_counterimage before, which sets aux_count
 def build_second_splitter_counterimage(
     B_qblock_vertexes: list[Vertex],
-) -> list[dllistnode]:
+) -> list[Vertex]:
     splitter_counterimage = []
 
     for vertex in B_qblock_vertexes:
@@ -294,7 +328,7 @@ def build_second_splitter_counterimage(
 
 
 # perform a Split with respect to B_qblock
-def split(B_counterimage: list[dllistnode]):
+def split(B_counterimage: list[Vertex]):
     # keep track of the qblocks modified during step 4
     changed_qblocks = []
 
