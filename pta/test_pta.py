@@ -626,7 +626,7 @@ def test_no_negative_edge_counts():
 
     for vertex in vertexes:
         for edge in vertex.image:
-            assert edge.count == None or edge.count.value > 0 or edge.count == vertex.aux_count
+            assert edge.count == None or edge.count.value >= 0
 
 def test_pta():
     graph = nx.DiGraph()
