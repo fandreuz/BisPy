@@ -428,6 +428,7 @@ def refine(compound_xblocks, xblocks):
 
     return (xblocks, new_qblocks)
 
+# returns a list of labels splitted in partitions
 def pta(q_partition: list[QBlock]):
     x_partition = [q_partition[0].xblock]
     compound_xblocks = [x_partition[0]]
@@ -436,6 +437,6 @@ def pta(q_partition: list[QBlock]):
         x_partition, new_qblocks = refine(compound_xblocks, x_partition)
         q_partition.extend(new_qblocks)
 
-    print(list(filter(lambda qblock: qblock.size > 0, q_partition)))
+    return [tuple(map(lambda vertex: vertex.label, qblock.vertexes)) for qblock in filter(lambda qblock: qblock.size > 0, q_partition)]
 
 # TODO: rimpiazza set con list perchè set controlla i duplicati ==> add non è O(1)
