@@ -2,3 +2,4 @@
 
 # Bisimulation-Algorithms
 The Python3 implementation of several algorithms for the computation of the maximum bisimulation of a graph
+
