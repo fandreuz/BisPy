@@ -500,7 +500,7 @@ def test_second_splitter_counterimage():
 
 
 def test_second_split():
-    """graph = nx.erdos_renyi_graph(4, 0.15, directed=True)
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
     initial_partition = set(
         [
             frozenset([0, 3, 4]),
@@ -509,13 +509,7 @@ def test_second_split():
             frozenset([7]),
             frozenset([6]),
         ]
-    )"""
-
-    graph = nx.DiGraph()
-    graph.add_nodes_from([0, 1, 2, 3])
-    graph.add_edges_from([(0, 2), (1, 3), (3, 0), (3, 1)])
-
-    initial_partition = set([frozenset([0, 3]), frozenset([1, 2])])
+    )
 
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
 
