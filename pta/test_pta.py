@@ -4,7 +4,6 @@ import pta
 from llist import dllist, dllistnode
 import test_cases
 
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_preprocess(graph, initial_partition):
     vertexes = pta.parse_graph(graph)
@@ -23,7 +22,6 @@ def test_preprocess(graph, initial_partition):
             else:
                 assert leafs_count == 0
 
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_qpartition_initialize(graph, initial_partition):
     (q_partition, _) = pta.initialize(graph, initial_partition)
@@ -35,7 +33,6 @@ def test_qpartition_initialize(graph, initial_partition):
     assert set(map(lambda vertex: vertex.label, vertexes)) == set(
         [idx for idx, _ in enumerate(graph.nodes)]
     )
-
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_initialize_right_types(graph, initial_partition):
@@ -52,7 +49,6 @@ def test_initialize_right_types(graph, initial_partition):
                 assert isinstance(v, pta.Edge)
             assert isinstance(vertex.qblock, pta.QBlock)
 
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_count_initialize(graph, initial_partition):
     (_, vertexes) = pta.initialize(graph, initial_partition)
@@ -60,7 +56,6 @@ def test_count_initialize(graph, initial_partition):
     for vertex in vertexes:
         for edge in vertex.image:
             assert edge.count.value == len(vertex.image)
-
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_image_initialize(graph, initial_partition):
@@ -114,7 +109,6 @@ def test_choose_qblock():
         compoundblock_qblocks.add(compoundblock.qblocks.nodeat(i).value)
     assert compoundblock_qblocks == set([qblocks[0], qblocks[2]])
 
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage(graph, initial_partition):
     (q_partition, _) = pta.initialize(graph, initial_partition)
@@ -133,8 +127,7 @@ def test_build_block_counterimage(graph, initial_partition):
                 right_block_counterimage.add(edge[0])
 
         assert right_block_counterimage == block_counterimage
-
-
+        
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage_aux_count(graph, initial_partition):
     (q_partition, _) = pta.initialize(graph, initial_partition)
@@ -244,8 +237,7 @@ def test_check_block_stability():
         [vertex for vertex in A_block.vertexes],
         [vertex for vertex in B_block.vertexes],
     )
-
-
+    
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split(graph, initial_partition):
     (q_partition, _) = pta.initialize(graph, initial_partition)
@@ -319,7 +311,6 @@ def test_second_splitter_counterimage(graph, initial_partition):
             map(lambda edge: edge in second_splitter_s_minus_b_vertexes, vertex.image)
         )
 
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_second_split(graph, initial_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
@@ -366,7 +357,6 @@ def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
 
     assert len(xblocks) == 2
 
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_reset_aux_count_after_refinement(graph, initial_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
@@ -376,7 +366,6 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
 
     for vertex in vertexes:
         assert vertex.aux_count == None
-
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_no_negative_edge_counts(graph, initial_partition):
@@ -388,7 +377,6 @@ def test_no_negative_edge_counts(graph, initial_partition):
     for vertex in vertexes:
         for edge in vertex.image:
             assert edge.count == None or edge.count.value >= 0
-
 
 @pytest.mark.parametrize(
     "graph, initial_partition, expected_q_partition",
