@@ -76,10 +76,10 @@ class Edge:
         return not self.__eq__(other)
 
     def __str__(self):
-        return "<{}, {}>".format(self.source, self.destination)
+        return "<{},{}>".format(self.source, self.destination)
 
     def __repr__(self):
-        return "<{}, {}>".format(self.source, self.destination)
+        return "<{},{}>".format(self.source, self.destination)
 
 
 class QBlock:
@@ -98,11 +98,13 @@ class QBlock:
     def append_vertex(self, vertex: Vertex):
         self.size += 1
         vertex.dllistnode = self.vertexes.append(vertex)
+        vertex.qblock = self
 
     # throws an error if the vertex isn't inside this qblock
     def remove_vertex(self, vertex: Vertex):
         self.size -= 1
         self.vertexes.remove(vertex.dllistnode)
+        vertex.qblock = None
 
     def initialize_split_helper_block(self):
         self.split_helper_block = QBlock([], self.xblock)
@@ -111,10 +113,10 @@ class QBlock:
         self.split_helper_block = None
 
     def __str__(self):
-        return "({})".format(",".join([str(vertex) for vertex in self.vertexes]))
+        return "Q({})".format(",".join([str(vertex) for vertex in self.vertexes]))
 
     def __repr__(self):
-        return "({})".format(",".join([str(vertex) for vertex in self.vertexes]))
+        return "Q({})".format(",".join([str(vertex) for vertex in self.vertexes]))
 
 
 class XBlock:
@@ -123,15 +125,17 @@ class XBlock:
 
     def append_qblock(self, qblock: QBlock):
         qblock.dllistnode = self.qblocks.append(qblock)
+        qblock.xblock = self
 
     def remove_qblock(self, qblock: QBlock):
         self.qblocks.remove(qblock.dllistnode)
+        qblock.xblock = None
 
     def __str__(self):
-        return "/[{}]\\".format(",".join([str(qblock) for qblock in self.qblocks]))
+        return "X[{}]".format(",".join([str(qblock) for qblock in self.qblocks]))
 
     def __repr__(self):
-        return "/[{}]\\".format(",".join([str(qblock) for qblock in self.qblocks]))
+        return "X[{}]".format(",".join([str(qblock) for qblock in self.qblocks]))
 
 
 # holds the value of count(vertex,XBlock) = |XBlock \cap E({vertex})|
@@ -213,7 +217,6 @@ def preprocess_initial_partition(vertexes, initial_partition):
     return new_partition
 
 
-# this also returns a list of dllistobject representing the vertexes in the graph
 def build_qpartition(vertexes, initial_partition: set):
     union = set()
     # check phase
@@ -247,7 +250,6 @@ def build_qpartition(vertexes, initial_partition: set):
         initial_x_block.append_qblock(qblock)
         for idx in block:
             vertexes[idx] = vertexes[idx]
-            vertexes[idx].qblock = qblock
 
             # append this vertex to the dllist in qblock
             qblock.append_vertex(vertexes[idx])
@@ -267,9 +269,12 @@ def initialize(graph, initial_partition):
 def extract_splitter(compound_block: XBlock):
     first_qblock = compound_block.qblocks.first
     if first_qblock.value.size <= first_qblock.next.value.size:
-        return compound_block.qblocks.popleft()
+        compound_block.remove_qblock(first_qblock.value)
+        return first_qblock.value
     else:
-        return compound_block.qblocks.remove(first_qblock.next)
+        qblock = first_qblock.next.value
+        compound_block.remove_qblock(qblock)
+        return qblock
 
 
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
@@ -349,25 +354,36 @@ def split(B_counterimage: list[Vertex]):
         # put the vertex in the new qblock
         new_qblock.append_vertex(vertex)
 
+    new_qblocks = []
     for qblock in changed_qblocks:
         helper_qblock = qblock.split_helper_block
         qblock.reset_helper_block()
 
         # add the new qblock to the same xblock to which the old qblock belongs, and obtain its ddllistnode
         qblock.xblock.append_qblock(helper_qblock)
-
-        # update the qblock attribute for its vertexes
-        for vertex in helper_qblock.vertexes:
-            vertex.qblock = helper_qblock
+        new_qblocks.append(helper_qblock)
 
         # if the old qblock has been made empty by the split (Q - E^{-1}(B) = \emptysey), remove it from the xblock
         if qblock.size == 0:
             qblock.xblock.remove_qblock(qblock)
 
+    return new_qblocks
+
+def update_counts(B_block_vertexes: list[Vertex]):
+    for vertex in B_block_vertexes:
+        for edge in vertex.counterimage:
+            edge.count.value -= 1
+
+            # if count(x,S) becomes zero, we point edge.count to count(x,B)
+            if edge.count.value == 0:
+                edge.count = edge.source.aux_count
+
 
 # be careful: you should only work with llist in order to get O(1) deletion from x/qblocks
 def refine(compound_xblocks, xblocks):
     # refinement step (following the steps at page 10 of "Three partition refinement algorithms")
+
+    new_qblocks = []
 
     # step 1 (select a refining block B)
     # extract a random compound xblock
@@ -392,7 +408,7 @@ def refine(compound_xblocks, xblocks):
     B_counterimage = build_block_counterimage(B_qblock)
 
     # step 4 (refine Q with respect to B)
-    split(B_counterimage)
+    new_qblocks.extend(split(B_counterimage))
 
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
@@ -400,17 +416,26 @@ def refine(compound_xblocks, xblocks):
     second_splitter_counterimage = build_second_splitter_counterimage(B_qblock_vertexes)
 
     # step 6
-    split(second_splitter_counterimage)
+    new_qblocks.extend(split(second_splitter_counterimage))
+
+    # step 7
+    update_counts(B_counterimage)
 
     # reset aux_count
     # we only care about the vertexes in B_counterimage since we only set aux_count for those vertexes x such that |E({x}) \cap B_qblock| > 0
     for vertex in B_counterimage:
         vertex.aux_count = None
 
+    return (xblocks, new_qblocks)
 
-def pta(q_partition):
-    compound_xblocks = set()
-    xblocks = set()
+def pta(q_partition: list[QBlock]):
+    x_partition = [q_partition[0].xblock]
+    compound_xblocks = [x_partition[0]]
 
+    while len(compound_xblocks) > 0:
+        x_partition, new_qblocks = refine(compound_xblocks, x_partition)
+        q_partition.extend(new_qblocks)
+
+    print(list(filter(lambda qblock: qblock.size > 0, q_partition)))
 
 # TODO: rimpiazza set con list perchè set controlla i duplicati ==> add non è O(1)

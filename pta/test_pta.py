@@ -458,6 +458,27 @@ def test_split():
         for vertex in qblock.vertexes:
             assert vertex.qblock == qblock
 
+# check if the new blocks are in the right xblock after a call to split
+def test_split_helper_block_right_xblock():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    new_blocks = pta.split(vertexes[3:7])
+
+    for new_block in new_blocks:
+        assert any([qblock == new_block for qblock in new_block.xblock.qblocks])
+
+    for old_block in q_partition:
+        assert old_block.size == 0 or any([qblock == old_block for qblock in old_block.xblock.qblocks])
 
 # second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
 def test_second_splitter_counterimage():
@@ -585,3 +606,41 @@ def test_reset_aux_count_after_refinement():
 
     for vertex in vertexes:
         assert vertex.aux_count == None
+
+def test_no_negative_edge_counts():
+    graph = nx.erdos_renyi_graph(10, 0.15, directed=True)
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1, 2, 9]),
+            frozenset([8, 5]),
+            frozenset([7]),
+            frozenset([6]),
+        ]
+    )
+
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+
+    xblock = q_partition[0].xblock
+    pta.refine([xblock], [xblock])
+
+    for vertex in vertexes:
+        for edge in vertex.image:
+            assert edge.count == None or edge.count.value > 0 or edge.count == vertex.aux_count
+
+def test_pta():
+    graph = nx.DiGraph()
+    graph.add_nodes_from([i for i in range(5)])
+    graph.add_edges_from([(0, 1), (0, 3), (1, 3), (3, 4), (3, 3)])
+
+    initial_partition = set(
+        [
+            frozenset([0, 3, 4]),
+            frozenset([1]),
+            frozenset([2])
+        ]
+    )
+
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+
+    pta.pta(q_partition)
