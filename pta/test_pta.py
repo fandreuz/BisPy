@@ -271,7 +271,7 @@ def test_split(graph, initial_partition):
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split_helper_block_right_xblock(graph, initial_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
-    new_blocks = pta.split(vertexes[3:7])
+    (new_blocks, _) = pta.split(vertexes[3:7])
 
     for new_block in new_blocks:
         assert any([qblock == new_block for qblock in new_block.xblock.qblocks])
@@ -367,6 +367,37 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
     for vertex in vertexes:
         assert vertex.aux_count == None
 
+<<<<<<< HEAD
+def test_count_after_refinement():
+    graph = test_cases.create_graph([(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)])
+    graph, initial_partition = test_cases.create_graph_partition_tuple(graph)
+
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+
+    xblock = q_partition[0].xblock
+    xblocks = [xblock]
+
+    pta.refine(xblocks=xblocks, compound_xblocks=[xblock])
+
+    ok_count = [[0 for _ in vertexes] for _ in xblocks]
+    for (xblock_idx, xblock) in enumerate(xblocks):
+        for qblock in xblock.qblocks:
+            for vertex in qblock.vertexes:
+                for source in [edge.source for edge in vertex.counterimage]:
+                    ok_count[xblock_idx][source.label] += 1
+
+    def xblock_index(xblock):
+        for idx in range(len(xblocks)):
+            if xblocks[idx] == xblock:
+                return idx
+
+    for vertex in vertexes:
+        for edge in vertex.image:
+            assert ok_count[xblock_index(edge.destination.qblock.xblock)][vertex.label] == edge.count.value
+
+
+=======
+>>>>>>> 9713143b9146aa0775b1491db0f228ab7fcd3652
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_no_negative_edge_counts(graph, initial_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
@@ -376,13 +407,41 @@ def test_no_negative_edge_counts(graph, initial_partition):
 
     for vertex in vertexes:
         for edge in vertex.image:
-            assert edge.count == None or edge.count.value >= 0
+            assert edge.count == None or edge.count.value > 0
 
+@pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
+def test_refine_updates_compound_xblocks(graph, initial_partition):
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+
+    x_partition = [q_partition[0].xblock]
+    compound_xblocks = [x_partition[0]]
+
+    pta.refine(compound_xblocks=compound_xblocks, xblocks=x_partition)
+
+    for xblock in x_partition:
+        if len(xblock.qblocks) > 1:
+            assert xblock in compound_xblocks
+
+@pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
+def test_pta_result_is_stable_partition(graph, initial_partition):
+    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    result = pta.pta(q_partition)
+
+<<<<<<< HEAD
+    for block in result:
+        for block2 in result:
+            assert pta.check_block_stability(
+                list(map(lambda block_idx: vertexes[block_idx], block)),
+                list(map(lambda block_idx: vertexes[block_idx], block2))
+            )
+
+=======
+>>>>>>> 9713143b9146aa0775b1491db0f228ab7fcd3652
 @pytest.mark.parametrize(
     "graph, initial_partition, expected_q_partition",
     test_cases.graph_partition_rscp_tuples,
 )
-def test_pta(graph, initial_partition, expected_q_partition):
+def test_pta_correctness(graph, initial_partition, expected_q_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
     rscp = pta.pta(q_partition)
     rscp = [tuple(sorted(tp)) for tp in rscp]

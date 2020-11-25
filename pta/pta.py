@@ -146,6 +146,12 @@ class Count:
 
         self.value = 0
 
+    def __str__(self):
+        return "C{}:{}".format(self.vertex, self.label)
+
+    def __repr__(self):
+        return "C{}:{}".format(self.vertex, self.label)
+
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
 def is_stable_partition(q_partition: list[QBlock], qblock: QBlock = None):
@@ -336,6 +342,8 @@ def build_second_splitter_counterimage(
 def split(B_counterimage: list[Vertex]):
     # keep track of the qblocks modified during step 4
     changed_qblocks = []
+    # if a split splits a QBlock in two non-empty QBlocks, then the XBlock which contains them is for sure compound. We need to check if it's already compound though.
+    new_compound_xblocks = []
 
     for vertex in B_counterimage:
         # determine the qblock to which vertex belongs to
@@ -366,17 +374,25 @@ def split(B_counterimage: list[Vertex]):
         # if the old qblock has been made empty by the split (Q - E^{-1}(B) = \emptysey), remove it from the xblock
         if qblock.size == 0:
             qblock.xblock.remove_qblock(qblock)
+        else:
+            # the XBlock which contains the two splitted QBlocks is a NEW compound block only if its size is exactly two
+            # NOTE: it's essential that helper_block is added to xblock only in this loop, because otherwise the size of a new compound block can't be forecasted precisely
+            if qblock.xblock.qblocks.size == 2:
+                new_compound_xblocks.append(qblock.xblock)
 
-    return new_qblocks
+    return (new_qblocks, new_compound_xblocks)
 
+
+# each edge a->b should point to |X(b) \cap E({a})| where X(b) is the XBlock b belongs to. Note that B_block is a new XBlock at the end of refine. We decrement the count for the edge because B isn't in S anymore (S was replaced with B, S-B indeed).
 def update_counts(B_block_vertexes: list[Vertex]):
     for vertex in B_block_vertexes:
+        # edge.destination is inside B now. We must decrement count(edge.source, S) by for each vertex y \in B such that edge.source -> y
         for edge in vertex.counterimage:
+            # decrement count(x,S) since we removed B from S
             edge.count.value -= 1
 
-            # if count(x,S) becomes zero, we point edge.count to count(x,B)
-            if edge.count.value == 0:
-                edge.count = edge.source.aux_count
+            # set edge.count to count(x,B)
+            edge.count = edge.source.aux_count
 
 
 # be careful: you should only work with llist in order to get O(1) deletion from x/qblocks
@@ -408,7 +424,9 @@ def refine(compound_xblocks, xblocks):
     B_counterimage = build_block_counterimage(B_qblock)
 
     # step 4 (refine Q with respect to B)
-    new_qblocks.extend(split(B_counterimage))
+    new_qblocks_from_split1, new_compound_xblocks = split(B_counterimage)
+    new_qblocks.extend(new_qblocks_from_split1)
+    compound_xblocks.extend(new_compound_xblocks)
 
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
@@ -416,10 +434,12 @@ def refine(compound_xblocks, xblocks):
     second_splitter_counterimage = build_second_splitter_counterimage(B_qblock_vertexes)
 
     # step 6
-    new_qblocks.extend(split(second_splitter_counterimage))
+    new_qblocks_from_split2, new_compound_xblocks = split(second_splitter_counterimage)
+    new_qblocks.extend(new_qblocks_from_split2)
+    compound_xblocks.extend(new_compound_xblocks)
 
     # step 7
-    update_counts(B_counterimage)
+    update_counts(B_qblock_vertexes)
 
     # reset aux_count
     # we only care about the vertexes in B_counterimage since we only set aux_count for those vertexes x such that |E({x}) \cap B_qblock| > 0
@@ -428,15 +448,23 @@ def refine(compound_xblocks, xblocks):
 
     return (xblocks, new_qblocks)
 
+
 # returns a list of labels splitted in partitions
 def pta(q_partition: list[QBlock]):
     x_partition = [q_partition[0].xblock]
     compound_xblocks = [x_partition[0]]
 
     while len(compound_xblocks) > 0:
-        x_partition, new_qblocks = refine(compound_xblocks, x_partition)
+        x_partition, new_qblocks = refine(compound_xblocks=compound_xblocks, xblocks=x_partition)
         q_partition.extend(new_qblocks)
+        pass
 
-    return [tuple(map(lambda vertex: vertex.label, qblock.vertexes)) for qblock in filter(lambda qblock: qblock.size > 0, q_partition)]
+    return [
+        tuple(map(lambda vertex: vertex.label, qblock.vertexes))
+        for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
+    ]
 
-# TODO: rimpiazza set con list perchè set controlla i duplicati ==> add non è O(1)
+
+def apply_pta(graph, initial_partition):
+    (q_partition, _) = initialize(graph, initial_partition)
+    return pta(q_partition)
