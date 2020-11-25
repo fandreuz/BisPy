@@ -51,5 +51,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export PATH="/home/runner/.local/bin:$PATH"
+          coverage run -m pytest
           coveralls
     
