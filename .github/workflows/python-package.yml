@@ -31,7 +31,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         coverage run -m pytest
-  test-coverage:
+  coverage:
     needs: [run-tests]
     runs-on: ubuntu-latest
     steps: 
