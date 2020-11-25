@@ -50,5 +50,6 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          export PATH="/home/runner/.local/bin:$PATH"
           coveralls
     
