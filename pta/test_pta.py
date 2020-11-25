@@ -127,7 +127,7 @@ def test_build_block_counterimage(graph, initial_partition):
                 right_block_counterimage.add(edge[0])
 
         assert right_block_counterimage == block_counterimage
-        
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage_aux_count(graph, initial_partition):
     (q_partition, _) = pta.initialize(graph, initial_partition)
@@ -237,7 +237,7 @@ def test_check_block_stability():
         [vertex for vertex in A_block.vertexes],
         [vertex for vertex in B_block.vertexes],
     )
-    
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split(graph, initial_partition):
     (q_partition, _) = pta.initialize(graph, initial_partition)
@@ -367,7 +367,6 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
     for vertex in vertexes:
         assert vertex.aux_count == None
 
-<<<<<<< HEAD
 def test_count_after_refinement():
     graph = test_cases.create_graph([(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)])
     graph, initial_partition = test_cases.create_graph_partition_tuple(graph)
@@ -396,8 +395,6 @@ def test_count_after_refinement():
             assert ok_count[xblock_index(edge.destination.qblock.xblock)][vertex.label] == edge.count.value
 
 
-=======
->>>>>>> 9713143b9146aa0775b1491db0f228ab7fcd3652
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_no_negative_edge_counts(graph, initial_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
@@ -427,7 +424,6 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
     result = pta.pta(q_partition)
 
-<<<<<<< HEAD
     for block in result:
         for block2 in result:
             assert pta.check_block_stability(
@@ -435,8 +431,6 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
                 list(map(lambda block_idx: vertexes[block_idx], block2))
             )
 
-=======
->>>>>>> 9713143b9146aa0775b1491db0f228ab7fcd3652
 @pytest.mark.parametrize(
     "graph, initial_partition, expected_q_partition",
     test_cases.graph_partition_rscp_tuples,
