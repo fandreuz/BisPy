@@ -6,7 +6,7 @@ import test_cases
 import itertools
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
-def is_stable_partition(q_partition):
+def is_stable_partition(q_partition: list[list[pta.Vertex]]):
     for couple in itertools.combinations(q_partition, 2):
         if not (check_block_stability(couple[0], couple[1]) and check_block_stability(couple[1], couple[0])):
             return False
