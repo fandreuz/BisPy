@@ -3,11 +3,14 @@ import networkx as nx
 import pta
 from llist import dllist, dllistnode
 import test_cases
+import itertools
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
-def is_stable_partition(q_partition: list[pta.QBlock], qblock: pta.QBlock = None):
-    pass
-
+def is_stable_partition(q_partition):
+    for couple in itertools.combinations(q_partition, 2):
+        if not (check_block_stability(couple[0], couple[1]) and check_block_stability(couple[1], couple[0])):
+            return False
+    return True
 
 # return True if A_block \subseteq R^{-1}(B_block) or A_block \cap R^{-1}(B_block) = \emptyset
 def check_block_stability(
@@ -444,13 +447,7 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
 def test_pta_result_is_stable_partition(graph, initial_partition):
     (q_partition, vertexes) = pta.initialize(graph, initial_partition)
     result = pta.pta(q_partition)
-
-    for block in result:
-        for block2 in result:
-            assert check_block_stability(
-                list(map(lambda block_idx: vertexes[block_idx], block)),
-                list(map(lambda block_idx: vertexes[block_idx], block2))
-            )
+    assert is_stable_partition([[vertexes[vertex_idx] for vertex_idx in block] for block in result])
 
 @pytest.mark.parametrize(
     "graph, initial_partition, expected_q_partition",
