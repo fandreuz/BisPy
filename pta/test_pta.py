@@ -5,13 +5,13 @@ from llist import dllist, dllistnode
 import test_cases
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
-def is_stable_partition(q_partition: list[QBlock], qblock: QBlock = None):
+def is_stable_partition(q_partition: list[pta.QBlock], qblock: pta.QBlock = None):
     pass
 
 
 # return True if A_block \subseteq R^{-1}(B_block) or A_block \cap R^{-1}(B_block) = \emptyset
 def check_block_stability(
-    A_block_vertexes: list[Vertex], B_block_vertexes: list[Vertex]
+    A_block_vertexes: list[pta.Vertex], B_block_vertexes: list[pta.Vertex]
 ):
     # if there's a vertex y in B_qblock_vertexes such that for the i-th vertex we have i->y, then is_inside_B[i] = True
     is_inside_B = []
@@ -214,7 +214,7 @@ def test_check_block_stability():
         A_vertexes[i].add_to_image(
             pta.Edge(A_block.vertexes.nodeat(i).value, B_block.vertexes.nodeat(i).value)
         )
-    assert pta.check_block_stability(
+    assert check_block_stability(
         [vertex for vertex in A_block.vertexes],
         [vertex for vertex in B_block.vertexes],
     )
@@ -232,7 +232,7 @@ def test_check_block_stability():
         A_vertexes[i].add_to_image(
             pta.Edge(A_block.vertexes.nodeat(i).value, C_block.vertexes.nodeat(i).value)
         )
-    assert pta.check_block_stability(
+    assert check_block_stability(
         [vertex for vertex in A_block.vertexes],
         [vertex for vertex in B_block.vertexes],
     )
@@ -254,7 +254,7 @@ def test_check_block_stability():
         pta.Edge(A_block.vertexes.nodeat(0).value, A_block.vertexes.nodeat(1).value)
     )
 
-    assert not pta.check_block_stability(
+    assert not check_block_stability(
         [vertex for vertex in A_block.vertexes],
         [vertex for vertex in B_block.vertexes],
     )
@@ -274,7 +274,7 @@ def test_split(graph, initial_partition):
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
-        assert pta.check_block_stability(
+        assert check_block_stability(
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
 
@@ -357,7 +357,7 @@ def test_second_split(graph, initial_partition):
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
-        assert pta.check_block_stability(
+        assert check_block_stability(
             [vertex for vertex in qblock.vertexes], second_splitter_vertexes
         )
 
@@ -447,7 +447,7 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
 
     for block in result:
         for block2 in result:
-            assert pta.check_block_stability(
+            assert check_block_stability(
                 list(map(lambda block_idx: vertexes[block_idx], block)),
                 list(map(lambda block_idx: vertexes[block_idx], block2))
             )
