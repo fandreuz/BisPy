@@ -4,6 +4,27 @@ import pta
 from llist import dllist, dllistnode
 import test_cases
 
+# check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
+def is_stable_partition(q_partition: list[QBlock], qblock: QBlock = None):
+    pass
+
+
+# return True if A_block \subseteq R^{-1}(B_block) or A_block \cap R^{-1}(B_block) = \emptyset
+def check_block_stability(
+    A_block_vertexes: list[Vertex], B_block_vertexes: list[Vertex]
+):
+    # if there's a vertex y in B_qblock_vertexes such that for the i-th vertex we have i->y, then is_inside_B[i] = True
+    is_inside_B = []
+    for vertex in A_block_vertexes:
+        is_inside_B.append(False)
+        for edge in vertex.image:
+            if edge.destination in B_block_vertexes:
+                is_inside_B[-1] = True
+
+    # all == True if for each vertex x in A there's a vertex y such that x \in E({x}) AND y \in B
+    # not any == True if the set "image of A" and B are distinct
+    return all(is_inside_B) or not any(is_inside_B)
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_preprocess(graph, initial_partition):
     vertexes = pta.parse_graph(graph)
