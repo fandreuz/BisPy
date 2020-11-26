@@ -1,37 +1,27 @@
 import pytest
 import networkx as nx
-import pta
 from llist import dllist, dllistnode
+
+import sys
+from pathlib import Path
+
+# add /utilities
+sys.path.append("{}/utilities/".format(Path(__file__).parent.parent.parent))
+# add the folder "test" in order to be able to find test_cases.py
+sys.path.append("{}".format(str(Path(__file__).parent)))
+# add the folder "paige-tarjan" in order to be able to find pta.py
+sys.path.append("{}".format(str(Path(__file__).parent.parent)))
+
 import test_cases
-import itertools
+import pta
+from graph_utilities import *
+from graph_entities import *
 
-# check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
-def is_stable_partition(q_partition: list[list[pta.Vertex]]):
-    for couple in itertools.combinations(q_partition, 2):
-        if not (check_block_stability(couple[0], couple[1]) and check_block_stability(couple[1], couple[0])):
-            return False
-    return True
-
-# return True if A_block \subseteq R^{-1}(B_block) or A_block \cap R^{-1}(B_block) = \emptyset
-def check_block_stability(
-    A_block_vertexes: list[pta.Vertex], B_block_vertexes: list[pta.Vertex]
-):
-    # if there's a vertex y in B_qblock_vertexes such that for the i-th vertex we have i->y, then is_inside_B[i] = True
-    is_inside_B = []
-    for vertex in A_block_vertexes:
-        is_inside_B.append(False)
-        for edge in vertex.image:
-            if edge.destination in B_block_vertexes:
-                is_inside_B[-1] = True
-
-    # all == True if for each vertex x in A there's a vertex y such that x \in E({x}) AND y \in B
-    # not any == True if the set "image of A" and B are distinct
-    return all(is_inside_B) or not any(is_inside_B)
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_preprocess(graph, initial_partition):
-    vertexes = pta.parse_graph(graph)
-    processed_partition = pta.preprocess_initial_partition(vertexes, initial_partition)
+    vertexes = parse_graph(graph)
+    processed_partition = preprocess_initial_partition(vertexes, initial_partition)
 
     # check if leafs and non-leafs aren't mixed
     for block in processed_partition:
@@ -46,9 +36,10 @@ def test_preprocess(graph, initial_partition):
             else:
                 assert leafs_count == 0
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_qpartition_initialize(graph, initial_partition):
-    (q_partition, _) = pta.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     vertexes = set()
     for qblock in q_partition:
@@ -58,9 +49,10 @@ def test_qpartition_initialize(graph, initial_partition):
         [idx for idx, _ in enumerate(graph.nodes)]
     )
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_initialize_right_types(graph, initial_partition):
-    (q_partition, _) = pta.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     for qblock in q_partition:
         assert isinstance(qblock.vertexes, dllist)
@@ -68,27 +60,28 @@ def test_initialize_right_types(graph, initial_partition):
     for qblock in q_partition:
         for vertex in qblock.vertexes:
             for v in vertex.image:
-                assert isinstance(v, pta.Edge)
+                assert isinstance(v, Edge)
             for v in vertex.counterimage:
-                assert isinstance(v, pta.Edge)
-            assert isinstance(vertex.qblock, pta.QBlock)
+                assert isinstance(v, Edge)
+            assert isinstance(vertex.qblock, QBlock)
+
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_count_initialize(graph, initial_partition):
-    (_, vertexes) = pta.initialize(graph, initial_partition)
+    (_, vertexes) = initialize(graph, initial_partition)
 
     for vertex in vertexes:
         for edge in vertex.image:
             assert edge.count.value == len(vertex.image)
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_image_initialize(graph, initial_partition):
-
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     right_image = [set() for node in graph.nodes]
     for edge in graph.edges:
-        right_image[edge[0]].add(pta.Edge(vertexes[edge[0]], vertexes[edge[1]]))
+        right_image[edge[0]].add(Edge(vertexes[edge[0]], vertexes[edge[1]]))
 
     for block in q_partition:
         for vertex in block.vertexes:
@@ -99,12 +92,11 @@ def test_vertex_image_initialize(graph, initial_partition):
 # test if initialize computed the vertexes counterimages properly
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_counterimage_initialize(graph, initial_partition):
-
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     right_counterimage = [set() for node in graph.nodes]
     for edge in graph.edges:
-        right_counterimage[edge[1]].add(pta.Edge(vertexes[edge[0]], vertexes[edge[1]]))
+        right_counterimage[edge[1]].add(Edge(vertexes[edge[0]], vertexes[edge[1]]))
 
     for block in q_partition:
         for vertex in block.vertexes:
@@ -113,11 +105,11 @@ def test_vertex_counterimage_initialize(graph, initial_partition):
 
 
 def test_choose_qblock():
-    compoundblock = pta.XBlock()
+    compoundblock = XBlock()
     qblocks = [
-        pta.QBlock([0, 3, 5], compoundblock),
-        pta.QBlock([2, 4], compoundblock),
-        pta.QBlock([1, 6, 8], compoundblock),
+        QBlock([0, 3, 5], compoundblock),
+        QBlock([2, 4], compoundblock),
+        QBlock([1, 6, 8], compoundblock),
     ]
     for qblock in qblocks:
         compoundblock.append_qblock(qblock)
@@ -133,9 +125,10 @@ def test_choose_qblock():
         compoundblock_qblocks.add(compoundblock.qblocks.nodeat(i).value)
     assert compoundblock_qblocks == set([qblocks[0], qblocks[2]])
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage(graph, initial_partition):
-    (q_partition, _) = pta.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
     for qblock in q_partition:
 
         def extract_vertex_label(llistobject):
@@ -152,9 +145,10 @@ def test_build_block_counterimage(graph, initial_partition):
 
         assert right_block_counterimage == block_counterimage
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage_aux_count(graph, initial_partition):
-    (q_partition, _) = pta.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     for chosen_index in range(len(initial_partition)):
         qblock = q_partition[chosen_index]
@@ -179,7 +173,7 @@ def test_build_block_counterimage_aux_count(graph, initial_partition):
 # error "dllistnode doesn't belong to a list"
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_taken_from_right_list(graph, initial_partition):
-    (q_partition, _) = pta.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     block_counterimage = pta.build_block_counterimage(q_partition[0])
 
@@ -194,7 +188,7 @@ def test_vertex_taken_from_right_list(graph, initial_partition):
 # error "dllistnode doesn't belong to a list"
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_can_remove_any_vertex_from_its_list(graph, initial_partition):
-    (q_partition, _) = pta.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     for qblock in q_partition:
         vertex = qblock.vertexes.first
@@ -204,67 +198,9 @@ def test_can_remove_any_vertex_from_its_list(graph, initial_partition):
             # check that this doesn't raise an exception
             assert True
 
-
-def test_check_block_stability():
-    # this is a stable couple: E(A) is a subset of B
-    A_vertexes = [pta.Vertex(i) for i in range(3)]
-    B_vertexes = [pta.Vertex(i) for i in range(3, 7)]
-
-    A_block = pta.QBlock(A_vertexes, None)
-    B_block = pta.QBlock(B_vertexes, None)
-
-    for i in range(len(A_vertexes)):
-        A_vertexes[i].add_to_image(
-            pta.Edge(A_block.vertexes.nodeat(i).value, B_block.vertexes.nodeat(i).value)
-        )
-    assert check_block_stability(
-        [vertex for vertex in A_block.vertexes],
-        [vertex for vertex in B_block.vertexes],
-    )
-
-    # this is a stable couple: the intersection of E(A) and B is empty
-    A_vertexes = [pta.Vertex(i) for i in range(3)]
-    B_vertexes = [pta.Vertex(i) for i in range(3, 7)]
-    C_vertexes = [pta.Vertex(i) for i in range(3)]
-
-    A_block = pta.QBlock(A_vertexes, None)
-    B_block = pta.QBlock(B_vertexes, None)
-    C_block = pta.QBlock(C_vertexes, None)
-
-    for i in range(len(A_vertexes)):
-        A_vertexes[i].add_to_image(
-            pta.Edge(A_block.vertexes.nodeat(i).value, C_block.vertexes.nodeat(i).value)
-        )
-    assert check_block_stability(
-        [vertex for vertex in A_block.vertexes],
-        [vertex for vertex in B_block.vertexes],
-    )
-
-    # this is a non-stable couple
-    A_vertexes = [pta.Vertex(i) for i in range(3)]
-    B_vertexes = [pta.Vertex(i) for i in range(3, 7)]
-
-    A_block = pta.QBlock(A_vertexes, None)
-    B_block = pta.QBlock(B_vertexes, None)
-
-    for i in range(1, len(A_vertexes)):
-        A_vertexes[i].add_to_image(
-            pta.Edge(A_block.vertexes.nodeat(i).value, B_block.vertexes.nodeat(i).value)
-        )
-
-    # this is the edge which will fail the stability check
-    A_vertexes[0].add_to_image(
-        pta.Edge(A_block.vertexes.nodeat(0).value, A_block.vertexes.nodeat(1).value)
-    )
-
-    assert not check_block_stability(
-        [vertex for vertex in A_block.vertexes],
-        [vertex for vertex in B_block.vertexes],
-    )
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split(graph, initial_partition):
-    (q_partition, _) = pta.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -294,7 +230,7 @@ def test_split(graph, initial_partition):
 # check if the new blocks are in the right xblock after a call to split
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split_helper_block_right_xblock(graph, initial_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
     (new_blocks, _) = pta.split(vertexes[3:7])
 
     for new_block in new_blocks:
@@ -309,7 +245,7 @@ def test_split_helper_block_right_xblock(graph, initial_partition):
 # second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_second_splitter_counterimage(graph, initial_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
     qblock_splitter = q_partition[0]
@@ -335,9 +271,10 @@ def test_second_splitter_counterimage(graph, initial_partition):
             map(lambda edge: edge in second_splitter_s_minus_b_vertexes, vertex.image)
         )
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_second_split(graph, initial_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -368,7 +305,7 @@ def test_second_split(graph, initial_partition):
 # a refinement step should increase by one the number of xblocks
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
-    (q_partition, vertexes_dllistobejct) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes_dllistobejct) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -381,9 +318,10 @@ def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
 
     assert len(xblocks) == 2
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_reset_aux_count_after_refinement(graph, initial_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
     pta.refine([xblock], [xblock])
@@ -391,11 +329,14 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
     for vertex in vertexes:
         assert vertex.aux_count == None
 
+
 def test_count_after_refinement():
-    graph = test_cases.create_graph([(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)])
+    graph = test_cases.create_graph(
+        [(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)]
+    )
     graph, initial_partition = test_cases.create_graph_partition_tuple(graph)
 
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
     xblocks = [xblock]
@@ -416,12 +357,15 @@ def test_count_after_refinement():
 
     for vertex in vertexes:
         for edge in vertex.image:
-            assert ok_count[xblock_index(edge.destination.qblock.xblock)][vertex.label] == edge.count.value
+            assert (
+                ok_count[xblock_index(edge.destination.qblock.xblock)][vertex.label]
+                == edge.count.value
+            )
 
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_no_negative_edge_counts(graph, initial_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
     pta.refine([xblock], [xblock])
@@ -430,9 +374,10 @@ def test_no_negative_edge_counts(graph, initial_partition):
         for edge in vertex.image:
             assert edge.count == None or edge.count.value > 0
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_refine_updates_compound_xblocks(graph, initial_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     x_partition = [q_partition[0].xblock]
     compound_xblocks = [x_partition[0]]
@@ -443,18 +388,22 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
         if len(xblock.qblocks) > 1:
             assert xblock in compound_xblocks
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_pta_result_is_stable_partition(graph, initial_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
     result = pta.pta(q_partition)
-    assert is_stable_partition([[vertexes[vertex_idx] for vertex_idx in block] for block in result])
+    assert is_stable_partition(
+        [[vertexes[vertex_idx] for vertex_idx in block] for block in result]
+    )
+
 
 @pytest.mark.parametrize(
     "graph, initial_partition, expected_q_partition",
     test_cases.graph_partition_rscp_tuples,
 )
 def test_pta_correctness(graph, initial_partition, expected_q_partition):
-    (q_partition, vertexes) = pta.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
     rscp = pta.pta(q_partition)
     rscp = [tuple(sorted(tp)) for tp in rscp]
     assert set(rscp) == expected_q_partition
