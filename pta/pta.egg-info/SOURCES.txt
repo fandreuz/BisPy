@@ -3,5 +3,5 @@ pta.egg-info/PKG-INFO
 pta.egg-info/SOURCES.txt
 pta.egg-info/dependency_links.txt
 pta.egg-info/top_level.txt
+test/test_algorithm.py
 test/test_cases.py
-test/test_pta.py
