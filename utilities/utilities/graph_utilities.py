@@ -1,5 +1,5 @@
 import itertools
-from graph_entities import *
+from utilities.graph_entities import *
 
 def parse_graph(graph):
     vertexes = [Vertex(idx) for idx in range(len(graph.nodes))]
@@ -98,7 +98,7 @@ def initialize(graph, initial_partition):
 
 # this is a version of is_stable_partition for "foreign" users
 def foreign_is_stable_partition(graph, partition: list):
-    vertexes = pta.parse_graph(graph)
+    vertexes = parse_graph(graph)
     return is_stable_partition([vertexes[vertex_idx] for vertex_idx in block] for block in partition)
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given

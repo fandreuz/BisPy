@@ -2,20 +2,10 @@ import pytest
 import networkx as nx
 from llist import dllist, dllistnode
 
-import sys
-from pathlib import Path
-
-# add /utilities
-sys.path.append("{}/utilities/".format(Path(__file__).parent.parent.parent))
-# add the folder "test" in order to be able to find test_cases.py
-sys.path.append("{}".format(str(Path(__file__).parent)))
-# add the folder "paige-tarjan" in order to be able to find pta.py
-sys.path.append("{}".format(str(Path(__file__).parent.parent)))
-
 import test_cases
-import pta
-from graph_utilities import *
-from graph_entities import *
+import pta.algorithm as algorithm
+from utilities.graph_utilities import *
+from utilities.graph_entities import *
 
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
@@ -114,7 +104,7 @@ def test_choose_qblock():
     for qblock in qblocks:
         compoundblock.append_qblock(qblock)
 
-    splitter = pta.extract_splitter(compoundblock)
+    splitter = algorithm.extract_splitter(compoundblock)
     assert splitter == qblocks[1]
 
     # check if compound block has been modified properly
@@ -135,7 +125,7 @@ def test_build_block_counterimage(graph, initial_partition):
             return llistobject.label
 
         block_counterimage = set(
-            [vertex.label for vertex in pta.build_block_counterimage(qblock)]
+            [vertex.label for vertex in algorithm.build_block_counterimage(qblock)]
         )
 
         right_block_counterimage = set()
@@ -153,7 +143,7 @@ def test_build_block_counterimage_aux_count(graph, initial_partition):
     for chosen_index in range(len(initial_partition)):
         qblock = q_partition[chosen_index]
 
-        block_counterimage = pta.build_block_counterimage(qblock)
+        block_counterimage = algorithm.build_block_counterimage(qblock)
 
         right_count = [0 for vertex in block_counterimage]
         for edge in graph.edges:
@@ -175,7 +165,7 @@ def test_build_block_counterimage_aux_count(graph, initial_partition):
 def test_vertex_taken_from_right_list(graph, initial_partition):
     (q_partition, _) = initialize(graph, initial_partition)
 
-    block_counterimage = pta.build_block_counterimage(q_partition[0])
+    block_counterimage = algorithm.build_block_counterimage(q_partition[0])
 
     for vertex in block_counterimage:
         qblock = vertex.qblock
@@ -208,8 +198,8 @@ def test_split(graph, initial_partition):
     # qblock_splitter may be modified by split, therefore we need to keep a copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.split(block_counterimage)
+    block_counterimage = algorithm.build_block_counterimage(qblock_splitter)
+    algorithm.split(block_counterimage)
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
@@ -231,7 +221,7 @@ def test_split(graph, initial_partition):
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split_helper_block_right_xblock(graph, initial_partition):
     (q_partition, vertexes) = initialize(graph, initial_partition)
-    (new_blocks, _) = pta.split(vertexes[3:7])
+    (new_blocks, _) = algorithm.split(vertexes[3:7])
 
     for new_block in new_blocks:
         assert any([qblock == new_block for qblock in new_block.xblock.qblocks])
@@ -253,8 +243,8 @@ def test_second_splitter_counterimage(graph, initial_partition):
     # qblock_splitter may be modified by split, therefore we need to keep a copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.split(block_counterimage)
+    block_counterimage = algorithm.build_block_counterimage(qblock_splitter)
+    algorithm.split(block_counterimage)
 
     # compute S - B
     second_splitter_s_minus_b_vertexes = list(
@@ -262,7 +252,7 @@ def test_second_splitter_counterimage(graph, initial_partition):
     )
 
     # use the pta function to compute E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_second_splitter_counterimage(
+    second_splitter_counterimage = algorithm.build_second_splitter_counterimage(
         splitter_vertexes
     )
 
@@ -282,18 +272,18 @@ def test_second_split(graph, initial_partition):
     # qblock_splitter may be modified by split, therefore we need to keep a copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.split(block_counterimage)
+    block_counterimage = algorithm.build_block_counterimage(qblock_splitter)
+    algorithm.split(block_counterimage)
 
     second_splitter_vertexes = list(
         filter(lambda vertex: vertex not in splitter_vertexes, vertexes)
     )
     # E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_second_splitter_counterimage(
+    second_splitter_counterimage = algorithm.build_second_splitter_counterimage(
         splitter_vertexes
     )
 
-    pta.split(second_splitter_counterimage)
+    algorithm.split(second_splitter_counterimage)
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
@@ -313,8 +303,8 @@ def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
     compound_xblocks = [xblock]
 
     qblock_splitter = q_partition[0]
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.refine(xblocks=xblocks, compound_xblocks=compound_xblocks)
+    block_counterimage = algorithm.build_block_counterimage(qblock_splitter)
+    algorithm.refine(xblocks=xblocks, compound_xblocks=compound_xblocks)
 
     assert len(xblocks) == 2
 
@@ -324,7 +314,7 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
     (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
-    pta.refine([xblock], [xblock])
+    algorithm.refine([xblock], [xblock])
 
     for vertex in vertexes:
         assert vertex.aux_count == None
@@ -341,7 +331,7 @@ def test_count_after_refinement():
     xblock = q_partition[0].xblock
     xblocks = [xblock]
 
-    pta.refine(xblocks=xblocks, compound_xblocks=[xblock])
+    algorithm.refine(xblocks=xblocks, compound_xblocks=[xblock])
 
     ok_count = [[0 for _ in vertexes] for _ in xblocks]
     for (xblock_idx, xblock) in enumerate(xblocks):
@@ -368,7 +358,7 @@ def test_no_negative_edge_counts(graph, initial_partition):
     (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
-    pta.refine([xblock], [xblock])
+    algorithm.refine([xblock], [xblock])
 
     for vertex in vertexes:
         for edge in vertex.image:
@@ -382,7 +372,7 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
     x_partition = [q_partition[0].xblock]
     compound_xblocks = [x_partition[0]]
 
-    pta.refine(compound_xblocks=compound_xblocks, xblocks=x_partition)
+    algorithm.refine(compound_xblocks=compound_xblocks, xblocks=x_partition)
 
     for xblock in x_partition:
         if len(xblock.qblocks) > 1:
@@ -392,7 +382,7 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_pta_result_is_stable_partition(graph, initial_partition):
     (q_partition, vertexes) = initialize(graph, initial_partition)
-    result = pta.pta(q_partition)
+    result = algorithm.pta(q_partition)
     assert is_stable_partition(
         [[vertexes[vertex_idx] for vertex_idx in block] for block in result]
     )
@@ -404,6 +394,6 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
 )
 def test_pta_correctness(graph, initial_partition, expected_q_partition):
     (q_partition, vertexes) = initialize(graph, initial_partition)
-    rscp = pta.pta(q_partition)
+    rscp = algorithm.pta(q_partition)
     rscp = [tuple(sorted(tp)) for tp in rscp]
     assert set(rscp) == expected_q_partition

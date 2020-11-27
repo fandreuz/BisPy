@@ -1,11 +1,7 @@
 from llist import dllist, dllistnode
 
-import sys
-from pathlib import Path
-sys.path.append('{}/utilities/'.format(Path(__file__).parent.parent))
-
-from graph_entities import *
-from graph_utilities import *
+from utilities.graph_entities import *
+from utilities.graph_utilities import *
 
 # choose the smallest qblock of the first two
 def extract_splitter(compound_block: XBlock):

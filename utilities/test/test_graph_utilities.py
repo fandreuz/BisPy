@@ -1,9 +1,5 @@
-import sys
-from pathlib import Path
-sys.path.append("{}/utilities/".format(Path(__file__).parent.parent.parent))
-
-from graph_utilities import *
-from graph_entities import *
+from utilities.graph_utilities import *
+from utilities.graph_entities import *
 
 def test_check_block_stability():
     # this is a stable couple: E(A) is a subset of B
