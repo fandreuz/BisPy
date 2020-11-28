@@ -1,8 +1,17 @@
 from . import graph_entities as entities
 import itertools
+import networkx as nx
 
 
-def prepare_graph_abstraction(graph):
+def prepare_graph_abstraction(graph: nx.Graph) -> list[entities._Vertex]:
+    """Acquires an input graph, and outputs a representation of that graph which can be used by the algorithm. This function computes the image and counterimage for each _Vertex, and creates the needed instances of _Edge. Vertexes are indexed and labeled following their order in the given graph.nodes entity.
+
+    Args:
+        graph ([nx.Graph]): [The input graph.]
+
+    Returns:
+        [list[entities._Vertex]]: [A list of _Vertexes which represents the input graph.]
+    """
     vertexes = [entities._Vertex(idx) for idx in range(len(graph.nodes))]
 
     # holds the references to Count objects to assign to the edges (this is OK because we can consider |V| = O(|E|))
@@ -28,7 +37,17 @@ def prepare_graph_abstraction(graph):
     return vertexes
 
 
-def build_qpartition(vertexes, initial_partition: set) -> list[entities._QBlock]:
+def build_qpartition(vertexes: list[entities._Vertex], initial_partition: list[tuple]) -> list[entities._QBlock]:
+    """Constructs the initial Q partition given the list of Vertexes and the initial_partition. This function fails if the length of the initial partition is not equal to the number of vertexes in the list.
+
+    Args:
+        vertexes (list[entities._Vertex]): [The list of Vertexes which represents the graph.]
+        initial_partition (list[tuple]): [The initial partition as a list of vertex indexes partitioned in tuples.]
+
+    Returns:
+        list[entities._QBlock]: [The initial partition Q as a list of QBlocks.]
+    """
+
     union = set()
     # check phase
     for block in initial_partition:
@@ -71,7 +90,17 @@ def build_qpartition(vertexes, initial_partition: set) -> list[entities._QBlock]
 
 
 # this is a FUNDAMENTAL part of the algorithm: we need a stable initial partition with respect to the set V, but a partition where leafs and non-leafs are in the same block can't be stable
-def preprocess_initial_partition(vertexes, initial_partition):
+def preprocess_initial_partition(vertexes: list[entities._Vertex], initial_partition: list[tuple]) -> list[tuple]:
+    """Splits each block A of the initial Q partition in the intersection of A and E^{-1}(V) and A - E^{-1}(V). The result is a partition where each block contains zero or all leafs. This procedure is fundamental for obtaining a partition stable with respect to V, which is an hypothesis that the algorithms needs in order to work.
+
+    Args:
+        vertexes (list[entities._Vertex]): [The list of Vertexes which represents the graph.]
+        initial_partition (list[tuple]): [The partition to be processed.]
+
+    Returns:
+        list[tuple]: [A partition where each block contains zero or only leafs.]
+    """
+
     new_partition = []
     for block in initial_partition:
         leafs = []
@@ -92,7 +121,17 @@ def preprocess_initial_partition(vertexes, initial_partition):
     return new_partition
 
 
-def initialize(graph, initial_partition):
+def initialize(graph: nx.Graph, initial_partition: list[tuple]) -> (list[entities._QBlock], list[entities._Vertex]):
+    """Packs the needed processing for a graph (prepare_graph_abstraction, preprocess_initial_partition, build_qpartition).
+
+    Args:
+        graph (nx.Graph, initial_partition): [The input graph.]
+        list ([type]): [The initial partition as a list of vertex indexes partitioned in tuples.]
+
+    Returns:
+        [tuple]: [a tuple whose first item is a list of QBlocks, and whose second item is the list of Vertexes which represents the graph]
+    """
+
     vertexes = prepare_graph_abstraction(graph)
     processed_partition = preprocess_initial_partition(vertexes, initial_partition)
     return (build_qpartition(vertexes, processed_partition), vertexes)
@@ -107,7 +146,16 @@ def foreign_is_stable_partition(graph, partition: list):
 
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
-def is_stable_partition(partition: list[list[entities._Vertex]]):
+def is_stable_partition(partition: list[list[entities._Vertex]]) -> bool:
+    """Checks the stability of the given partition. The input must be a partition of Vertex instances, and the relation which we consider for the stability is "there's an edge from a to b".
+
+    Args:
+        partition (list[list[entities._Vertex]]): [A partition of Vertex instances.]
+
+    Returns:
+        bool: [True if the partition is stable. False otherwise.]
+    """
+
     for couple in itertools.combinations(partition, 2):
         if not (
             check_block_stability(couple[0], couple[1])
@@ -120,7 +168,17 @@ def is_stable_partition(partition: list[list[entities._Vertex]]):
 # return True if A_block \subseteq R^{-1}(B_block) or A_block \cap R^{-1}(B_block) = \emptyset
 def check_block_stability(
     A_block_vertexes: list[entities._Vertex], B_block_vertexes: list[entities._Vertex]
-):
+) -> bool:
+    """Checks the stability of the first block with respect to the second one. The two inputs must be list of Vertex instances, and the relation which we consider for the stability is "there's an edge from a to b".
+
+    Args:
+        A_block_vertexes (list[entities._Vertex]): [The checked block.]
+        B_block_vertexes (list[entities._Vertex]): [The block against we check the stability of A.]
+
+    Returns:
+        bool: [True if A is stable with respect to B. False otherwise.]
+    """
+
     # if there's a vertex y in B_qblock_vertexes such that for the i-th vertex we have i->y, then is_inside_B[i] = True
     is_inside_B = []
     for vertex in A_block_vertexes:
