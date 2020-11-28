@@ -8,5 +8,6 @@ src/dovier_fba/__init__.py
 src/dovier_fba/fba.py
 src/dovier_fba/rank.py
 src/paige_tarjan/__init__.py
-src/paige_tarjan/graph_utilities.py
+src/paige_tarjan/graph_decorator.py
+src/paige_tarjan/graph_entities.py
 src/paige_tarjan/pta.py

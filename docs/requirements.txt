@@ -1,2 +1,2 @@
 six
-../src/paige_tarjan/
+sphinx
