@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: bisimulation-algorithms
+Version: 0.0.1
+Summary: Python implementation of some algorithms for the computation of the maximum bisimulation
+Home-page: UNKNOWN
+Author: Francesco Andreuzzi
+Author-email: andreuzzi.francesco@gmail.com
+License: LICENSE
+Description: UNKNOWN
+Platform: UNKNOWN

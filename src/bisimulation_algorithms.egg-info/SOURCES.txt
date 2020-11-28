@@ -1,0 +1,12 @@
+README.md
+setup.py
+src/bisimulation_algorithms.egg-info/PKG-INFO
+src/bisimulation_algorithms.egg-info/SOURCES.txt
+src/bisimulation_algorithms.egg-info/dependency_links.txt
+src/bisimulation_algorithms.egg-info/top_level.txt
+src/dovier_fba/__init__.py
+src/dovier_fba/fba.py
+src/dovier_fba/rank.py
+src/paige_tarjan/__init__.py
+src/paige_tarjan/graph_utilities.py
+src/paige_tarjan/pta.py
