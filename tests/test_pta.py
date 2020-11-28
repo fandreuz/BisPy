@@ -8,17 +8,48 @@ from paige_tarjan import graph_entities as entities
 from paige_tarjan import pta
 from paige_tarjan import graph_decorator as decorator
 
+# this is a version of is_stable_partition for "foreign" users
+def foreign_is_stable_partition(graph, partition: list):
+    vertexes = decorator.prepare_graph_abstraction(graph)
+    return is_stable_partition(
+        [vertexes[vertex_idx] for vertex_idx in block] for block in partition
+    )
+
+
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
-def is_stable_partition(q_partition: list[list[entities._Vertex]]):
-    for couple in itertools.combinations(q_partition, 2):
-        if not (check_block_stability(couple[0], couple[1]) and check_block_stability(couple[1], couple[0])):
+def is_stable_partition(partition: list[list[entities._Vertex]]) -> bool:
+    """Checks the stability of the given partition. The input must be a partition of Vertex instances, and the relation which we consider for the stability is "there's an edge from a to b".
+
+    Args:
+        partition (list[list[entities._Vertex]]): [A partition of Vertex instances.]
+
+    Returns:
+        bool: [True if the partition is stable. False otherwise.]
+    """
+
+    for couple in itertools.combinations(partition, 2):
+        if not (
+            check_block_stability(couple[0], couple[1])
+            and check_block_stability(couple[1], couple[0])
+        ):
             return False
     return True
+
 
 # return True if A_block \subseteq R^{-1}(B_block) or A_block \cap R^{-1}(B_block) = \emptyset
 def check_block_stability(
     A_block_vertexes: list[entities._Vertex], B_block_vertexes: list[entities._Vertex]
-):
+) -> bool:
+    """Checks the stability of the first block with respect to the second one. The two inputs must be list of Vertex instances, and the relation which we consider for the stability is "there's an edge from a to b".
+
+    Args:
+        A_block_vertexes (list[entities._Vertex]): [The checked block.]
+        B_block_vertexes (list[entities._Vertex]): [The block against we check the stability of A.]
+
+    Returns:
+        bool: [True if A is stable with respect to B. False otherwise.]
+    """
+
     # if there's a vertex y in B_qblock_vertexes such that for the i-th vertex we have i->y, then is_inside_B[i] = True
     is_inside_B = []
     for vertex in A_block_vertexes:
