@@ -18,13 +18,13 @@ def foreign_is_stable_partition(graph, partition: list):
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
 def is_stable_partition(partition: list[list[entities._Vertex]]) -> bool:
-    """Checks the stability of the given partition. The input must be a partition of Vertex instances, and the relation which we consider for the stability is "there's an edge from a to b".
+    """Checks the stability of the given partition. The input must be a partition of Vertex instances, and the relation which we consider for the stability is a->b, where a,b are two vertexes.
 
     Args:
-        partition (list[list[entities._Vertex]]): [A partition of Vertex instances.]
+        partition (list[list[entities._Vertex]]): A partition of Vertex instances.
 
     Returns:
-        bool: [True if the partition is stable. False otherwise.]
+        bool: True if the partition is stable. False otherwise.
     """
 
     for couple in itertools.combinations(partition, 2):
@@ -40,14 +40,14 @@ def is_stable_partition(partition: list[list[entities._Vertex]]) -> bool:
 def check_block_stability(
     A_block_vertexes: list[entities._Vertex], B_block_vertexes: list[entities._Vertex]
 ) -> bool:
-    """Checks the stability of the first block with respect to the second one. The two inputs must be list of Vertex instances, and the relation which we consider for the stability is "there's an edge from a to b".
+    """Checks the stability of the first block with respect to the second one. The two inputs must be list of Vertex instances, and the relation which we consider for the stability is a->b, where a,b are two vertexes.
 
     Args:
-        A_block_vertexes (list[entities._Vertex]): [The checked block.]
-        B_block_vertexes (list[entities._Vertex]): [The block against we check the stability of A.]
+        A_block_vertexes (list[entities._Vertex]): The checked block.
+        B_block_vertexes (list[entities._Vertex]): The block against we check the stability of A.
 
     Returns:
-        bool: [True if A is stable with respect to B. False otherwise.]
+        bool: True if A is stable with respect to B. False otherwise.
     """
 
     # if there's a vertex y in B_qblock_vertexes such that for the i-th vertex we have i->y, then is_inside_B[i] = True
@@ -359,7 +359,7 @@ def test_second_splitter_counterimage(graph, initial_partition):
     )
 
     # use the pta function to compute E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_second_splitter_counterimage(
+    second_splitter_counterimage = pta.build_exclusive_B_counterimage(
         splitter_vertexes
     )
 
@@ -385,7 +385,7 @@ def test_second_split(graph, initial_partition):
         filter(lambda vertex: vertex not in splitter_vertexes, vertexes)
     )
     # E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_second_splitter_counterimage(
+    second_splitter_counterimage = pta.build_exclusive_B_counterimage(
         splitter_vertexes
     )
 
