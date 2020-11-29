@@ -249,7 +249,7 @@ def pta(q_partition: list[entities._QBlock]) -> list[tuple]:
         q_partition.extend(new_qblocks)
         pass
 
-    return [
-        tuple(map(lambda vertex: vertex.label, qblock.vertexes))
+    return sorted([
+        sorted(map(lambda vertex: vertex.label, qblock.vertexes))
         for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
-    ]
+    ], key=lambda block: min(block))
