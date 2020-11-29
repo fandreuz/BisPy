@@ -5,4 +5,4 @@
 
 ## The problem
 Let's consider a graph G=(V,E). A *bisimulation* on the graph G is a binary relation on V which satisfies the following property:
-![Bisimulation definition](res/bisimulation-definition.png)
+![Bisimulation definition](../res/bisimulation-definition.png)
