@@ -4,4 +4,5 @@
 # Bisimulation-Algorithms
 
 ## The problem
-- <img src="https://latex.codecogs.com/gif.latex?{\lim_{x \to 0} \frac{1}{x}}=\text { Probability of a sensor reading value when sleep onset is observed at a time bin } t " />
+Let's consider a graph G=(V,E). A *bisimulation* on the graph G is a binary relation on V which satisfies the following property:
+![Bisimulation definition](res/bisimulation-definition.png)
