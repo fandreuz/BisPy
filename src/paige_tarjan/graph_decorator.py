@@ -1,4 +1,4 @@
-from . import graph_entities as entities
+from paige_tarjan import graph_entities as entities
 import itertools
 import networkx as nx
 
