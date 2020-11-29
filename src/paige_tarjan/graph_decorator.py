@@ -26,7 +26,7 @@ def prepare_graph_abstraction(graph: nx.Graph) -> list[entities._Vertex]:
         # if this is the first outgoing edge for the vertex edge[0], we need to create a new Count instance
         if not vertex_count[edge[0]]:
             # in this case None represents the intitial XBlock, namely the whole V
-            vertex_count[edge[0]] = entities._Count(my_edge.source, None)
+            vertex_count[edge[0]] = entities._Count(my_edge.source)
 
         my_edge.count = vertex_count[edge[0]]
         my_edge.count.value += 1

@@ -174,10 +174,8 @@ class _Count:
         value                     The current value of this instance (shared between all the "users" of the reference).
     """
 
-    def __init__(self, vertex: _Vertex, xblock: _XBlock):
+    def __init__(self, vertex: _Vertex):
         self.vertex = vertex
-        self.xblock = xblock
-
         self.value = 0
 
     def __str__(self):
