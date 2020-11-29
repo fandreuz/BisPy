@@ -18,7 +18,7 @@ class _Vertex:
         """The constructor of the class Vertex.
 
         Args:
-            label (int): [A unique label which identifies this vertex among all the others (usually its index in a list of vertexes).]
+            label (int): A unique label which identifies this vertex among all the others (usually its index in a list of vertexes).
         """
 
         self.label = label
@@ -62,8 +62,8 @@ class _Edge:
     """Represents an edge between two _Vertex instances.
 
     Attributes:
-        source                  The _Vertex instance this edge starts from.
-        destination             The _Vertex instance this edge goes to.
+        source                  The source _Vertex of this edge.
+        destination             The destination _Vertex of this edge.
         count                   A _Count instance which holds |E({source}) \cap S|, where S is the block of X destination belongs to.
     """
 

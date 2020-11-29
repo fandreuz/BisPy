@@ -2,7 +2,16 @@ from llist import dllist, dllistnode
 from . import graph_entities as entities
 
 # choose the smallest qblock of the first two
-def extract_splitter(compound_block: entities._XBlock):
+def extract_splitter(compound_block: entities._XBlock) -> entities._QBlock:
+    """Given a compound block of the X partition, extract one of the blocks of the partition Q inside (the smaller among the first two). The chosen block is removed from the compound block.
+
+    Args:
+        compound_block (entities._XBlock): A compound block of the partition X.
+
+    Returns:
+        entities._QBlock: A block of the partition Q from the given compound_block.
+    """
+
     first_qblock = compound_block.qblocks.first
     if first_qblock.value.size <= first_qblock.next.value.size:
         compound_block.remove_qblock(first_qblock.value)
@@ -17,6 +26,15 @@ def extract_splitter(compound_block: entities._XBlock):
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
 # remember to reset the value of aux_count after the refinement
 def build_block_counterimage(B_qblock: entities._QBlock) -> list[entities._Vertex]:
+    """Given a block B of Q, construct a list of vertexes x such that x->y and y is in B. This function also sets vertex.aux_count and increases it by one for each visited vertex in order to find the value |B \cap E({vertex})| for each vertex, where A is the relation '->' of the graph.
+
+    Args:
+        B_qblock (entities._QBlock): A block of B.
+
+    Returns:
+        list[entities._Vertex]: A list of vertexes x such that x->y and y is in B (the order doesn't matter).
+    """
+
     qblock_counterimage = []
 
     for vertex in B_qblock.vertexes:
@@ -44,9 +62,18 @@ def build_block_counterimage(B_qblock: entities._QBlock) -> list[entities._Verte
 
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the entities._XBlock which contained the entities._QBlock B.
 # in order to get the right result, you need to run the method build_splitter_counterimage before, which sets aux_count
-def build_second_splitter_counterimage(
+def build_exclusive_B_counterimage(
     B_qblock_vertexes: list[entities._Vertex],
 ) -> list[entities._Vertex]:
+    """Given a block B of Q which has just been extracted from a compound block S of x, generate the exclusive counterimage of B, namely E^{-1}(B) - E^{-1}(S-B), where E is the relation '->' of the graph. It's fundamental that this function is called after build_block_counterimage, since it uses the aux_count values set by that function.
+
+    Args:
+        B_qblock_vertexes (list[entities._Vertex]): A block B extracted from a block S of X.
+
+    Returns:
+        list[entities._Vertex]: The vertexes in E^{-1}(B) - E^{-1}(S-B).
+    """
+
     splitter_counterimage = []
 
     for vertex in B_qblock_vertexes:
@@ -161,7 +188,7 @@ def refine(compound_xblocks, xblocks):
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
     # note that, since we are employing the strategy proposed in the paper, we don't even need to pass the XBLock S
-    second_splitter_counterimage = build_second_splitter_counterimage(B_qblock_vertexes)
+    second_splitter_counterimage = build_exclusive_B_counterimage(B_qblock_vertexes)
 
     # step 6
     new_qblocks_from_split2, new_compound_xblocks = split(second_splitter_counterimage)
