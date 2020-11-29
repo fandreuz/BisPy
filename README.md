@@ -21,5 +21,18 @@ The *RSCP* of a set S given a binary relation R, as the name suggests, is the *c
 
 This statemente is reassuring: in order to verify that two nodes are *bisimilar* (which is quite interesting for the applications) we do not need to visit exhaustively their children, and then the children of the children, and so on. We only need to compute the RSCP of V with respect to the relation E, and check whether the two nodes are in the same block.
 
+## Algorithms
+This library contains the implementation in Python 3 of the following algorithms:
+|  Name        |  Strategy   | Complexity  |
+|--------------|:-------------:|:---:|
+| Paige-Tarjan | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
+| Dovier-FBA   | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
+| Saha         | Incremental |  Depends on the entity of the changes. |
+
+## Examples
+Partizione iniziale | RSCP
+--- | ---
+![](res/pta-before.png) | ![](res/pta-after.png)
+
 ## Applications
 Work in progress.
