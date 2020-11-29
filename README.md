@@ -4,7 +4,7 @@
 # Bisimulation-Algorithms
 
 ## The problem
-Let's consider a graph G=(V,E). A *bisimulation* on G is a binary relation on V which satisfies the following property:
+Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation on V which satisfies the following property:
 
 ![Bisimulation definition](res/bisimulation-definition.png)
 
@@ -30,7 +30,7 @@ This library contains the implementation in Python 3 of the following algorithms
 | Saha         | Incremental |  Depends on the entity of the changes. |
 
 ## Examples
-Partizione iniziale | RSCP
+Initial partition | RSCP
 --- | ---
 ![](res/pta-before.png) | ![](res/pta-after.png)
 ![](res/pta-before2.png) | ![](res/pta-after2.png)
