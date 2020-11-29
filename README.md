@@ -33,6 +33,8 @@ This library contains the implementation in Python 3 of the following algorithms
 Partizione iniziale | RSCP
 --- | ---
 ![](res/pta-before.png) | ![](res/pta-after.png)
+![](res/pta-before2.png) | ![](res/pta-after2.png)
+(Nodes in the same partition have the same color)
 
 ## Applications
 Work in progress.
