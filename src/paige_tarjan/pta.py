@@ -50,7 +50,7 @@ def build_block_counterimage(B_qblock: entities._QBlock) -> list[entities._Verte
             # if this is the first time we found a destination in qblock for whom this node is a source, create a new instance of Count
             # remember to set it to None
             if not counterimage_vertex.aux_count:
-                counterimage_vertex.aux_count = entities._Count(counterimage_vertex, B_qblock)
+                counterimage_vertex.aux_count = entities._Count(counterimage_vertex)
             counterimage_vertex.aux_count.value += 1
 
     for vertex in qblock_counterimage:
@@ -97,6 +97,15 @@ def build_exclusive_B_counterimage(
 
 # perform a Split with respect to B_qblock
 def split(B_counterimage: list[entities._Vertex]):
+    """Given a list of vertexes, use them to split the blocks of the current partition Q. Note that the information about the current partition is contained inside the vertex instances.
+
+    Args:
+        B_counterimage (list[entities._Vertex]): A list of vertexes which are the counterimage for a block of Q (there's no check though).
+
+    Returns:
+        tuple: A tuple containing the new blocks of Q generated during the split, and the new compound blocks of X.
+    """
+
     # keep track of the qblocks modified during step 4
     changed_qblocks = []
     # if a split splits a entities._QBlock in two non-empty entities._QBlocks, then the entities._XBlock which contains them is for sure compound. We need to check if it's already compound though.
@@ -142,6 +151,12 @@ def split(B_counterimage: list[entities._Vertex]):
 
 # each edge a->b should point to |X(b) \cap E({a})| where X(b) is the entities._XBlock b belongs to. Note that B_block is a new entities._XBlock at the end of refine. We decrement the count for the edge because B isn't in S anymore (S was replaced with B, S-B indeed).
 def update_counts(B_block_vertexes: list[entities._Vertex]):
+    """After a block B of Q has become a block of X on its own (it was removed from a compound block S) we need to decrease by one count(x,S) (which is now count(x,S-B)) for each vertex in E^{-1}(B).
+
+    Args:
+        B_block_vertexes (list[entities._Vertex]): A block of Q which is now a block of S.
+    """
+
     for vertex in B_block_vertexes:
         # edge.destination is inside B now. We must decrement count(edge.source, S) by for each vertex y \in B such that edge.source -> y
         for edge in vertex.counterimage:
@@ -152,8 +167,17 @@ def update_counts(B_block_vertexes: list[entities._Vertex]):
             edge.count = edge.source.aux_count
 
 
-# be careful: you should only work with llist in order to get O(1) deletion from x/qblocks
-def refine(compound_xblocks, xblocks):
+def refine(compound_xblocks: list[entities._XBlock], xblocks: list[entities._XBlock]):
+    """Perform a refinement step, given the current X partition and the compound blocks of X.
+
+    Args:
+        compound_xblocks (list[entities._XBlock]): A list of compound blocks of X, namely those that contain more than one block of Q.
+        xblocks (list[entities._XBlock]): The current X partition
+
+    Returns:
+        tuple: A tuple containing the new X partition (resulting from the replacement of a block S with B, S-B) and the new blocks of Q which have been generated from the two split phases.
+    """
+
     # refinement step (following the steps at page 10 of "Three partition refinement algorithms")
 
     new_qblocks = []
@@ -208,6 +232,15 @@ def refine(compound_xblocks, xblocks):
 
 # returns a list of labels splitted in partitions
 def pta(q_partition: list[entities._QBlock]) -> list[tuple]:
+    """Apply the Paige-Tarjan algorithm to an initial partition Q which contains the whole "internal" representation of a graph.
+
+    Args:
+        q_partition (list[entities._QBlock]): The initial partition represented as the Q partition (namely with instances of QBlock).
+
+    Returns:
+        list[entities._Vertex]: The RSCP of the given initial partition as a list of Vertex instances.
+    """
+
     x_partition = [q_partition[0].xblock]
     compound_xblocks = [x_partition[0]]
 
