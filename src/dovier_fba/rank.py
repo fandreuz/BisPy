@@ -5,39 +5,6 @@ GRAY = 11
 BLACK = 12
 
 
-def dfs_wf_visit(graph, current_node):
-    if graph.nodes[current_node]["color"] == BLACK:
-        return
-
-    graph.nodes[current_node]["color"] = GRAY
-
-    for destination in graph.adj[current_node]:
-        if not graph.nodes[destination]["wf"]:
-            graph.nodes[current_node]["wf"] = False
-        elif graph.nodes[destination]["color"] == GRAY:
-            graph.nodes[current_node]["wf"] = False
-            graph.nodes[destination]["wf"] = False
-        elif graph.nodes[destination]["color"] == WHITE:
-            dfs_wf_visit(graph, destination)
-            # se la chiamata ricorsiva scopre che destination è nwf, anche current_node è nwf
-            if not graph.nodes[destination]["wf"]:
-                graph.nodes[current_node]["wf"] = False
-
-    graph.nodes[current_node]["color"] = BLACK
-
-
-def well_founded_nodes(graph):
-    for node in graph.nodes:
-        graph.nodes[node]["wf"] = True
-        graph.nodes[node]["color"] = WHITE
-
-    for node in filter(lambda node: graph.nodes[node]["color"] == WHITE, graph.nodes):
-        dfs_wf_visit(graph, node)
-
-    for node in graph.nodes:
-        del graph.nodes[node]["color"]
-
-
 def dfs_rank_visit(graph_scc, current_scc):
     # current_scc contains only a leaf of graph
     if graph_scc.nodes[current_scc].get("G-leaf"):
