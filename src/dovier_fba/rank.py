@@ -1,11 +1,15 @@
 import networkx as nx
-
-WHITE = 10
-GRAY = 11
-BLACK = 12
+import dovier_fba.well_foundedness as wf
 
 
-def dfs_rank_visit(graph_scc, current_scc):
+def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
+    """A recursive step of the DFS visit. For a given SCC node, set its rank, and when needed visit its neighborhood. After the execution of this function the dictionary associated with each node in graph_scc will contain the key 'rank'.
+
+    Args:
+        graph_scc (nx.Graph): The SCC contraction of a graph.
+        current_scc (int): The SCC node which is being visited.
+    """
+
     # current_scc contains only a leaf of graph
     if graph_scc.nodes[current_scc].get("G-leaf"):
         graph_scc.nodes[current_scc]["rank"] = 0
@@ -28,9 +32,19 @@ def dfs_rank_visit(graph_scc, current_scc):
         graph_scc.nodes[current_scc]["rank"] = current_max
 
 
-# build an array which maps a given node to the corresponding scc
-def build_map_to_scc(graph_scc, graph):
-    scc_map = [frozenset() for node in graph.nodes]
+def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> list[int]:
+    """Construct a list of ints such that output[node] = [node], where [node] is the SCC node belongs to, and node is a vertex of the input graph.
+
+    Args:
+        graph_scc (nx.Graph): The SCC contraction of the given graph.
+        graph (nx.Graph): The input graph.
+
+    Returns:
+        list[int]: The SCC map of the input graph.
+    """
+
+    scc_map = [None for node in graph.nodes]
+
     for scc in graph_scc.nodes:
         for node in scc:
             try:
@@ -42,9 +56,19 @@ def build_map_to_scc(graph_scc, graph):
     return scc_map
 
 
-def prepare_scc(graph):
-    well_founded_nodes(graph)
+def prepare_scc(graph: nx.Graph) -> nx.DiGraph:
+    """Construct the SCC contraction of the given graph. The output graph comes with some useful info to compute the rank (well-foundedness of SCCs, G-leafness).
 
+    Args:
+        graph (nx.Graph): The input graph.
+
+    Returns:
+        nx.DiGraph: The SCC contraction of the input graph.
+    """
+
+    wf.mark_wf_nodes(graph)
+
+    # this is the graph whose nodes are the SCC of the input graph
     graph_scc = nx.DiGraph()
     components = map(
         lambda scc: frozenset(scc), nx.strongly_connected_components(graph)
@@ -52,19 +76,20 @@ def prepare_scc(graph):
     for scc in components:
         graph_scc.add_node(scc)
 
-    # maps a given node to the corresponding scc
+    # maps a given node to the corresponding SCC, so that [n] = scc_map[n], where [n] is the SCC of n.
     scc_map = build_map_to_scc(graph_scc, graph)
 
-    # edges
+    # add the edges to graph_scc
     for edge in graph.edges:
-        # drop circular edges
+        # drop self loops in graph_scc
         if scc_map[edge[0]] != scc_map[edge[1]]:
             graph_scc.add_edge(scc_map[edge[0]], scc_map[edge[1]])
 
+    # initialize the well-foundedness value for each scc to true
     for scc in graph_scc.nodes:
         graph_scc.nodes[scc]["wf"] = True
 
-    # wf and G-leafness
+    # set wf and G-leafness. G-leafness is True if the SCC contains a single node, which is a leaf of G.
     for node in graph.nodes:
         if not graph.nodes[node]["wf"]:
             graph_scc.nodes[scc_map[node]]["wf"] = False
@@ -74,14 +99,20 @@ def prepare_scc(graph):
     return graph_scc
 
 
-def compute_rank(graph):
+def compute_rank(graph: nx.Graph):
+    """Compute the rank for each node of the given graph.
+
+    Args:
+        graph (nx.Graph): The input graph.
+    """
+
     graph_scc = prepare_scc(graph)
 
-    for scc_node in filter(
-        lambda node: "rank" not in graph_scc.nodes[node], graph_scc.nodes
-    ):
-        dfs_rank_visit(graph_scc, scc_node)
+    for scc in graph_scc.nodes:
+        if "rank" not in graph_scc.nodes[scc]:
+            dfs_rank_visit(graph_scc, scc)
 
+    # propagate the value of the rank of the whole SCC to the single vertexes
     for scc_node in graph_scc.nodes:
         for node in scc_node:
             graph.nodes[node]["rank"] = graph_scc.nodes[scc_node]["rank"]
