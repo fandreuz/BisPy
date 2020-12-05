@@ -186,64 +186,6 @@ def test_can_remove_any_vertex_from_its_list(graph, initial_partition):
             # check that this doesn't raise an exception
             assert True
 
-
-def test_check_block_stability():
-    # this is a stable couple: E(A) is a subset of B
-    A_vertexes = [entities._Vertex(i) for i in range(3)]
-    B_vertexes = [entities._Vertex(i) for i in range(3, 7)]
-
-    A_block = entities._QBlock(A_vertexes, None)
-    B_block = entities._QBlock(B_vertexes, None)
-
-    for i in range(len(A_vertexes)):
-        A_vertexes[i].add_to_image(
-            entities._Edge(A_block.vertexes.nodeat(i).value, B_block.vertexes.nodeat(i).value)
-        )
-    assert rscp_utilities.check_block_stability(
-        [vertex for vertex in A_block.vertexes],
-        [vertex for vertex in B_block.vertexes],
-    )
-
-    # this is a stable couple: the intersection of E(A) and B is empty
-    A_vertexes = [entities._Vertex(i) for i in range(3)]
-    B_vertexes = [entities._Vertex(i) for i in range(3, 7)]
-    C_vertexes = [entities._Vertex(i) for i in range(3)]
-
-    A_block = entities._QBlock(A_vertexes, None)
-    B_block = entities._QBlock(B_vertexes, None)
-    C_block = entities._QBlock(C_vertexes, None)
-
-    for i in range(len(A_vertexes)):
-        A_vertexes[i].add_to_image(
-            entities._Edge(A_block.vertexes.nodeat(i).value, C_block.vertexes.nodeat(i).value)
-        )
-    assert rscp_utilities.check_block_stability(
-        [vertex for vertex in A_block.vertexes],
-        [vertex for vertex in B_block.vertexes],
-    )
-
-    # this is a non-stable couple
-    A_vertexes = [entities._Vertex(i) for i in range(3)]
-    B_vertexes = [entities._Vertex(i) for i in range(3, 7)]
-
-    A_block = entities._QBlock(A_vertexes, None)
-    B_block = entities._QBlock(B_vertexes, None)
-
-    for i in range(1, len(A_vertexes)):
-        A_vertexes[i].add_to_image(
-            entities._Edge(A_block.vertexes.nodeat(i).value, B_block.vertexes.nodeat(i).value)
-        )
-
-    # this is the edge which will fail the stability check
-    A_vertexes[0].add_to_image(
-        entities._Edge(A_block.vertexes.nodeat(0).value, A_block.vertexes.nodeat(1).value)
-    )
-
-    assert not rscp_utilities.check_block_stability(
-        [vertex for vertex in A_block.vertexes],
-        [vertex for vertex in B_block.vertexes],
-    )
-
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split(graph, initial_partition):
     (q_partition, _) = decorator.initialize(graph, initial_partition)
