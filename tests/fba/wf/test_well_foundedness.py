@@ -3,7 +3,7 @@ import paige_tarjan.graph_decorator as decorator
 import dovier_fba.well_foundedness as wf
 import networkx as nx
 import pytest
-from . import wf_test_cases as test_cases
+import wf_test_cases as test_cases
 
 
 def test_dfs_wf_visit_visits_neighborhood():

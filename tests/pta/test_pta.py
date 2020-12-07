@@ -1,7 +1,7 @@
 import pytest
 import networkx as nx
 from llist import dllist, dllistnode
-from . import pta_test_cases as test_cases
+import pta_test_cases as test_cases
 import itertools
 
 import utilities.rscp_utilities as rscp_utilities
