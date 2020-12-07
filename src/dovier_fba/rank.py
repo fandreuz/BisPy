@@ -4,6 +4,7 @@ import dovier_fba.well_foundedness as wf
 
 def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
     """A recursive step of the DFS visit. For a given SCC node, set its rank, and when needed visit its neighborhood. After the execution of this function the dictionary associated with each node in graph_scc will contain the key 'rank'.
+    -infty = float('-inf')
 
     Args:
         graph_scc (nx.Graph): The SCC contraction of a graph.
@@ -32,7 +33,7 @@ def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
         graph_scc.nodes[current_scc]["rank"] = current_max
 
 
-def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> list[int]:
+def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> list[frozenset]:
     """Construct a list of ints such that output[node] = [node], where [node] is the SCC node belongs to, and node is a vertex of the input graph.
 
     Args:
@@ -57,7 +58,10 @@ def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> list[int]:
 
 
 def prepare_scc(graph: nx.Graph) -> nx.DiGraph:
-    """Construct the SCC contraction of the given graph. The output graph comes with some useful info to compute the rank (well-foundedness of SCCs, G-leafness).
+    """Construct the SCC contraction of the given graph. The output graph comes with some useful info to compute the rank:
+    - well-foundedness of a SCC (key: 'wf');
+    - G-leafness of a SCC (the SCC contains only a single node which is a leaf of G) (key: 'G-leaf').
+    This function calls mark_wf_nodes on the given graph instance.
 
     Args:
         graph (nx.Graph): The input graph.
