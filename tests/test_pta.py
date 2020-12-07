@@ -316,8 +316,10 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
         assert vertex.aux_count == None
 
 def test_count_after_refinement():
-    graph = test_cases.create_graph(edges=[(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)], size=5)
-    graph, initial_partition = test_cases.create_graph_partition_tuple(graph)
+    graph = nx.DiGraph()
+    graph.add_edges_from([(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)])
+    graph.add_nodes_from(range(5))
+    initial_partition = test_cases.initial_partitions[len(graph.nodes)]
 
     (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
 
