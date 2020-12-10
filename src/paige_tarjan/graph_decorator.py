@@ -1,9 +1,10 @@
 from paige_tarjan import graph_entities as entities
 import itertools
 import networkx as nx
+from typing import List
 
 
-def prepare_graph_abstraction(graph: nx.Graph) -> list[entities._Vertex]:
+def prepare_graph_abstraction(graph: nx.Graph) -> List[entities._Vertex]:
     """Acquires an input graph, and outputs a representation of that graph which can be used by the algorithm. This function computes the image and counterimage for each _Vertex, and creates the needed instances of _Edge. Vertexes are indexed and labeled following their order in the given graph.nodes entity.
 
     Args:
@@ -37,7 +38,9 @@ def prepare_graph_abstraction(graph: nx.Graph) -> list[entities._Vertex]:
     return vertexes
 
 
-def build_qpartition(vertexes: list[entities._Vertex], initial_partition: list[tuple]) -> list[entities._QBlock]:
+def build_qpartition(
+    vertexes: List[entities._Vertex], initial_partition: List[tuple]
+) -> List[entities._QBlock]:
     """Constructs the initial Q partition given the list of Vertexes and the initial_partition. This function fails if the length of the initial partition is not equal to the number of vertexes in the list.
 
     Args:
@@ -90,7 +93,9 @@ def build_qpartition(vertexes: list[entities._Vertex], initial_partition: list[t
 
 
 # this is a FUNDAMENTAL part of the algorithm: we need a stable initial partition with respect to the set V, but a partition where leafs and non-leafs are in the same block can't be stable
-def preprocess_initial_partition(vertexes: list[entities._Vertex], initial_partition: list[tuple]) -> list[tuple]:
+def preprocess_initial_partition(
+    vertexes: List[entities._Vertex], initial_partition: List[tuple]
+) -> List[tuple]:
     """Splits each block A of the initial Q partition in the intersection of A and E^{-1}(V) and A - E^{-1}(V). The result is a partition where each block contains zero or all leafs. This procedure is fundamental for obtaining a partition stable with respect to V, which is an hypothesis that the algorithms needs in order to work.
 
     Args:
@@ -121,7 +126,9 @@ def preprocess_initial_partition(vertexes: list[entities._Vertex], initial_parti
     return new_partition
 
 
-def initialize(graph: nx.Graph, initial_partition: list[tuple]) -> (list[entities._QBlock], list[entities._Vertex]):
+def initialize(
+    graph: nx.Graph, initial_partition: List[tuple]
+) -> (List[entities._QBlock], List[entities._Vertex]):
     """Packs the needed processing for a graph (prepare_graph_abstraction, preprocess_initial_partition, build_qpartition).
 
     Args:
