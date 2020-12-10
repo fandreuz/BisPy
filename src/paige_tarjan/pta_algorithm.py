@@ -6,7 +6,8 @@ from typing import List
 
 def rscp(graph: nx.Graph, initial_partition: List[List[int]] = None):
     if initial_partition == None:
-        initial_partition = list(range(len(graph.nodes)))
+        # the partition must be a list of lists
+        initial_partition = [list(range(len(graph.nodes)))]
 
     (q_partition, _) = decorator.initialize(graph, initial_partition)
     rscp = pta.pta(q_partition)
