@@ -9,6 +9,7 @@ import utilities.rscp_utilities as rscp_utilities
 import paige_tarjan.graph_entities as entities
 import paige_tarjan.pta as pta
 import paige_tarjan.graph_decorator as decorator
+import paige_tarjan.pta_algorithm as pta_algorithm
 
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
@@ -380,7 +381,5 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
     test_cases.graph_partition_rscp_tuples,
 )
 def test_pta_correctness(graph, initial_partition, expected_q_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
-    rscp = pta.pta(q_partition)
-    rscp = [tuple(sorted(tp)) for tp in rscp]
+    rscp = pta_algorithm.rscp(graph, initial_partition)
     assert set(rscp) == expected_q_partition
