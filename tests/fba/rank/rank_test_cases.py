@@ -35,3 +35,15 @@ graphs_noderankdict.append((graph3, {
     2: float('-inf'),
     3: float('-inf')
 }))
+
+# 3: edge to G-SCC leaf
+graph4 = nx.DiGraph()
+graph4.add_nodes_from(range(4))
+graph4.add_edges_from([(0, 1), (1, 2), (2, 0), (3, 0)])
+graphs.append(graph4)
+graphs_noderankdict.append((graph4, {
+    0: float('-inf'),
+    1: float('-inf'),
+    2: float('-inf'),
+    3: float('-inf')
+}))
