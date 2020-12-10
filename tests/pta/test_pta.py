@@ -384,7 +384,8 @@ def test_pta_correctness(graph, initial_partition, expected_q_partition):
     rscp = pta_algorithm.rscp(graph, initial_partition)
     assert set(rscp) == expected_q_partition
 
-def test_pta_full_graph():
-    graph = test_cases.build_full_graphs(10000)
+def test_pta_no_initial_partition():
+    graph = test_cases.build_full_graphs(10)
     rscp = pta_algorithm.rscp(graph)
+    assert True
 
