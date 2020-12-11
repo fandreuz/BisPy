@@ -4,9 +4,14 @@
 # Bisimulation-Algorithms
 
 ## The problem
-Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation on V which satisfies the following property:
+Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation R on V which satisfies the following property:
 
-<img src="https://render.githubusercontent.com/render/math?math=\forall a' \mid \langle a, a' \rangle \in E, \exists \, b' \mid \langle b, b' \rangle \lor R(a',b')">
+<img src="https://render.githubusercontent.com/render/math?math=\forall a,b \mid R(a,b)">
+
+the following conditions hold:
+
+<img src="https://render.githubusercontent.com/render/math?math=1. \,\,\forall a_1 \mid \left(a, a_1\right) \in E, \exists \, b_1 \mid \left(b, b_1\right) \in E \lor R(a_1,b_1)">
+<img src="https://render.githubusercontent.com/render/math?math=2. \,\forall b_1 \mid \left(b, b_1\right) \in E, \exists \, a_1 \mid \left(a, a_1\right) \in E \lor R(a_1,b_1)">
 
 This is in fact a condition on the *behavior* of the nodes: two nodes *behave* in the *same way* if for each node reached by one of them, there's a fourth node reached by the other node which *behaves* like the third.
 
@@ -15,9 +20,9 @@ This informal definition of bisimulation is equivalent to the formal one above, 
 ## Algorithmic approach
 The somewhat recursive statement of the problem makes the bisimulation an apparently difficult problem from an algorithmic point of view. However, as Kanellakis C. and Smolka S. shown in their paper published in 1990, computing the *maximum* bisimulation of a graph (namely the *biggest* bisimulation, the one which relates the highest number of nodes) is equivalent to determining the *relational stable coarsest partition*.
 
-The *RSCP* of a set S given a binary relation R, as the name suggests, is the *coarsest* (which contains the fewest number of blocks) *stable partition*, where *stability* is a quality of partitions defined as follows for a given partition P:
+The *RSCP* of a set S given a binary relation R, as the name suggests, is the *coarsest* (which contains the fewest number of blocks) *stable partition*, where *stability* is a quality of partitions which is defined as follows for a given partition P:
 
-![Stability definition](res/stability-definition.png)
+<img src="https://render.githubusercontent.com/render/math?math=\forall A,B \in P, A \subseteq R^{-1}(B) \lor A \cap R^{-1}(B) = \emptyset">
 
 This statemente is reassuring: in order to verify that two nodes are *bisimilar* (which is quite interesting for the applications) we do not need to visit exhaustively their children, and then the children of the children, and so on. We only need to compute the RSCP of V with respect to the relation E, and check whether the two nodes are in the same block.
 
@@ -25,8 +30,8 @@ This statemente is reassuring: in order to verify that two nodes are *bisimilar*
 This library contains the implementation in Python 3 of the following algorithms:
 |  Name        |  Strategy   | Complexity  |
 |--------------|:-------------:|:---:|
-| Paige-Tarjan | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
-| Dovier-FBA   | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
+| Paige-Tarjan | Negative    | <img src="https://render.githubusercontent.com/render/math?math=O(\mid E\mid \log \mid V \mid)">  |
+| Dovier-FBA   | Negative    | <img src="https://render.githubusercontent.com/render/math?math=O(\mid E\mid \log \mid V \mid)">  |
 | Saha         | Incremental |  Depends on the entity of the changes. |
 
 ## Installation
