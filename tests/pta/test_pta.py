@@ -404,7 +404,7 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
 )
 def test_pta_correctness(graph, initial_partition, expected_q_partition):
     rscp = pta_algorithm.rscp(graph, initial_partition)
-    assert set(rscp) == expected_q_partition
+    assert rscp == expected_q_partition
 
 
 def test_pta_no_initial_partition():
@@ -413,16 +413,13 @@ def test_pta_no_initial_partition():
     assert True
 
 
-def test_pta_only_integer_nodes():
+def test_pta_no_integer_nodes():
     graph = nx.DiGraph()
-    graph.add_nodes_from(["a", 0, 1, 2, 3])
+    graph.add_nodes_from(["a", 0, 1, 2, 3, frozenset("x")])
+    graph.add_edges_from([("a", 0), (0, 1), (1, 2), (2, 3)])
+    rscp = pta_algorithm.rscp(graph, [["a", 0, 1, 2], [3, frozenset("x")]])
+    assert set(rscp) == set([("a",), (0,), (1,), (2,), (3, frozenset("x"))])
 
-    with pytest.raises(Exception) as execinfo:
-        pta_algorithm.rscp(graph)
-
-    assert str(execinfo.value).startswith(
-        "Nodes must be represented by integer numbers"
-    )
 
 def test_no_compound_xblocks():
     G = nx.DiGraph()
