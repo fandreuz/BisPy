@@ -425,3 +425,24 @@ def test_no_compound_xblocks():
     G = nx.DiGraph()
     G.add_edges_from([[0, 1], [1, 2], [2, 1]])
     assert len(pta_algorithm.rscp(G)) == 1
+
+def test_integer_graph():
+    nodes = [0, 1, 2, 'a', 'b', frozenset([5]), None, nx.DiGraph()]
+
+    graph = nx.DiGraph()
+    graph.add_nodes_from(nodes)
+
+    # add an edge to the next node, and to the first node in the list
+    for i in range(len(nodes) - 1):
+        graph.add_edge(nodes[i], nodes[0])
+        graph.add_edge(nodes[i], nodes[i + 1])
+
+    integer_graph, node_to_idx = pta_algorithm.convert_to_integer_graph(graph)
+
+    # test the map's correctness
+    for node in nodes:
+        assert nodes[node_to_idx[node]] == node
+
+    # test the correctness of edges
+    for edge in integer_graph.edges:
+        assert edge[1] == edge[0] + 1 or edge[1] == 0
