@@ -69,4 +69,3 @@ def fba(graph: nx.Graph):
         pta.rscp()
         collapse(graph, partition[i])
         split2(graph, )
-
