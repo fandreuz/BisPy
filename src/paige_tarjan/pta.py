@@ -242,8 +242,13 @@ def pta(q_partition: List[entities._QBlock]) -> List[tuple]:
         list[entities._Vertex]: The RSCP of the given initial partition as a list of Vertex instances.
     """
 
+    # initially, there's only one block in the partition X, the one which contains each block in Q
     x_partition = [q_partition[0].xblock]
-    compound_xblocks = [x_partition[0]]
+    # if there's more than one block of Q in the (sinlge) block in X, we can add it to compound_blocks
+    if len(x_partition[0].qblocks) > 1:
+        compound_xblocks = [x_partition[0]]
+    else:
+        compound_xblocks = []
 
     while len(compound_xblocks) > 0:
         x_partition, new_qblocks = refine(

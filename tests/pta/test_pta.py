@@ -423,3 +423,8 @@ def test_pta_only_integer_nodes():
     assert str(execinfo.value).startswith(
         "Nodes must be represented by integer numbers"
     )
+
+def test_no_compound_xblocks():
+    G = nx.DiGraph()
+    G.add_edges_from([[0, 1], [1, 2], [2, 1]])
+    assert len(pta_algorithm.rscp(G)) == 1
