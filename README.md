@@ -38,7 +38,7 @@ The package isn't published, therefore the following steps are needed:
 5. Install the package in development mode: `pip install -e ./` or `pip3 install -e ./`.
 
 ## Usage
-This example shows how to use the PTA algorithm on a given graph. We use [NetworkX](https://networkx.org/) to represent the input. Moreover, we need the initial partition, represented as a list of lists: each inner list is a block. Nodes in the graph should be obtainable with an integer index (like in `graph.nodes[node_idx]`), and likewise blocks are represented by lists of integers.
+This example shows how to use the PTA algorithm on a given graph. We use [NetworkX](https://networkx.org/) to represent the input. Moreover, we need the initial partition, represented as an iterable of iterables: inner iterables are the blocks of the partition.
 
 Therefore the following snippet:
 ```python
@@ -55,7 +55,7 @@ We can find the RSCP with the Paige-Tarjan Algorithm as follows:
 import paige_tarjan.pta_algorithm as pta
 rscp = pta.rscp(graph, initial_partition)
 ```
-The RSCP is a list of blocks, where nodes are represented by their integer index as in the input graph.
+The RSCP is a set of tuples.
 
 ## Examples
 Initial partition | RSCP
