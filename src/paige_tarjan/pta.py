@@ -65,7 +65,7 @@ def build_block_counterimage(B_qblock: entities._QBlock) -> List[entities._Verte
 # in order to get the right result, you need to run the method build_splitter_counterimage before, which sets aux_count
 def build_exclusive_B_counterimage(
     B_qblock_vertexes: List[entities._Vertex],
-) -> list[entities._Vertex]:
+) -> List[entities._Vertex]:
     """Given a block B of Q which has just been extracted from a compound block S of x, generate the exclusive counterimage of B, namely E^{-1}(B) - E^{-1}(S-B), where E is the relation '->' of the graph. It's fundamental that this function is called after build_block_counterimage, since it uses the aux_count values set by that function.
 
     Args:
