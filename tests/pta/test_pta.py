@@ -418,7 +418,7 @@ def test_pta_no_integer_nodes():
     graph.add_nodes_from(["a", 0, 1, 2, 3, frozenset("x")])
     graph.add_edges_from([("a", 0), (0, 1), (1, 2), (2, 3)])
     rscp = pta_algorithm.rscp(graph, [["a", 0, 1, 2], [3, frozenset("x")]])
-    assert set(rscp) == set([("a",), (0,), (1,), (2,), (3, frozenset("x"))])
+    assert rscp == set([("a",), (0,), (1,), (2,), (3, frozenset("x"))])
 
 
 def test_no_compound_xblocks():

@@ -1,7 +1,7 @@
 import networkx as nx
 import paige_tarjan.graph_decorator as decorator
 import paige_tarjan.pta as pta
-from typing import List, Dict, Any, Set, Tuple
+from typing import List, Dict, Any, Set, Tuple, Iterable
 
 
 def convert_to_integer_graph(graph: nx.Graph) -> (nx.Graph, Dict[Any, int]):
@@ -22,12 +22,12 @@ def convert_to_integer_graph(graph: nx.Graph) -> (nx.Graph, Dict[Any, int]):
 
 
 def convert_to_integer_partition(
-    partition: List[List[Any]], node_to_idx: Dict[Any, int]
+    partition: Iterable[Iterable[Any]], node_to_idx: Dict[Any, int]
 ) -> List[List[int]]:
     return [[node_to_idx[old_node] for old_node in block] for block in partition]
 
 
-def rscp(graph: nx.Graph, initial_partition: List[List[int]] = None) -> Set[Tuple]:
+def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None) -> Set[Tuple]:
     # convert the graph to an "integer" graph
     integer_graph, node_to_idx = convert_to_integer_graph(graph)
 
@@ -48,4 +48,4 @@ def rscp(graph: nx.Graph, initial_partition: List[List[int]] = None) -> Set[Tupl
     idx_to_node = sorted(node_to_idx, key=lambda node: node_to_idx[node])
 
     # compute the RSCP of the original graph
-    return set([tuple([idx_to_node[idx] for idx in block]) for block in sorted_rscp])
+    return frozenset([tuple([idx_to_node[idx] for idx in block]) for block in sorted_rscp])
