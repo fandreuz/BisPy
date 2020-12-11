@@ -1,5 +1,5 @@
 import networkx as nx
-import dovier_fba.rank as rank
+import dovier_piazza_policriti.rank as rank
 import paige_tarjan.pta_algorithm as pta
 
 # TODO: improve performance
