@@ -1,5 +1,5 @@
 import networkx as nx
-import dovier_fba.well_foundedness as wf
+import dovier_piazza_policriti.well_foundedness as wf
 from typing import List
 
 def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
