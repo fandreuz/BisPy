@@ -388,4 +388,3 @@ def test_pta_no_initial_partition():
     graph = test_cases.build_full_graphs(10)
     rscp = pta_algorithm.rscp(graph)
     assert True
-

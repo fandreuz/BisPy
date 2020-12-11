@@ -2,4 +2,4 @@ __pycache__/
 .vscode/
 tester/
 docs/build/
-**/bisimulation_algorithms.egg-info/
+src/bisimulation_algorithms.egg-info/
