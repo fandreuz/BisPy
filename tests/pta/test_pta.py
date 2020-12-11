@@ -15,7 +15,9 @@ import paige_tarjan.pta_algorithm as pta_algorithm
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_preprocess(graph, initial_partition):
     vertexes = decorator.prepare_graph_abstraction(graph)
-    processed_partition = decorator.preprocess_initial_partition(vertexes, initial_partition)
+    processed_partition = decorator.preprocess_initial_partition(
+        vertexes, initial_partition
+    )
 
     # check if leafs and non-leafs aren't mixed
     for block in processed_partition:
@@ -30,6 +32,7 @@ def test_preprocess(graph, initial_partition):
             else:
                 assert leafs_count == 0
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_qpartition_initialize(graph, initial_partition):
     (q_partition, _) = decorator.initialize(graph, initial_partition)
@@ -41,6 +44,7 @@ def test_qpartition_initialize(graph, initial_partition):
     assert set(map(lambda vertex: vertex.label, vertexes)) == set(
         [idx for idx, _ in enumerate(graph.nodes)]
     )
+
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_initialize_right_types(graph, initial_partition):
@@ -57,6 +61,7 @@ def test_initialize_right_types(graph, initial_partition):
                 assert isinstance(v, entities._Edge)
             assert isinstance(vertex.qblock, entities._QBlock)
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_count_initialize(graph, initial_partition):
     (_, vertexes) = decorator.initialize(graph, initial_partition)
@@ -64,6 +69,7 @@ def test_count_initialize(graph, initial_partition):
     for vertex in vertexes:
         for edge in vertex.image:
             assert edge.count.value == len(vertex.image)
+
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_image_initialize(graph, initial_partition):
@@ -87,7 +93,9 @@ def test_vertex_counterimage_initialize(graph, initial_partition):
 
     right_counterimage = [set() for node in graph.nodes]
     for edge in graph.edges:
-        right_counterimage[edge[1]].add(entities._Edge(vertexes[edge[0]], vertexes[edge[1]]))
+        right_counterimage[edge[1]].add(
+            entities._Edge(vertexes[edge[0]], vertexes[edge[1]])
+        )
 
     for block in q_partition:
         for vertex in block.vertexes:
@@ -116,6 +124,7 @@ def test_choose_qblock():
         compoundblock_qblocks.add(compoundblock.qblocks.nodeat(i).value)
     assert compoundblock_qblocks == set([qblocks[0], qblocks[2]])
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage(graph, initial_partition):
     (q_partition, _) = decorator.initialize(graph, initial_partition)
@@ -134,6 +143,7 @@ def test_build_block_counterimage(graph, initial_partition):
                 right_block_counterimage.add(edge[0])
 
         assert right_block_counterimage == block_counterimage
+
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage_aux_count(graph, initial_partition):
@@ -186,6 +196,7 @@ def test_can_remove_any_vertex_from_its_list(graph, initial_partition):
             vertex = vertex.next
             # check that this doesn't raise an exception
             assert True
+
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split(graph, initial_partition):
@@ -251,14 +262,13 @@ def test_second_splitter_counterimage(graph, initial_partition):
     )
 
     # use the pta function to compute E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_exclusive_B_counterimage(
-        splitter_vertexes
-    )
+    second_splitter_counterimage = pta.build_exclusive_B_counterimage(splitter_vertexes)
 
     for vertex in second_splitter_counterimage:
         assert vertex in block_counterimage and not any(
             map(lambda edge: edge in second_splitter_s_minus_b_vertexes, vertex.image)
         )
+
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_second_split(graph, initial_partition):
@@ -277,9 +287,7 @@ def test_second_split(graph, initial_partition):
         filter(lambda vertex: vertex not in splitter_vertexes, vertexes)
     )
     # E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_exclusive_B_counterimage(
-        splitter_vertexes
-    )
+    second_splitter_counterimage = pta.build_exclusive_B_counterimage(splitter_vertexes)
 
     pta.split(second_splitter_counterimage)
 
@@ -293,7 +301,9 @@ def test_second_split(graph, initial_partition):
 # a refinement step should increase by one the number of xblocks
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
-    (q_partition, vertexes_dllistobejct) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes_dllistobejct) = decorator.initialize(
+        graph, initial_partition
+    )
 
     xblock = q_partition[0].xblock
 
@@ -306,6 +316,7 @@ def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
 
     assert len(xblocks) == 2
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_reset_aux_count_after_refinement(graph, initial_partition):
     (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
@@ -316,9 +327,12 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
     for vertex in vertexes:
         assert vertex.aux_count == None
 
+
 def test_count_after_refinement():
     graph = nx.DiGraph()
-    graph.add_edges_from([(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)])
+    graph.add_edges_from(
+        [(0, 1), (0, 2), (0, 3), (1, 2), (2, 4), (3, 0), (3, 2), (4, 1), (4, 3)]
+    )
     graph.add_nodes_from(range(5))
     initial_partition = test_cases.initial_partitions[len(graph.nodes)]
 
@@ -343,7 +357,10 @@ def test_count_after_refinement():
 
     for vertex in vertexes:
         for edge in vertex.image:
-            assert ok_count[xblock_index(edge.destination.qblock.xblock)][vertex.label] == edge.count.value
+            assert (
+                ok_count[xblock_index(edge.destination.qblock.xblock)][vertex.label]
+                == edge.count.value
+            )
 
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
@@ -356,6 +373,7 @@ def test_no_negative_edge_counts(graph, initial_partition):
     for vertex in vertexes:
         for edge in vertex.image:
             assert edge.count == None or edge.count.value > 0
+
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_refine_updates_compound_xblocks(graph, initial_partition):
@@ -370,11 +388,15 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
         if len(xblock.qblocks) > 1:
             assert xblock in compound_xblocks
 
+
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_pta_result_is_stable_partition(graph, initial_partition):
     (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
     result = pta.pta(q_partition)
-    assert rscp_utilities.is_stable_partition([[vertexes[vertex_idx] for vertex_idx in block] for block in result])
+    assert rscp_utilities.is_stable_partition(
+        [[vertexes[vertex_idx] for vertex_idx in block] for block in result]
+    )
+
 
 @pytest.mark.parametrize(
     "graph, initial_partition, expected_q_partition",
@@ -384,7 +406,20 @@ def test_pta_correctness(graph, initial_partition, expected_q_partition):
     rscp = pta_algorithm.rscp(graph, initial_partition)
     assert set(rscp) == expected_q_partition
 
+
 def test_pta_no_initial_partition():
     graph = test_cases.build_full_graphs(10)
     rscp = pta_algorithm.rscp(graph)
     assert True
+
+
+def test_pta_only_integer_nodes():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(["a", 0, 1, 2, 3])
+
+    with pytest.raises(Exception) as execinfo:
+        pta_algorithm.rscp(graph)
+
+    assert str(execinfo.value).startswith(
+        "Nodes must be represented by integer numbers"
+    )
