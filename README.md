@@ -6,7 +6,7 @@
 ## The problem
 Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation on V which satisfies the following property:
 
-![Bisimulation definition](res/bisimulation-definition.png)
+<img src="https://render.githubusercontent.com/render/math?math=\forall a' \mid \langle a, a' \rangle \in E, \exists \, b' \mid \langle b, b' \rangle \lor R(a',b')">
 
 This is in fact a condition on the *behavior* of the nodes: two nodes *behave* in the *same way* if for each node reached by one of them, there's a fourth node reached by the other node which *behaves* like the third.
 
