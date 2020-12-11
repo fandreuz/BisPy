@@ -21,12 +21,6 @@ def convert_to_integer_graph(graph: nx.Graph) -> (nx.Graph, Dict[Any, int]):
     return integer_graph, node_to_idx
 
 
-def convert_to_integer_partition(
-    partition: Iterable[Iterable[Any]], node_to_idx: Dict[Any, int]
-) -> List[List[int]]:
-    return [[node_to_idx[old_node] for old_node in block] for block in partition]
-
-
 def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None) -> Set[Tuple]:
     # convert the graph to an "integer" graph
     integer_graph, node_to_idx = convert_to_integer_graph(graph)
@@ -34,10 +28,9 @@ def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None) -> 
     # if initial_partition is None, then it's the trivial partition
     if initial_partition == None:
         initial_partition = [list(graph.nodes)]
+
     # convert the initial partition to a integer partition
-    integer_initial_partition = convert_to_integer_partition(
-        initial_partition, node_to_idx
-    )
+    integer_initial_partition = [[node_to_idx[old_node] for old_node in block] for block in initial_partition]
 
     # compute the RSCP
     (q_partition, _) = decorator.initialize(integer_graph, integer_initial_partition)
