@@ -7,12 +7,15 @@ class _Vertex:
     Attributes:
         rank:          The rank of this vertex
         counterimage:  A such that A -> self
-        neighborhoods: A such that self -> A
+        image: A such that self -> A
+        collapsed_to: If this vertex was collapsed, this is a reference to the _Vertex object it was collapsed to
     """
 
     def __init__(
-        self, rank: int, neighborhoods: Iterable[Vertex], counterimage: Iterable[Vertex]
+        self, rank: int, neighborhoods: Iterable[Vertex], image: Iterable[Vertex]
     ):
         self.rank = rank
         self.counterimage = counterimage
-        self.neighborhoods = neighborhoods
+        self.image = image
+
+        self.collapsed_to = None
