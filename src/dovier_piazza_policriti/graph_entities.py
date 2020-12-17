@@ -12,19 +12,25 @@ class _Vertex:
     """
 
     def __init__(
-        self, rank: int, neighborhoods: Iterable, image: Iterable
+        self, rank: int
     ):
         self.rank = rank
-        self.counterimage = counterimage
-        self.image = image
+        self.counterimage = []
+        self.image = []
 
         self.collapsed_to = None
         self.block = None
         self.dllistnode = None
 
+    def append_to_image(self, vertex: _Vertex):
+        self.image.append(vertex)
+
+    def append_to_counterimage(self, vertex: _Vertex):
+        self.counterimage.append(vertex)
+
 class _Block:
-    def __init__(self, rank: int):
-        self.vertexes = dllist([])
+    def __init__(self, rank: int, vertexes = []):
+        self.vertexes = dllist(vertexes)
         self.aux_block = None
 
         self.visited = False
