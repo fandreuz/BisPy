@@ -132,3 +132,9 @@ def compute_rank(graph: nx.Graph):
     for scc_node in graph_scc.nodes:
         for node in scc_node:
             graph.nodes[node]["rank"] = graph_scc.nodes[scc_node]["rank"]
+
+def find_max_rank(graph: nx.Graph) -> int:
+    max_rank = float('-inf')
+    for node in graph.nodes:
+        max_rank = max(max_rank, graph.nodes[node]['rank'])
+    return max_rank
