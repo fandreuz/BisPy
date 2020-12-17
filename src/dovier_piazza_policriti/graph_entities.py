@@ -1,6 +1,7 @@
 from typing import Iterable
 
-class Vertex:
+
+class _Vertex:
     """Represents a vertex of the input graph. The representation holds some key attributes used by the algorithm (O(1) access).
 
     Attributes:
@@ -9,7 +10,9 @@ class Vertex:
         neighborhoods: A such that self -> A
     """
 
-    def __init__(self, rank: int, neighborhoods: Iterable[Vertex], counterimage: Iterable[Vertex]):
+    def __init__(
+        self, rank: int, neighborhoods: Iterable[Vertex], counterimage: Iterable[Vertex]
+    ):
         self.rank = rank
         self.counterimage = counterimage
         self.neighborhoods = neighborhoods
