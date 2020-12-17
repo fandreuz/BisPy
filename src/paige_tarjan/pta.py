@@ -25,7 +25,7 @@ def extract_splitter(compound_block: entities._XBlock) -> entities._QBlock:
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
 # remember to reset the value of aux_count after the refinement
-def build_block_counterimage(B_qblock: entities._QBlock) -> list[entities._Vertex]:
+def build_block_counterimage(B_qblock: entities._QBlock) -> List[entities._Vertex]:
     """Given a block B of Q, construct a list of vertexes x such that x->y and y is in B. This function also sets vertex.aux_count and increases it by one for each visited vertex in order to find the value |B \cap E({vertex})| for each vertex, where A is the relation '->' of the graph.
 
     Args:
