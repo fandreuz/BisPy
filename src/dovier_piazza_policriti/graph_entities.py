@@ -22,26 +22,26 @@ class _Vertex:
         self.block = None
         self.dllistnode = None
 
-    def append_to_image(self, vertex: _Vertex):
-        self.image.append(vertex)
-
-    def append_to_counterimage(self, vertex: _Vertex):
-        self.counterimage.append(vertex)
-
-class _Block:
-    def __init__(self, rank: int, vertexes = []):
-        self.vertexes = dllist(vertexes)
-        self.aux_block = None
-
         self.visited = False
 
-        self.rank = rank
+    def append_to_image(self, vertex):
+        self.image.append(vertex)
+
+    def append_to_counterimage(self, vertex):
+        self.counterimage.append(vertex)
 
     def visit(self):
         self.visited = True
 
     def release(self):
         self.visited = False
+
+class _Block:
+    def __init__(self, rank: int, vertexes = []):
+        self.vertexes = dllist(vertexes)
+        self.aux_block = None
+
+        self.rank = rank
 
     def size(self) -> int:
         return len(self.vertexes)
