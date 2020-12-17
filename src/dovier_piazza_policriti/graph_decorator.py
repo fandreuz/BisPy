@@ -16,7 +16,7 @@ def to_normal_graph(graph: nx.Graph) -> List[entities._Vertex]:
     return [
         entities._Vertex(
             graph.nodes[node]["rank"],
-            neighborhoods=vertexes_image,
+            image=vertexes_image,
             counterimage=vertexes_counterimage[node],
         )
         for node in graph.nodes
