@@ -4,7 +4,7 @@ from typing import List
 
 
 def to_normal_graph(graph: nx.Graph) -> List[entities._Vertex]:
-    vertexes = [entities._Vertex(graph.nodes[node]['rank']) for node in graph.nodes]
+    vertexes = [entities._Vertex(label=node, rank=graph.nodes[node]['rank']) for node in graph.nodes]
 
     # build the image/counterimage
     for edge in graph.edges:
