@@ -12,8 +12,10 @@ class _Vertex:
     """
 
     def __init__(
-        self, rank: int
+        self, rank: int, label: int
     ):
+        self.label = label
+
         self.rank = rank
         self.counterimage = []
         self.image = []
@@ -35,6 +37,25 @@ class _Vertex:
 
     def release(self):
         self.visited = False
+
+    def __str__(self):
+        return str(self.label)
+
+    def __repr__(self):
+        return str(self.label)
+
+    # this is only used for testing purposes
+    def __hash__(self):
+        return self.label
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, _Vertex)
+            and self.label == other.label
+        )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 class _Block:
     def __init__(self, rank: int, vertexes = []):
