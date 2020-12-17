@@ -3,7 +3,7 @@ import dovier_piazza_policriti.graph_entities as entities
 from typing import List
 
 
-def to_normal_graph(graph: nx.Graph) -> List[entities.Vertex]:
+def to_normal_graph(graph: nx.Graph) -> List[entities._Vertex]:
     vertexes_counterimage = [[] for _ in range(graph.nodes)]
     vertexes_image = [[] for _ in range(graph.nodes)]
 
@@ -14,7 +14,7 @@ def to_normal_graph(graph: nx.Graph) -> List[entities.Vertex]:
 
     # initialize the new representations
     return [
-        entities.Vertex(
+        entities._Vertex(
             graph.nodes[node]["rank"],
             neighborhoods=vertexes_image,
             counterimage=vertexes_counterimage[node],
