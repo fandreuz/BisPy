@@ -1,6 +1,7 @@
 import pytest
 import networkx as nx
 from llist import dllist, dllistnode
+import tests.pta.pta_test_cases as test_cases
 import itertools
 
 from bisimulation_algorithms.utilities.rscp_utilities import check_block_stability, is_stable_partition
