@@ -1,5 +1,6 @@
 from llist import dllist, dllistnode
 from . import graph_entities as entities
+from typing import List
 
 # choose the smallest qblock of the first two
 def extract_splitter(compound_block: entities._XBlock) -> entities._QBlock:
