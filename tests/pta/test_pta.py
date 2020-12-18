@@ -8,7 +8,7 @@ from bisimulation_algorithms.utilities.rscp_utilities import check_block_stabili
 from bisimulation_algorithms.paige_tarjan.graph_entities import _Vertex, _Edge, _QBlock, _XBlock
 from bisimulation_algorithms.paige_tarjan.pta import split, extract_splitter, build_block_counterimage, build_exclusive_B_counterimage, refine, pta
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize, prepare_graph_abstraction, preprocess_initial_partition
-from bisimulation_algorithms.paige_tarjan.pta_algorithm import rscp as evaluate_rscp, convert_to_integer_graph
+from bisimulation_algorithms.paige_tarjan.pta_algorithm import rscp as evaluate_rscp, convert_to_integer_graph, check_normal_integer_graph
 
 import pta_test_cases as test_cases
 
@@ -451,19 +451,19 @@ def test_integrality_check():
     # 1
     g1 = nx.DiGraph()
     g1.add_nodes_from([1, 2, 3, 4])
-    assert not pta_algorithm.check_normal_integer_graph(g1)
+    assert not check_normal_integer_graph(g1)
 
     # 2
     g2 = nx.DiGraph()
     g2.add_nodes_from(['a', 0, 2, 3, 4])
-    assert not pta_algorithm.check_normal_integer_graph(g2)
+    assert not check_normal_integer_graph(g2)
 
     # 3
     g3 = nx.DiGraph()
     g3.add_nodes_from([0, 1, 2, 3, 4])
-    assert pta_algorithm.check_normal_integer_graph(g3)
+    assert check_normal_integer_graph(g3)
 
     # 4
     g4 = nx.DiGraph()
     g4.add_nodes_from([0, 2, 3, 4])
-    assert not pta_algorithm.check_normal_integer_graph(g4)
+    assert not check_normal_integer_graph(g4)
