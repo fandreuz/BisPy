@@ -19,7 +19,8 @@ def collapse(graph, blocks: list[list]):
                     )
                 )
 
-                # replace edges incident to node with eges incident to keep_node
+                # replace edges incident to node with eges incident to
+                # keep_node
                 graph.add_edges_from(
                     map(
                         lambda edge: (keep_node, edge[1])
@@ -37,7 +38,8 @@ def split2(graph, node, partition, from_index):
 
 
 def fba(graph: nx.Graph):
-    """Apply the FBA algorithm to the given graph. The graph is modified in order to obtain the maximum bisimulation contraction.
+    """Apply the FBA algorithm to the given graph. The graph is modified in
+    order to obtain the maximum bisimulation contraction.
 
     Args:
         graph (nx.Graph): The input graph.
@@ -51,7 +53,8 @@ def fba(graph: nx.Graph):
         max_rank = max(max_rank, graph.nodes[node]["rank"])
 
     # initialize the initial partition. the first index is for -infty
-    # partition contains is a list of lists, each sub-list contains the sub-blocks of nodes at the i-th rank
+    # partition contains is a list of lists, each sub-list contains the
+    # sub-blocks of nodes at the i-th rank
     if max_rank != float("-inf"):
         partition = [[] for _ in range(max_rank + 2)]
     else:
@@ -61,20 +64,23 @@ def fba(graph: nx.Graph):
     # populate the blocks of the partition according to the ranks
     for node in graph.nodes:
         if graph.nodes[node]["rank"] == float("-inf"):
-            # rank is -infty, therefore we put this node in the first position of the list
+            # rank is -infty, therefore we put this node in the first position
+            # of the list
             partition_idx = 0
         else:
             # rank is not -infty
             partition_idx = graph.nodes[node]["rank"] + 1
 
-        # put this node in the (only) list at partition_idx in partition (there's only one block for each rank at the moment in the partition)
+        # put this node in the (only) list at partition_idx in partition
+        # (there's only one block for each rank at the moment in the partition)
         partition[partition_idx][0].add(node)
 
     # collapse B_{-infty}
     if len(partition[0]) > 0:
         # pass the blocks of rank -infty to collapse
         collapse(graph, partition[0])
-        # extract the first node of the first list of the first index in position
+        # extract the first node of the first list of the first index in
+        # position
         survivor_node = partition[0][0][0]
         # update the partition
         split2(graph, survivor_node, partition, 1)

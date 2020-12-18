@@ -5,7 +5,10 @@ from .well_foundedness import mark_wf_nodes
 
 
 def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
-    """A recursive step of the DFS visit. For a given SCC node, set its rank, and when needed visit its neighborhood. After the execution of this function the dictionary associated with each node in graph_scc will contain the key 'rank'.
+    """A recursive step of the DFS visit. For a given SCC node, set its rank,
+    and when needed visit its neighborhood. After the execution of this
+    function the dictionary associated with each node in graph_scc will contain
+    the key 'rank'.
     -infty = float('-inf')
 
     Args:
@@ -37,7 +40,8 @@ def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
 
 
 def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> List[frozenset]:
-    """Construct a list of ints such that output[node] = [node], where [node] is the SCC node belongs to, and node is a vertex of the input graph.
+    """Construct a list of ints such that output[node] = [node], where [node]
+    is the SCC node belongs to, and node is a vertex of the input graph.
 
     Args:
         graph_scc (nx.Graph): The SCC contraction of the given graph.
@@ -55,15 +59,18 @@ def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> List[frozenset]:
                 scc_map[node] = scc
             except Exception:
                 print(
-                    "you are probably using a grah whose nodes are not properly numbered"
+                    """you are probably using a grah whose nodes are not
+                    properly numbered"""
                 )
     return scc_map
 
 
 def prepare_scc(graph: nx.Graph) -> nx.DiGraph:
-    """Construct the SCC contraction of the given graph. The output graph comes with some useful info to compute the rank:
-    - well-foundedness of a SCC (key: 'wf');
-    - G-leafness of a SCC (the SCC contains only a single node which is a leaf of G) (key: 'G-leaf').
+    """Construct the SCC contraction of the given graph. The output graph comes
+    with some useful info to compute the rank:
+        1. well-foundedness of a SCC (key: 'wf');
+        2. G-leafness of a SCC (the SCC contains only a single node which is a
+            leaf of G) (key: 'G-leaf').
     This function calls mark_wf_nodes on the given graph instance.
 
     Args:
@@ -83,7 +90,8 @@ def prepare_scc(graph: nx.Graph) -> nx.DiGraph:
     for scc in components:
         graph_scc.add_node(scc)
 
-    # maps a given node to the corresponding SCC, so that [n] = scc_map[n], where [n] is the SCC of n.
+    # maps a given node to the corresponding SCC, so that [n] = scc_map[n],
+    # where [n] is the SCC of n.
     scc_map = build_map_to_scc(graph_scc, graph)
 
     # add the edges to graph_scc
@@ -96,7 +104,8 @@ def prepare_scc(graph: nx.Graph) -> nx.DiGraph:
     for scc in graph_scc.nodes:
         graph_scc.nodes[scc]["wf"] = True
 
-    # set wf and G-leafness. G-leafness is True if the SCC contains a single node, which is a leaf of G.
+    # set wf and G-leafness. G-leafness is True if the SCC contains a single
+    # node, which is a leaf of G.
     for node in graph.nodes:
         if not graph.nodes[node]["wf"]:
             graph_scc.nodes[scc_map[node]]["wf"] = False

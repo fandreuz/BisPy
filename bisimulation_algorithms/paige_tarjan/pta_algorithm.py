@@ -8,13 +8,16 @@ from .pta import pta
 def convert_to_integer_graph(
     graph: nx.Graph,
 ) -> Tuple[nx.Graph, Dict[Any, int]]:
-    """Convert the given graph to an isomorphic graph whose nodes are integer numbers. Moreover, creates a Dict which maps nodes of the original graph to the corresponding node of the integer graph.
+    """Convert the given graph to an isomorphic graph whose nodes are integer
+    numbers. Moreover, creates a Dict which maps nodes of the original graph to
+     the corresponding node of the integer graph.
 
     Args:
         graph (nx.Graph): The input graph.
 
     Returns:
-        Tuple[nx.Graph, Dict[Any, int]]: A tuple containing the integer graph and the mapping Dict.
+        Tuple[nx.Graph, Dict[Any, int]]: A tuple containing the integer graph
+        and the mapping Dict.
     """
 
     integer_graph = nx.DiGraph()
@@ -34,7 +37,8 @@ def convert_to_integer_graph(
 
 
 def check_normal_integer_graph(graph: nx.Graph) -> bool:
-    """Checks whether the nodes in the given graph form an integer interval starting from zero without holes.
+    """Checks whether the nodes in the given graph form an integer interval
+    starting from zero without holes.
 
     Args:
         graph (nx.Graph): The input graph.
@@ -43,10 +47,9 @@ def check_normal_integer_graph(graph: nx.Graph) -> bool:
         bool: True if the graph satisfies the "normal integrality" property.
     """
 
-    # fmt: off
     return (
-        all(map(lambda node: isinstance(node, int) and node >= 0, graph.nodes)) and
-        max(graph.nodes) == len(graph.nodes) - 1
+        all(map(lambda node: isinstance(node, int) and node >= 0, graph.nodes))
+        and max(graph.nodes) == len(graph.nodes) - 1
     )
 
 
@@ -55,15 +58,23 @@ def rscp(
     initial_partition: Iterable[Iterable[int]] = None,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
-    """Compute the RSCP of the given graph, with the given initial partition. This function needs to work with an integer graph (nodes represented by an integer), therefore it checks this property before starting the Paige-Tarjan algorithm, and creates an integer graph if it is not statisfied.
+    """Compute the RSCP of the given graph, with the given initial partition.
+    This function needs to work with an integer graph (nodes represented by an
+    integer), therefore it checks this property before starting the
+    Paige-Tarjan algorithm, and creates an integer graph if it is not
+    statisfied.
 
     Args:
         graph (nx.Graph): The input graph.
-        initial_partition (Iterable[Iterable[int]], optional): The initial partition for the given graph. Defaults to None.
-        is_integer_graph (bool, optional): If True, the function assumes that the graph is integer, and skips the integrality check (may be useful when performance is important). Defaults to False.
+        initial_partition (Iterable[Iterable[int]], optional): The initial
+        partition for the given graph. Defaults to None.
+        is_integer_graph (bool, optional): If True, the function assumes that
+        the graph is integer, and skips the integrality check (may be useful
+        when performance is important). Defaults to False.
 
     Returns:
-        List[Tuple]: The RSCP of the given (even non-integer) graph, with the given initial partition.
+        List[Tuple]: The RSCP of the given (even non-integer) graph, with the
+        given initial partition.
     """
 
     # if True, the input graph is already an integer graph
