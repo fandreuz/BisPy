@@ -1,12 +1,13 @@
 import pytest
 import networkx as nx
-import dovier_piazza_policriti.rank as rank
+
+from bisimulation_algorithms.dovier_piazza_policriti.rank import prepare_scc, build_map_to_scc, compute_rank 
 import rank_test_cases as test_cases
 
 @pytest.mark.parametrize("graph", test_cases.graphs)
 def test_prepare_scc(graph):
-    graph_scc = rank.prepare_scc(graph)
-    scc_map = rank.build_map_to_scc(graph_scc, graph)
+    graph_scc = prepare_scc(graph)
+    scc_map = build_map_to_scc(graph_scc, graph)
 
     for scc in graph_scc.nodes:
         if len(scc) == 1:
@@ -26,7 +27,7 @@ def test_map_to_scc():
     graph = nx.DiGraph()
     graph.add_nodes_from(range(6))
 
-    scc_map = rank.build_map_to_scc(graph_scc, graph)
+    scc_map = build_map_to_scc(graph_scc, graph)
 
     assert scc_map[0] == components[0]
     assert scc_map[1] == components[0]
@@ -37,7 +38,7 @@ def test_map_to_scc():
 
 @pytest.mark.parametrize("graph, node_rank_dict", test_cases.graphs_noderankdict)
 def test_compute_rank(graph, node_rank_dict: dict):
-    rank.compute_rank(graph)
+    compute_rank(graph)
 
     for node in graph.nodes:
         assert graph.nodes[node]['rank'] == node_rank_dict[node]

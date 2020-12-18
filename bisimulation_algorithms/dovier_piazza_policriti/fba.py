@@ -1,6 +1,7 @@
 import networkx as nx
-import dovier_piazza_policriti.rank as rank
-import paige_tarjan.pta_algorithm as pta
+
+from .rank import compute_rank
+from ..paige_tarjan.pta_algorithm import rscp as paige_tarjan
 
 # TODO: improve performance
 def collapse(graph, blocks: list[list]):
@@ -28,7 +29,7 @@ def fba(graph: nx.Graph):
         graph (nx.Graph): The input graph.
     """
 
-    rank.compute_rank(graph)
+    compute_rank(graph)
 
     # find the maximum rank
     max_rank = float('-inf')
@@ -66,6 +67,6 @@ def fba(graph: nx.Graph):
 
     # loop over the ranks
     for i in range(1, max_rank + 2):
-        pta.rscp()
+        paige_tarjan()
         collapse(graph, partition[i])
         split2(graph, )
