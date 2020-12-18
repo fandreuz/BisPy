@@ -3,7 +3,7 @@ import networkx as nx
 from .rank import compute_rank
 from ..paige_tarjan.pta_algorithm import rscp as paige_tarjan
 
-# TODO: improve performance
+
 def collapse(graph, blocks: list[list]):
     if len(nodes) > 0:
         keep_node = list(nodes)[0]
@@ -12,15 +12,29 @@ def collapse(graph, blocks: list[list]):
             if node == keep_node:
                 pass
             else:
-                incident_edges = list(filter(lambda edge: edge[1] == node or edge[0] == node, graph.edges))
+                incident_edges = list(
+                    filter(
+                        lambda edge: edge[1] == node or edge[0] == node,
+                        graph.edges,
+                    )
+                )
 
                 # replace edges incident to node with eges incident to keep_node
-                graph.add_edges_from(map(lambda edge: (keep_node, edge[1]) if edge[0] == node else (edge[0], keep_node), incident_edges))
+                graph.add_edges_from(
+                    map(
+                        lambda edge: (keep_node, edge[1])
+                        if edge[0] == node
+                        else (edge[0], keep_node),
+                        incident_edges,
+                    )
+                )
 
                 graph.remove_node(node)
 
+
 def split2(graph, node, partition, from_index):
     pass
+
 
 def fba(graph: nx.Graph):
     """Apply the FBA algorithm to the given graph. The graph is modified in order to obtain the maximum bisimulation contraction.
@@ -32,13 +46,13 @@ def fba(graph: nx.Graph):
     compute_rank(graph)
 
     # find the maximum rank
-    max_rank = float('-inf')
+    max_rank = float("-inf")
     for node in graph.nodes:
-        max_rank = max(max_rank, graph.nodes[node]['rank'])
+        max_rank = max(max_rank, graph.nodes[node]["rank"])
 
     # initialize the initial partition. the first index is for -infty
     # partition contains is a list of lists, each sub-list contains the sub-blocks of nodes at the i-th rank
-    if max_rank != float('-inf'):
+    if max_rank != float("-inf"):
         partition = [[] for _ in range(max_rank + 2)]
     else:
         # there's a single possible rank, -infty
@@ -46,12 +60,12 @@ def fba(graph: nx.Graph):
 
     # populate the blocks of the partition according to the ranks
     for node in graph.nodes:
-        if graph.nodes[node]['rank'] == float('-inf'):
+        if graph.nodes[node]["rank"] == float("-inf"):
             # rank is -infty, therefore we put this node in the first position of the list
             partition_idx = 0
         else:
             # rank is not -infty
-            partition_idx = graph.nodes[node]['rank'] + 1
+            partition_idx = graph.nodes[node]["rank"] + 1
 
         # put this node in the (only) list at partition_idx in partition (there's only one block for each rank at the moment in the partition)
         partition[partition_idx][0].add(node)
@@ -69,4 +83,6 @@ def fba(graph: nx.Graph):
     for i in range(1, max_rank + 2):
         paige_tarjan()
         collapse(graph, partition[i])
-        split2(graph, )
+        split2(
+            graph,
+        )

@@ -1,5 +1,6 @@
 from llist import dllist, dllistnode
 
+
 class _Vertex:
     """The internal representation of the vertex of a graph. This is used by the algorithm to hold all the needed data structure, in order to access them in O(1).
 
@@ -9,7 +10,7 @@ class _Vertex:
         visited                 A flag used in the algorithm to mark vertexes which it has already visited.
         counterimage            A list of _Edge instances such that edge.destination = self. This shouldn't be touched manually.
         image                   A list of _Edge instances such that edge.source = self. This shouldn't be touched manually.
-        aux_count               An auxiliary _Count instance used to compute |B \cap E({self})|.
+        aux_count               An auxiliary _Count instance used to compute |B cap E({self})|.
         in_second_splitter      A flag used during the computation of the counterimage of blocks to avoid duplicates.
         dllistnode              A reference to the instance of dllistobject representing this vertex in the QBlock it belongs to.
     """
@@ -64,7 +65,7 @@ class _Edge:
     Attributes:
         source                  The source _Vertex of this edge.
         destination             The destination _Vertex of this edge.
-        count                   A _Count instance which holds |E({source}) \cap S|, where S is the block of X destination belongs to.
+        count                   A _Count instance which holds |E({source}) cap S|, where S is the block of X destination belongs to.
     """
 
     def __init__(self, source: _Vertex, destination: _Vertex):
@@ -101,7 +102,7 @@ class _QBlock:
     Attributes:
         size                    The number of vertexes in this block. This is updated automatically by append/remove_vertex.
         vertexes                A dllist which contains the vertexes in this block.
-        xblock                  The (unique) block S of X such that S = A \cup self, for some A.
+        xblock                  The (unique) block S of X such that S = A cup self, for some A.
         split_helper_block      A reference for O(1) access to a new block created from this block during the split phase.
         dllistnode              A reference to the dllistobject which represents this QBlock in xblock.
     """

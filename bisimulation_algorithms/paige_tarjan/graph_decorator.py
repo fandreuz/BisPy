@@ -4,6 +4,7 @@ from typing import List
 
 from .graph_entities import _Vertex, _Edge, _XBlock, _QBlock, _Count
 
+
 def prepare_graph_abstraction(graph: nx.Graph) -> List[_Vertex]:
     """Acquires an input graph, and outputs a representation of that graph which can be used by the algorithm. This function computes the image and counterimage for each _Vertex, and creates the needed instances of _Edge. Vertexes are indexed and labeled following their order in the given graph.nodes entity.
 
@@ -17,7 +18,11 @@ def prepare_graph_abstraction(graph: nx.Graph) -> List[_Vertex]:
     # check if the graph nodes are represented by natural integers
     for node in graph.nodes:
         if not isinstance(node, int):
-            raise Exception('Nodes must be represented by integer numbers: {}'.format(str(list(graph.nodes))))
+            raise Exception(
+                "Nodes must be represented by integer numbers: {}".format(
+                    str(list(graph.nodes))
+                )
+            )
 
     vertexes = [_Vertex(idx) for idx in range(len(graph.nodes))]
 
@@ -146,5 +151,7 @@ def initialize(
     """
 
     vertexes = prepare_graph_abstraction(graph)
-    processed_partition = preprocess_initial_partition(vertexes, initial_partition)
+    processed_partition = preprocess_initial_partition(
+        vertexes, initial_partition
+    )
     return (build_qpartition(vertexes, processed_partition), vertexes)

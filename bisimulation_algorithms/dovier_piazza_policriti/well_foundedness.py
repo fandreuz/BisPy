@@ -7,6 +7,7 @@ _GRAY = 11
 # a node which has already been visited
 _BLACK = 12
 
+
 def dfs_wf_visit(graph: nx.Graph, current_node: int):
     """A recursive step of the algorithm for the well-foundedness of a graph. Visits all the neighboroods of current_node (DFS) and then mark it as visited.
 

@@ -3,6 +3,7 @@ from typing import List
 
 from ..paige_tarjan.graph_entities import _Vertex
 
+
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
 def is_stable_partition(partition: List[List[_Vertex]]) -> bool:
     """Checks the stability of the given partition. The input must be a partition of Vertex instances, and the relation which we consider for the stability is a->b, where a,b are two vertexes.

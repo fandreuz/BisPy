@@ -3,6 +3,7 @@ from typing import List, Tuple
 
 from .graph_entities import _Vertex, _XBlock, _QBlock, _Count
 
+
 # choose the smallest qblock of the first two
 def extract_splitter(compound_block: _XBlock) -> _QBlock:
     """Given a compound block of the X partition, extract one of the blocks of the partition Q inside (the smaller among the first two). The chosen block is removed from the compound block.
@@ -214,10 +215,14 @@ def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
     # note that, since we are employing the strategy proposed in the paper, we don't even need to pass the XBLock S
-    second_splitter_counterimage = build_exclusive_B_counterimage(B_qblock_vertexes)
+    second_splitter_counterimage = build_exclusive_B_counterimage(
+        B_qblock_vertexes
+    )
 
     # step 6
-    new_qblocks_from_split2, new_compound_xblocks = split(second_splitter_counterimage)
+    new_qblocks_from_split2, new_compound_xblocks = split(
+        second_splitter_counterimage
+    )
     new_qblocks.extend(new_qblocks_from_split2)
     compound_xblocks.extend(new_compound_xblocks)
 

@@ -29,7 +29,8 @@ def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
             node_rank = graph_scc.nodes[node]["rank"]
 
             current_max = max(
-                current_max, node_rank + 1 if graph_scc.nodes[node]["wf"] else node_rank
+                current_max,
+                node_rank + 1 if graph_scc.nodes[node]["wf"] else node_rank,
             )
 
         graph_scc.nodes[current_scc]["rank"] = current_max
@@ -52,7 +53,7 @@ def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> List[frozenset]:
         for node in scc:
             try:
                 scc_map[node] = scc
-            except:
+            except Exception:
                 print(
                     "you are probably using a grah whose nodes are not properly numbered"
                 )

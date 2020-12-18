@@ -4,7 +4,10 @@ from typing import List, Dict, Any, Tuple, Iterable
 from .graph_decorator import initialize
 from .pta import pta
 
-def convert_to_integer_graph(graph: nx.Graph) -> Tuple[nx.Graph, Dict[Any, int]]:
+
+def convert_to_integer_graph(
+    graph: nx.Graph,
+) -> Tuple[nx.Graph, Dict[Any, int]]:
     """Convert the given graph to an isomorphic graph whose nodes are integer numbers. Moreover, creates a Dict which maps nodes of the original graph to the corresponding node of the integer graph.
 
     Args:
@@ -40,9 +43,17 @@ def check_normal_integer_graph(graph: nx.Graph) -> bool:
         bool: True if the graph satisfies the "normal integrality" property.
     """
 
-    return (all(map(lambda node: isinstance(node, int) and node>=0, graph.nodes)) and max(graph.nodes)==len(graph.nodes)-1)
+    return (
+        all(map(lambda node: isinstance(node, int) and node >= 0, graph.nodes))
+        and max(graph.nodes) == len(graph.nodes) - 1
+    )
 
-def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_integer_graph: bool = False) -> List[Tuple]:
+
+def rscp(
+    graph: nx.Graph,
+    initial_partition: Iterable[Iterable[int]] = None,
+    is_integer_graph: bool = False,
+) -> List[Tuple]:
     """Compute the RSCP of the given graph, with the given initial partition. This function needs to work with an integer graph (nodes represented by an integer), therefore it checks this property before starting the Paige-Tarjan algorithm, and creates an integer graph if it is not statisfied.
 
     Args:
@@ -55,10 +66,12 @@ def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_
     """
 
     # if True, the input graph is already an integer graph
-    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(graph)
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
+        graph
+    )
 
     # if initial_partition is None, then it's the trivial partition
-    if initial_partition == None:
+    if initial_partition is None:
         initial_partition = [list(graph.nodes)]
 
     if not original_graph_is_integer:
@@ -66,7 +79,10 @@ def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_
         integer_graph, node_to_idx = convert_to_integer_graph(graph)
 
         # convert the initial partition to a integer partition
-        integer_initial_partition = [[node_to_idx[old_node] for old_node in block] for block in initial_partition]
+        integer_initial_partition = [
+            [node_to_idx[old_node] for old_node in block]
+            for block in initial_partition
+        ]
     else:
         integer_graph = graph
         integer_initial_partition = initial_partition
@@ -83,5 +99,3 @@ def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_
 
         # compute the RSCP of the original graph
         return [tuple([idx_to_node[idx] for idx in block]) for block in rscp]
-
-
