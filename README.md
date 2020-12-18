@@ -53,7 +53,8 @@ graph = nx.DiGraph()
 graph.add_nodes_from(range(5))
 graph.add_edges_from([(0,1), (0,3), (1,4), (2,3), (4,3)])
 ```
-intializes a graph which contains 5 nodes (from 0 to 4) and some edges.
+intializes a graph which contains 5 nodes (from 0 to 4) and some edges. We assume that the initial partition is the trivial one:
+`{0,1,2,3,4}`.
 
 We can obtain the RSCP with the Paige-Tarjan Algorithm as follows:
 ```python
@@ -63,6 +64,18 @@ rscp = paige_tarjan(graph)
 print(rscp)
 ```
 `[(3,), (1,), (2, 4), (0,)]`
+
+If we wanted to use a different initial partition, like:
+```
+initial_partition = [(0,1,2), (3,4)]
+```
+
+the code would have been:
+```
+rscp = paige_tarjan(graph, initial_partition)
+print(rscp)
+```
+`[(3,), (1,), (2,) (4,), (0,)]`
 
 ## Examples
 Initial partition | RSCP
