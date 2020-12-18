@@ -72,6 +72,7 @@ def rscp(
 
     # if initial_partition is None, then it's the trivial partition
     if initial_partition is None:
+        # only list(graph.nodes) isn't OK
         initial_partition = [list(graph.nodes)]
 
     if not original_graph_is_integer:
@@ -98,4 +99,4 @@ def rscp(
         idx_to_node = sorted(node_to_idx, key=lambda node: node_to_idx[node])
 
         # compute the RSCP of the original graph
-        return [tuple([idx_to_node[idx] for idx in block]) for block in rscp]
+        return [tuple(idx_to_node[idx] for idx in block) for block in rscp]
