@@ -109,7 +109,7 @@ def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
 
 
 def create_subgraph_of_rank(
-    partition: List[List[_Block]], rank: int
+    blocks_at_rank: List[_Block], rank: int
 ) -> nx.Graph:
     """Creates a subgraph of nodes having the given rank, from the given partition.
 
@@ -123,15 +123,9 @@ def create_subgraph_of_rank(
 
     subgraph = nx.DiGraph()
 
-    if rank == float("-inf"):
-        idx = 0
-    else:
-        idx = rank + 1
-    blocks_rank_i = partition[idx]
-
     vertexes = []
-    for block in blocks_rank_i:
-        for vertex in block:
+    for block in blocks_at_rank:
+        for vertex in block.vertexes:
             image_rank_i = filter(
                 lambda image_vertex: image_vertex.rank == rank, vertex.image
             )
@@ -143,7 +137,24 @@ def create_subgraph_of_rank(
 
     return subgraph
 
+def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
+    # find the maximum rank in the graph
+    max_rank = max(map(lambda vertex: vertex.rank, vertexes))
 
+    # initialize the initial partition. the first index is for -infty
+    # partition contains is a list of lists, each sub-list contains the sub-blocks of nodes at the i-th rank
+    if max_rank != float("-inf"):
+        partition = [[_Block(i - 1)] for i in range(max_rank + 2)]
+    else:
+        # there's a single possible rank, -infty
+        partition = [[_Block(float('-inf'))]]
+
+    # populate the blocks of the partition according to the ranks
+    for vertex in vertexes:
+        # put this node in the (only) list at partition_idx in partition (there's only one block for each rank at the moment in the partition)
+        partition[rank_to_partition_idx(vertex.rank)][0].append_vertex(vertex)
+
+    return partition
 
 def fba(graph: nx.Graph):
     """Apply the FBA algorithm to the given graph. The graph is modified in
@@ -154,21 +165,7 @@ def fba(graph: nx.Graph):
     """
 
     vertexes = prepare_graph(graph)
-    # find the maximum rank in the graph
-    max_rank = max(map(lambda vertex: vertex.rank, vertexes))
-
-    # initialize the initial partition. the first index is for -infty
-    # partition contains is a list of lists, each sub-list contains the sub-blocks of nodes at the i-th rank
-    if max_rank != float("-inf"):
-        partition = [[_Block()] for _ in range(max_rank + 2)]
-    else:
-        # there's a single possible rank, -infty
-        partition = [[_Block()]]
-
-    # populate the blocks of the partition according to the ranks
-    for vertex in vertexes:
-        # put this node in the (only) list at partition_idx in partition (there's only one block for each rank at the moment in the partition)
-        partition[rank_to_partition_idx(vertex.rank)][0].insert_vertex(vertex)
+    partition = create_initial_partition(vertexes)
 
     # collapse B_{-infty}
     if len(partition[0]) > 0:
@@ -179,16 +176,18 @@ def fba(graph: nx.Graph):
         split_upper_ranks(partition, first_rank_idx=1, collapsed_rank=float("-inf"))
 
     # loop over the ranks
-    for i in range(1, max_rank + 2):
+    for partition_idx in range(1, len(partition)):
+        rank = partition_idx - 1
+
         # create the subgraph of rank i-1
-        subgraph = create_subgraph_of_rank(partition[i], i - 1)
+        subgraph = create_subgraph_of_rank(partition[partition_idx], rank)
 
         # apply PTA to the subgraph at rank i
-        rscp = paige_tarjan(subgraph, partition[i])
+        rscp = paige_tarjan(subgraph, partition[partition_idx])
 
         # collapse all the blocks in B_i
         #for rscp_block in rscp:
         #    collapse(rscp_block)
 
         # update the partition
-        split_upper_ranks(partition, first_rank_idx=i + 1, collapsed_rank=i - 1)
+        split_upper_ranks(partition, first_rank_idx=rank+1, collapsed_rank=rank)
