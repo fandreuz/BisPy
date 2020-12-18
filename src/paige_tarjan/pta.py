@@ -1,6 +1,6 @@
 from llist import dllist, dllistnode
 from . import graph_entities as entities
-from typing import List
+from typing import List, Tuple
 
 # choose the smallest qblock of the first two
 def extract_splitter(compound_block: entities._XBlock) -> entities._QBlock:
@@ -232,7 +232,7 @@ def refine(compound_xblocks: List[entities._XBlock], xblocks: List[entities._XBl
 
 
 # returns a list of labels splitted in partitions
-def pta(q_partition: List[entities._QBlock]) -> List[tuple]:
+def pta(q_partition: List[entities._QBlock]) -> List[Tuple]:
     """Apply the Paige-Tarjan algorithm to an initial partition Q which contains the whole "internal" representation of a graph.
 
     Args:
@@ -255,12 +255,8 @@ def pta(q_partition: List[entities._QBlock]) -> List[tuple]:
             compound_xblocks=compound_xblocks, xblocks=x_partition
         )
         q_partition.extend(new_qblocks)
-        pass
 
-    return sorted(
-        [
-            sorted(map(lambda vertex: vertex.label, qblock.vertexes))
-            for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
-        ],
-        key=lambda block: min(block),
-    )
+    return [
+        tuple(map(lambda vertex: vertex.label, qblock.vertexes))
+        for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
+    ]
