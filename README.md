@@ -55,10 +55,10 @@ initial_partition = [[0,1], [2,3], [4]]
 ```
 intializes a graph with 5 nodes (from 0 to 4), some edges, and whose nodes are initially splitted in three different blocks.
 
-We can find the RSCP with the Paige-Tarjan Algorithm as follows:
+We can obtain the RSCP with the Paige-Tarjan Algorithm as follows:
 ```python
-import paige_tarjan.pta_algorithm as pta
-rscp = pta.rscp(graph, initial_partition)
+from bisimulation_algorithms import paige_tarjan
+paige_tajan(graph)
 ```
 The RSCP is a set of tuples.
 
