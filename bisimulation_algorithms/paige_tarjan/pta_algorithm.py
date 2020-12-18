@@ -27,7 +27,7 @@ def convert_to_integer_graph(
 
     # add integer edges
     integer_graph.add_edges_from(
-        [(node_to_idx[edge[0]], node_to_idx[edge[1]]) for edge in graph.edges]
+        (node_to_idx[edge[0]], node_to_idx[edge[1]]) for edge in graph.edges
     )
 
     return integer_graph, node_to_idx
@@ -43,9 +43,10 @@ def check_normal_integer_graph(graph: nx.Graph) -> bool:
         bool: True if the graph satisfies the "normal integrality" property.
     """
 
+    # fmt: off
     return (
-        all(map(lambda node: isinstance(node, int) and node >= 0, graph.nodes))
-        and max(graph.nodes) == len(graph.nodes) - 1
+        all(map(lambda node: isinstance(node, int) and node >= 0, graph.nodes)) and
+        max(graph.nodes) == len(graph.nodes) - 1
     )
 
 
