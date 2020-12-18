@@ -43,24 +43,26 @@ The package isn't published, therefore the following steps are needed:
 5. Install the package in development mode: `pip install -e ./` or `pip3 install -e ./`.
 
 ## Usage
-This example shows how to use the PTA algorithm on a given graph. We use [NetworkX](https://networkx.org/) to represent the input. Moreover, we need the initial partition, represented as an iterable of iterables: inner iterables are the blocks of the partition.
+This example shows how to use the PTA algorithm on a given graph. We use [NetworkX](https://networkx.org/) to represent the input.
 
-Therefore the following snippet:
+The following snippet:
 ```python
+import networkx as nx
+
 graph = nx.DiGraph()
 graph.add_nodes_from(range(5))
-graph.add_edges_from([...])
-
-initial_partition = [[0,1], [2,3], [4]]
+graph.add_edges_from([(0,1), (0,3), (1,4), (2,3), (4,3)])
 ```
-intializes a graph with 5 nodes (from 0 to 4), some edges, and whose nodes are initially splitted in three different blocks.
+intializes a graph which contains 5 nodes (from 0 to 4) and some edges.
 
 We can obtain the RSCP with the Paige-Tarjan Algorithm as follows:
 ```python
 from bisimulation_algorithms import paige_tarjan
-paige_tajan(graph)
+
+rscp = paige_tarjan(graph)
+print(rscp)
 ```
-The RSCP is a set of tuples.
+`[(3,), (1,), (2, 4), (0,)]`
 
 ## Examples
 Initial partition | RSCP
