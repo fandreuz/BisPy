@@ -1,9 +1,18 @@
 import networkx as nx
 import paige_tarjan.graph_decorator as decorator
 import paige_tarjan.pta as pta
-from typing import List, Dict, Any, Set, Tuple, Iterable
+from typing import List, Dict, Any, Tuple, Iterable
 
-def convert_to_integer_graph(graph: nx.Graph) -> (nx.Graph, Dict[Any, int]):
+def convert_to_integer_graph(graph: nx.Graph) -> Tuple[nx.Graph, Dict[Any, int]]:
+    """Convert the given graph to an isomorphic graph whose nodes are integer numbers. Moreover, creates a Dict which maps nodes of the original graph to the corresponding node of the integer graph.
+
+    Args:
+        graph (nx.Graph): The input graph.
+
+    Returns:
+        Tuple[nx.Graph, Dict[Any, int]]: A tuple containing the integer graph and the mapping Dict.
+    """
+
     integer_graph = nx.DiGraph()
 
     # add new integer nodes
@@ -20,7 +29,18 @@ def convert_to_integer_graph(graph: nx.Graph) -> (nx.Graph, Dict[Any, int]):
     return integer_graph, node_to_idx
 
 
-def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_integer_graph = None) -> Set[Tuple]:
+def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_integer_graph: bool = False) -> List[Tuple]:
+    """Compute the RSCP of the given graph, with the given initial partition. This function needs to work with an integer graph (nodes represented by an integer), therefore it checks this property before starting the Paige-Tarjan algorithm, and creates an integer graph if it is not statisfied.
+
+    Args:
+        graph (nx.Graph): The input graph.
+        initial_partition (Iterable[Iterable[int]], optional): The initial partition for the given graph. Defaults to None.
+        is_integer_graph (bool, optional): If True, the function assumes that the graph is integer, and skips the integrality check (may be useful when performance is important). Defaults to False.
+
+    Returns:
+        List[Tuple]: The RSCP of the given (even non-integer) graph, with the given initial partition.
+    """
+
     # if True, the input graph is already an integer graph
     original_graph_is_integer = None or all(map(lambda node: isinstance(node, int), graph.nodes))
 
