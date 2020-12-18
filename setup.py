@@ -1,13 +1,14 @@
 from setuptools import setup, find_packages
 
+import bisimulation_algorithms as bs_alg
+
 setup(
-    name="bisimulation_algorithms",
-    version="0.0.1",
-    author="Francesco Andreuzzi",
-    author_email="andreuzzi.francesco@gmail.com",
-    package_dir={'': 'src'},
-    packages=find_packages(where='src'),
-    license="LICENSE",
+    name=bs_alg.__name__,
+    version=bs_alg.__version__,
+    author=bs_alg.__author__,
+    author_email=bs_alg.__email__,
+    packages=find_packages(),
+    license="MIT",
     description="Python implementation of some algorithms for the computation of the maximum bisimulation",
     install_requires=['llist', 'networkx']
 )

@@ -1,17 +1,17 @@
-from paige_tarjan import graph_entities as entities
 import itertools
 import networkx as nx
 from typing import List
 
+from .graph_entities import _Vertex, _Edge, _XBlock, _QBlock, _Count
 
-def prepare_graph_abstraction(graph: nx.Graph) -> List[entities._Vertex]:
+def prepare_graph_abstraction(graph: nx.Graph) -> List[_Vertex]:
     """Acquires an input graph, and outputs a representation of that graph which can be used by the algorithm. This function computes the image and counterimage for each _Vertex, and creates the needed instances of _Edge. Vertexes are indexed and labeled following their order in the given graph.nodes entity.
 
     Args:
         graph ([nx.Graph]): The input graph.
 
     Returns:
-        list[entities._Vertex]: A list of _Vertexes which represents the input graph.
+        list[_Vertex]: A list of _Vertexes which represents the input graph.
     """
 
     # check if the graph nodes are represented by natural integers
@@ -19,7 +19,7 @@ def prepare_graph_abstraction(graph: nx.Graph) -> List[entities._Vertex]:
         if not isinstance(node, int):
             raise Exception('Nodes must be represented by integer numbers: {}'.format(str(list(graph.nodes))))
 
-    vertexes = [entities._Vertex(idx) for idx in range(len(graph.nodes))]
+    vertexes = [_Vertex(idx) for idx in range(len(graph.nodes))]
 
     # holds the references to Count objects to assign to the edges (this is OK because we can consider |V| = O(|E|))
     # count(x) = count(x,V) = |V \cap E({x})| = |E({x})|
@@ -28,12 +28,12 @@ def prepare_graph_abstraction(graph: nx.Graph) -> List[entities._Vertex]:
     # a vertex should always refer to a ddllistnode, in order to help if fellows to be splitted (i.e. not obtain the error "dllistnode belongs to another list")
     for edge in graph.edges:
         # create an instance of my class Edge
-        my_edge = entities._Edge(vertexes[edge[0]], vertexes[edge[1]])
+        my_edge = _Edge(vertexes[edge[0]], vertexes[edge[1]])
 
         # if this is the first outgoing edge for the vertex edge[0], we need to create a new Count instance
         if not vertex_count[edge[0]]:
             # in this case None represents the intitial XBlock, namely the whole V
-            vertex_count[edge[0]] = entities._Count(my_edge.source)
+            vertex_count[edge[0]] = _Count(my_edge.source)
 
         my_edge.count = vertex_count[edge[0]]
         my_edge.count.value += 1
@@ -45,16 +45,16 @@ def prepare_graph_abstraction(graph: nx.Graph) -> List[entities._Vertex]:
 
 
 def build_qpartition(
-    vertexes: List[entities._Vertex], initial_partition: List[tuple]
-) -> List[entities._QBlock]:
+    vertexes: List[_Vertex], initial_partition: List[tuple]
+) -> List[_QBlock]:
     """Constructs the initial Q partition given the list of Vertexes and the initial_partition. This function fails if the length of the initial partition is not equal to the number of vertexes in the list.
 
     Args:
-        vertexes (list[entities._Vertex]): The list of Vertexes which represents the graph.
+        vertexes (list[_Vertex]): The list of Vertexes which represents the graph.
         initial_partition (list[tuple]): The initial partition as a list of vertex indexes partitioned in tuples.
 
     Returns:
-        list[entities._QBlock]: The initial partition Q as a list of QBlocks.
+        list[_QBlock]: The initial partition Q as a list of QBlocks.
     """
 
     union = set()
@@ -75,17 +75,17 @@ def build_qpartition(
     # end
 
     # initially X contains only one block
-    initial_x_block = entities._XBlock()
+    initial_x_block = _XBlock()
     x_partition = [initial_x_block]
 
     # create the partition Q
     q_partition = []
     # create the blocks of partition Q using the initial_partition
     for block in initial_partition:
-        # entities._QBlocks are initially created empty in order to obtain a reference to dllistnode for vertexes and avoid a double visit of vertexes
-        qblock = entities._QBlock([], initial_x_block)
+        # _QBlocks are initially created empty in order to obtain a reference to dllistnode for vertexes and avoid a double visit of vertexes
+        qblock = _QBlock([], initial_x_block)
 
-        # create a new entities._QBlock from the given initial_partition, and obtain a reference to dllistobject
+        # create a new _QBlock from the given initial_partition, and obtain a reference to dllistobject
         initial_x_block.append_qblock(qblock)
         for idx in block:
             vertexes[idx] = vertexes[idx]
@@ -100,12 +100,12 @@ def build_qpartition(
 
 # this is a FUNDAMENTAL part of the algorithm: we need a stable initial partition with respect to the set V, but a partition where leafs and non-leafs are in the same block can't be stable
 def preprocess_initial_partition(
-    vertexes: List[entities._Vertex], initial_partition: List[tuple]
+    vertexes: List[_Vertex], initial_partition: List[tuple]
 ) -> List[tuple]:
     """Splits each block A of the initial Q partition in the intersection of A and E^{-1}(V) and A - E^{-1}(V). The result is a partition where each block contains zero or all leafs. This procedure is fundamental for obtaining a partition stable with respect to V, which is an hypothesis that the algorithms needs in order to work.
 
     Args:
-        vertexes (list[entities._Vertex]): The list of Vertexes which represents the graph.
+        vertexes (list[_Vertex]): The list of Vertexes which represents the graph.
         initial_partition (list[tuple]): The partition to be processed.
 
     Returns:
@@ -134,7 +134,7 @@ def preprocess_initial_partition(
 
 def initialize(
     graph: nx.Graph, initial_partition: List[tuple]
-) -> (List[entities._QBlock], List[entities._Vertex]):
+) -> (List[_QBlock], List[_Vertex]):
     """Packs the needed processing for a graph (prepare_graph_abstraction, preprocess_initial_partition, build_qpartition).
 
     Args:

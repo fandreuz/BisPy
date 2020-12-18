@@ -1,7 +1,8 @@
 import networkx as nx
-import paige_tarjan.graph_decorator as decorator
-import paige_tarjan.pta as pta
 from typing import List, Dict, Any, Tuple, Iterable
+
+from .graph_decorator import initialize
+from .pta import pta
 
 def convert_to_integer_graph(graph: nx.Graph) -> Tuple[nx.Graph, Dict[Any, int]]:
     """Convert the given graph to an isomorphic graph whose nodes are integer numbers. Moreover, creates a Dict which maps nodes of the original graph to the corresponding node of the integer graph.
@@ -71,8 +72,8 @@ def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_
         integer_initial_partition = initial_partition
 
     # compute the RSCP
-    (q_partition, _) = decorator.initialize(integer_graph, integer_initial_partition)
-    rscp = pta.pta(q_partition)
+    (q_partition, _) = initialize(integer_graph, integer_initial_partition)
+    rscp = pta(q_partition)
 
     if original_graph_is_integer:
         return rscp

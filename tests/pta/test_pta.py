@@ -1,21 +1,21 @@
 import pytest
 import networkx as nx
 from llist import dllist, dllistnode
-import pta_test_cases as test_cases
 import itertools
 
-import utilities.rscp_utilities as rscp_utilities
+from bisimulation_algorithms.utilities.rscp_utilities import check_block_stability, is_stable_partition
 
-import paige_tarjan.graph_entities as entities
-import paige_tarjan.pta as pta
-import paige_tarjan.graph_decorator as decorator
-import paige_tarjan.pta_algorithm as pta_algorithm
+from bisimulation_algorithms.paige_tarjan.graph_entities import _Vertex, _Edge, _QBlock, _XBlock
+from bisimulation_algorithms.paige_tarjan.pta import split, extract_splitter, build_block_counterimage, build_exclusive_B_counterimage, refine, pta
+from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize, prepare_graph_abstraction, preprocess_initial_partition
+from bisimulation_algorithms.paige_tarjan.pta_algorithm import rscp as evaluate_rscp, convert_to_integer_graph
 
+import pta_test_cases as test_cases
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_preprocess(graph, initial_partition):
-    vertexes = decorator.prepare_graph_abstraction(graph)
-    processed_partition = decorator.preprocess_initial_partition(
+    vertexes = prepare_graph_abstraction(graph)
+    processed_partition = preprocess_initial_partition(
         vertexes, initial_partition
     )
 
@@ -35,7 +35,7 @@ def test_preprocess(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_qpartition_initialize(graph, initial_partition):
-    (q_partition, _) = decorator.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     vertexes = set()
     for qblock in q_partition:
@@ -48,7 +48,7 @@ def test_qpartition_initialize(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_initialize_right_types(graph, initial_partition):
-    (q_partition, _) = decorator.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     for qblock in q_partition:
         assert isinstance(qblock.vertexes, dllist)
@@ -56,15 +56,15 @@ def test_initialize_right_types(graph, initial_partition):
     for qblock in q_partition:
         for vertex in qblock.vertexes:
             for v in vertex.image:
-                assert isinstance(v, entities._Edge)
+                assert isinstance(v, _Edge)
             for v in vertex.counterimage:
-                assert isinstance(v, entities._Edge)
-            assert isinstance(vertex.qblock, entities._QBlock)
+                assert isinstance(v, _Edge)
+            assert isinstance(vertex.qblock, _QBlock)
 
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_count_initialize(graph, initial_partition):
-    (_, vertexes) = decorator.initialize(graph, initial_partition)
+    (_, vertexes) = initialize(graph, initial_partition)
 
     for vertex in vertexes:
         for edge in vertex.image:
@@ -73,11 +73,11 @@ def test_count_initialize(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_image_initialize(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     right_image = [set() for node in graph.nodes]
     for edge in graph.edges:
-        right_image[edge[0]].add(entities._Edge(vertexes[edge[0]], vertexes[edge[1]]))
+        right_image[edge[0]].add(_Edge(vertexes[edge[0]], vertexes[edge[1]]))
 
     for block in q_partition:
         for vertex in block.vertexes:
@@ -85,16 +85,16 @@ def test_vertex_image_initialize(graph, initial_partition):
             assert vertex_image == right_image[vertex.label]
 
 
-# test if decorator.initialize computed the vertexes counterimages properly
+# test if initialize computed the vertexes counterimages properly
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_counterimage_initialize(graph, initial_partition):
 
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     right_counterimage = [set() for node in graph.nodes]
     for edge in graph.edges:
         right_counterimage[edge[1]].add(
-            entities._Edge(vertexes[edge[0]], vertexes[edge[1]])
+            _Edge(vertexes[edge[0]], vertexes[edge[1]])
         )
 
     for block in q_partition:
@@ -104,16 +104,16 @@ def test_vertex_counterimage_initialize(graph, initial_partition):
 
 
 def test_choose_qblock():
-    compoundblock = entities._XBlock()
+    compoundblock = _XBlock()
     qblocks = [
-        entities._QBlock([0, 3, 5], compoundblock),
-        entities._QBlock([2, 4], compoundblock),
-        entities._QBlock([1, 6, 8], compoundblock),
+        _QBlock([0, 3, 5], compoundblock),
+        _QBlock([2, 4], compoundblock),
+        _QBlock([1, 6, 8], compoundblock),
     ]
     for qblock in qblocks:
         compoundblock.append_qblock(qblock)
 
-    splitter = pta.extract_splitter(compoundblock)
+    splitter = extract_splitter(compoundblock)
     assert splitter == qblocks[1]
 
     # check if compound block has been modified properly
@@ -127,14 +127,14 @@ def test_choose_qblock():
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage(graph, initial_partition):
-    (q_partition, _) = decorator.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
     for qblock in q_partition:
 
         def extract_vertex_label(llistobject):
             return llistobject.label
 
         block_counterimage = set(
-            [vertex.label for vertex in pta.build_block_counterimage(qblock)]
+            [vertex.label for vertex in build_block_counterimage(qblock)]
         )
 
         right_block_counterimage = set()
@@ -147,12 +147,12 @@ def test_build_block_counterimage(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_build_block_counterimage_aux_count(graph, initial_partition):
-    (q_partition, _) = decorator.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     for chosen_index in range(len(initial_partition)):
         qblock = q_partition[chosen_index]
 
-        block_counterimage = pta.build_block_counterimage(qblock)
+        block_counterimage = build_block_counterimage(qblock)
 
         right_count = [0 for vertex in block_counterimage]
         for edge in graph.edges:
@@ -172,9 +172,9 @@ def test_build_block_counterimage_aux_count(graph, initial_partition):
 # error "dllistnode doesn't belong to a list"
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_vertex_taken_from_right_list(graph, initial_partition):
-    (q_partition, _) = decorator.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
-    block_counterimage = pta.build_block_counterimage(q_partition[0])
+    block_counterimage = build_block_counterimage(q_partition[0])
 
     for vertex in block_counterimage:
         qblock = vertex.qblock
@@ -187,7 +187,7 @@ def test_vertex_taken_from_right_list(graph, initial_partition):
 # error "dllistnode doesn't belong to a list"
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_can_remove_any_vertex_from_its_list(graph, initial_partition):
-    (q_partition, _) = decorator.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     for qblock in q_partition:
         vertex = qblock.vertexes.first
@@ -200,7 +200,7 @@ def test_can_remove_any_vertex_from_its_list(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split(graph, initial_partition):
-    (q_partition, _) = decorator.initialize(graph, initial_partition)
+    (q_partition, _) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -208,12 +208,12 @@ def test_split(graph, initial_partition):
     # qblock_splitter may be modified by split, therefore we need to keep a copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.split(block_counterimage)
+    block_counterimage = build_block_counterimage(qblock_splitter)
+    split(block_counterimage)
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
-        assert rscp_utilities.check_block_stability(
+        assert check_block_stability(
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
 
@@ -230,8 +230,8 @@ def test_split(graph, initial_partition):
 # check if the new blocks are in the right xblock after a call to split
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_split_helper_block_right_xblock(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
-    (new_blocks, _) = pta.split(vertexes[3:7])
+    (q_partition, vertexes) = initialize(graph, initial_partition)
+    (new_blocks, _) = split(vertexes[3:7])
 
     for new_block in new_blocks:
         assert any([qblock == new_block for qblock in new_block.xblock.qblocks])
@@ -245,7 +245,7 @@ def test_split_helper_block_right_xblock(graph, initial_partition):
 # second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_second_splitter_counterimage(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
     qblock_splitter = q_partition[0]
@@ -253,8 +253,8 @@ def test_second_splitter_counterimage(graph, initial_partition):
     # qblock_splitter may be modified by split, therefore we need to keep a copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.split(block_counterimage)
+    block_counterimage = build_block_counterimage(qblock_splitter)
+    split(block_counterimage)
 
     # compute S - B
     second_splitter_s_minus_b_vertexes = list(
@@ -262,7 +262,7 @@ def test_second_splitter_counterimage(graph, initial_partition):
     )
 
     # use the pta function to compute E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_exclusive_B_counterimage(splitter_vertexes)
+    second_splitter_counterimage = build_exclusive_B_counterimage(splitter_vertexes)
 
     for vertex in second_splitter_counterimage:
         assert vertex in block_counterimage and not any(
@@ -272,7 +272,7 @@ def test_second_splitter_counterimage(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_second_split(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
 
@@ -280,20 +280,20 @@ def test_second_split(graph, initial_partition):
     # qblock_splitter may be modified by split, therefore we need to keep a copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.split(block_counterimage)
+    block_counterimage = build_block_counterimage(qblock_splitter)
+    split(block_counterimage)
 
     second_splitter_vertexes = list(
         filter(lambda vertex: vertex not in splitter_vertexes, vertexes)
     )
     # E^{-1}(B) - E^{-1}(S-B)
-    second_splitter_counterimage = pta.build_exclusive_B_counterimage(splitter_vertexes)
+    second_splitter_counterimage = build_exclusive_B_counterimage(splitter_vertexes)
 
-    pta.split(second_splitter_counterimage)
+    split(second_splitter_counterimage)
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
-        assert rscp_utilities.check_block_stability(
+        assert check_block_stability(
             [vertex for vertex in qblock.vertexes], second_splitter_vertexes
         )
 
@@ -301,7 +301,7 @@ def test_second_split(graph, initial_partition):
 # a refinement step should increase by one the number of xblocks
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
-    (q_partition, vertexes_dllistobejct) = decorator.initialize(
+    (q_partition, vertexes_dllistobejct) = initialize(
         graph, initial_partition
     )
 
@@ -311,18 +311,18 @@ def test_increase_n_of_xblocks_after_refinement(graph, initial_partition):
     compound_xblocks = [xblock]
 
     qblock_splitter = q_partition[0]
-    block_counterimage = pta.build_block_counterimage(qblock_splitter)
-    pta.refine(xblocks=xblocks, compound_xblocks=compound_xblocks)
+    block_counterimage = build_block_counterimage(qblock_splitter)
+    refine(xblocks=xblocks, compound_xblocks=compound_xblocks)
 
     assert len(xblocks) == 2
 
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_reset_aux_count_after_refinement(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
-    pta.refine([xblock], [xblock])
+    refine([xblock], [xblock])
 
     for vertex in vertexes:
         assert vertex.aux_count == None
@@ -336,12 +336,12 @@ def test_count_after_refinement():
     graph.add_nodes_from(range(5))
     initial_partition = test_cases.initial_partitions[len(graph.nodes)]
 
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
     xblocks = [xblock]
 
-    pta.refine(xblocks=xblocks, compound_xblocks=[xblock])
+    refine(xblocks=xblocks, compound_xblocks=[xblock])
 
     ok_count = [[0 for _ in vertexes] for _ in xblocks]
     for (xblock_idx, xblock) in enumerate(xblocks):
@@ -365,10 +365,10 @@ def test_count_after_refinement():
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_no_negative_edge_counts(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     xblock = q_partition[0].xblock
-    pta.refine([xblock], [xblock])
+    refine([xblock], [xblock])
 
     for vertex in vertexes:
         for edge in vertex.image:
@@ -377,12 +377,12 @@ def test_no_negative_edge_counts(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_refine_updates_compound_xblocks(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
+    (q_partition, vertexes) = initialize(graph, initial_partition)
 
     x_partition = [q_partition[0].xblock]
     compound_xblocks = [x_partition[0]]
 
-    pta.refine(compound_xblocks=compound_xblocks, xblocks=x_partition)
+    refine(compound_xblocks=compound_xblocks, xblocks=x_partition)
 
     for xblock in x_partition:
         if len(xblock.qblocks) > 1:
@@ -391,9 +391,9 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_pta_result_is_stable_partition(graph, initial_partition):
-    (q_partition, vertexes) = decorator.initialize(graph, initial_partition)
-    result = pta.pta(q_partition)
-    assert rscp_utilities.is_stable_partition(
+    (q_partition, vertexes) = initialize(graph, initial_partition)
+    result = pta(q_partition)
+    assert is_stable_partition(
         [[vertexes[vertex_idx] for vertex_idx in block] for block in result]
     )
 
@@ -403,13 +403,13 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
     test_cases.graph_partition_rscp_tuples,
 )
 def test_pta_correctness(graph, initial_partition, expected_q_partition):
-    rscp = pta_algorithm.rscp(graph, initial_partition)
+    rscp = evaluate_rscp(graph, initial_partition)
     assert set(rscp) == set(expected_q_partition)
 
 
 def test_pta_no_initial_partition():
     graph = test_cases.build_full_graphs(10)
-    rscp = pta_algorithm.rscp(graph)
+    rscp = evaluate_rscp(graph)
     assert True
 
 
@@ -417,14 +417,14 @@ def test_pta_no_integer_nodes():
     graph = nx.DiGraph()
     graph.add_nodes_from(["a", 0, 1, 2, 3, frozenset("x")])
     graph.add_edges_from([("a", 0), (0, 1), (1, 2), (2, 3)])
-    rscp = pta_algorithm.rscp(graph, [["a", 0, 1, 2], [3, frozenset("x")]])
+    rscp = evaluate_rscp(graph, [["a", 0, 1, 2], [3, frozenset("x")]])
     assert set(rscp) == set([("a",), (0,), (1,), (2,), (3, frozenset("x"))])
 
 
 def test_no_compound_xblocks():
     G = nx.DiGraph()
     G.add_edges_from([[0, 1], [1, 2], [2, 1]])
-    assert len(pta_algorithm.rscp(G)) == 1
+    assert len(evaluate_rscp(G)) == 1
 
 def test_integer_graph():
     nodes = [0, 1, 2, 'a', 'b', frozenset([5]), None, nx.DiGraph()]
@@ -437,7 +437,7 @@ def test_integer_graph():
         graph.add_edge(nodes[i], nodes[0])
         graph.add_edge(nodes[i], nodes[i + 1])
 
-    integer_graph, node_to_idx = pta_algorithm.convert_to_integer_graph(graph)
+    integer_graph, node_to_idx = convert_to_integer_graph(graph)
 
     # test the map's correctness
     for node in nodes:

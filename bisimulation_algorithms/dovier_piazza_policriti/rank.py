@@ -1,6 +1,8 @@
 import networkx as nx
-import dovier_piazza_policriti.well_foundedness as wf
 from typing import List
+
+from .well_foundedness import mark_wf_nodes
+
 
 def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
     """A recursive step of the DFS visit. For a given SCC node, set its rank, and when needed visit its neighborhood. After the execution of this function the dictionary associated with each node in graph_scc will contain the key 'rank'.
@@ -70,7 +72,7 @@ def prepare_scc(graph: nx.Graph) -> nx.DiGraph:
         nx.DiGraph: The SCC contraction of the input graph.
     """
 
-    wf.mark_wf_nodes(graph)
+    mark_wf_nodes(graph)
 
     # this is the graph whose nodes are the SCC of the input graph
     graph_scc = nx.DiGraph()

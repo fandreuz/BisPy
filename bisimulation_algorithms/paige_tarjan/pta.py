@@ -1,16 +1,17 @@
 from llist import dllist, dllistnode
-from . import graph_entities as entities
 from typing import List, Tuple
 
+from .graph_entities import _Vertex, _XBlock, _QBlock, _Count
+
 # choose the smallest qblock of the first two
-def extract_splitter(compound_block: entities._XBlock) -> entities._QBlock:
+def extract_splitter(compound_block: _XBlock) -> _QBlock:
     """Given a compound block of the X partition, extract one of the blocks of the partition Q inside (the smaller among the first two). The chosen block is removed from the compound block.
 
     Args:
-        compound_block (entities._XBlock): A compound block of the partition X.
+        compound_block (_XBlock): A compound block of the partition X.
 
     Returns:
-        entities._QBlock: A block of the partition Q from the given compound_block.
+        _QBlock: A block of the partition Q from the given compound_block.
     """
 
     first_qblock = compound_block.qblocks.first
@@ -26,14 +27,14 @@ def extract_splitter(compound_block: entities._XBlock) -> entities._QBlock:
 # construct a list of the nodes in the counterimage of qblock to be used in the split-phase.
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
 # remember to reset the value of aux_count after the refinement
-def build_block_counterimage(B_qblock: entities._QBlock) -> List[entities._Vertex]:
+def build_block_counterimage(B_qblock: _QBlock) -> List[_Vertex]:
     """Given a block B of Q, construct a list of vertexes x such that x->y and y is in B. This function also sets vertex.aux_count and increases it by one for each visited vertex in order to find the value |B cap E({vertex})| for each vertex, where A is the relation '->' of the graph.
 
     Args:
-        B_qblock (entities._QBlock): A block of B.
+        B_qblock (_QBlock): A block of B.
 
     Returns:
-        list[entities._Vertex]: A list of vertexes x such that x->y and y is in B (the order doesn't matter).
+        list[_Vertex]: A list of vertexes x such that x->y and y is in B (the order doesn't matter).
     """
 
     qblock_counterimage = []
@@ -51,7 +52,7 @@ def build_block_counterimage(B_qblock: entities._QBlock) -> List[entities._Verte
             # if this is the first time we found a destination in qblock for whom this node is a source, create a new instance of Count
             # remember to set it to None
             if not counterimage_vertex.aux_count:
-                counterimage_vertex.aux_count = entities._Count(counterimage_vertex)
+                counterimage_vertex.aux_count = _Count(counterimage_vertex)
             counterimage_vertex.aux_count.value += 1
 
     for vertex in qblock_counterimage:
@@ -61,18 +62,18 @@ def build_block_counterimage(B_qblock: entities._QBlock) -> List[entities._Verte
     return qblock_counterimage
 
 
-# compute the set E^{-1}(B) - E^{-1}(S-B) where S is the entities._XBlock which contained the entities._QBlock B.
+# compute the set E^{-1}(B) - E^{-1}(S-B) where S is the _XBlock which contained the _QBlock B.
 # in order to get the right result, you need to run the method build_splitter_counterimage before, which sets aux_count
 def build_exclusive_B_counterimage(
-    B_qblock_vertexes: List[entities._Vertex],
-) -> List[entities._Vertex]:
+    B_qblock_vertexes: List[_Vertex],
+) -> List[_Vertex]:
     """Given a block B of Q which has just been extracted from a compound block S of x, generate the exclusive counterimage of B, namely E^{-1}(B) - E^{-1}(S-B), where E is the relation '->' of the graph. It's fundamental that this function is called after build_block_counterimage, since it uses the aux_count values set by that function.
 
     Args:
-        B_qblock_vertexes (list[entities._Vertex]): A block B extracted from a block S of X.
+        B_qblock_vertexes (list[_Vertex]): A block B extracted from a block S of X.
 
     Returns:
-        list[entities._Vertex]: The vertexes in E^{-1}(B) - E^{-1}(S-B).
+        list[_Vertex]: The vertexes in E^{-1}(B) - E^{-1}(S-B).
     """
 
     splitter_counterimage = []
@@ -97,11 +98,11 @@ def build_exclusive_B_counterimage(
 
 
 # perform a Split with respect to B_qblock
-def split(B_counterimage: List[entities._Vertex]):
+def split(B_counterimage: List[_Vertex]):
     """Given a list of vertexes, use them to split the blocks of the current partition Q. Note that the information about the current partition is contained inside the vertex instances.
 
     Args:
-        B_counterimage (list[entities._Vertex]): A list of vertexes which are the counterimage for a block of Q (there's no check though).
+        B_counterimage (list[_Vertex]): A list of vertexes which are the counterimage for a block of Q (there's no check though).
 
     Returns:
         tuple: A tuple containing the new blocks of Q generated during the split, and the new compound blocks of X.
@@ -109,7 +110,7 @@ def split(B_counterimage: List[entities._Vertex]):
 
     # keep track of the qblocks modified during step 4
     changed_qblocks = []
-    # if a split splits a entities._QBlock in two non-empty entities._QBlocks, then the entities._XBlock which contains them is for sure compound. We need to check if it's already compound though.
+    # if a split splits a _QBlock in two non-empty _QBlocks, then the _XBlock which contains them is for sure compound. We need to check if it's already compound though.
     new_compound_xblocks = []
 
     for vertex in B_counterimage:
@@ -142,7 +143,7 @@ def split(B_counterimage: List[entities._Vertex]):
         if qblock.size == 0:
             qblock.xblock.remove_qblock(qblock)
         else:
-            # the entities._XBlock which contains the two splitted entities._QBlocks is a NEW compound block only if its size is exactly two
+            # the _XBlock which contains the two splitted _QBlocks is a NEW compound block only if its size is exactly two
             # NOTE: it's essential that helper_block is added to xblock only in this loop, because otherwise the size of a new compound block can't be forecasted precisely
             if qblock.xblock.qblocks.size == 2:
                 new_compound_xblocks.append(qblock.xblock)
@@ -150,12 +151,12 @@ def split(B_counterimage: List[entities._Vertex]):
     return (new_qblocks, new_compound_xblocks)
 
 
-# each edge a->b should point to |X(b) \cap E({a})| where X(b) is the entities._XBlock b belongs to. Note that B_block is a new entities._XBlock at the end of refine. We decrement the count for the edge because B isn't in S anymore (S was replaced with B, S-B indeed).
-def update_counts(B_block_vertexes: List[entities._Vertex]):
+# each edge a->b should point to |X(b) \cap E({a})| where X(b) is the _XBlock b belongs to. Note that B_block is a new _XBlock at the end of refine. We decrement the count for the edge because B isn't in S anymore (S was replaced with B, S-B indeed).
+def update_counts(B_block_vertexes: List[_Vertex]):
     """After a block B of Q has become a block of X on its own (it was removed from a compound block S) we need to decrease by one count(x,S) (which is now count(x,S-B)) for each vertex in E^{-1}(B).
 
     Args:
-        B_block_vertexes (list[entities._Vertex]): A block of Q which is now a block of S.
+        B_block_vertexes (list[_Vertex]): A block of Q which is now a block of S.
     """
 
     for vertex in B_block_vertexes:
@@ -168,12 +169,12 @@ def update_counts(B_block_vertexes: List[entities._Vertex]):
             edge.count = edge.source.aux_count
 
 
-def refine(compound_xblocks: List[entities._XBlock], xblocks: List[entities._XBlock]):
+def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
     """Perform a refinement step, given the current X partition and the compound blocks of X.
 
     Args:
-        compound_xblocks (list[entities._XBlock]): A list of compound blocks of X, namely those that contain more than one block of Q.
-        xblocks (list[entities._XBlock]): The current X partition
+        compound_xblocks (list[_XBlock]): A list of compound blocks of X, namely those that contain more than one block of Q.
+        xblocks (list[_XBlock]): The current X partition
 
     Returns:
         tuple: A tuple containing the new X partition (resulting from the replacement of a block S with B, S-B) and the new blocks of Q which have been generated from the two split phases.
@@ -197,7 +198,7 @@ def refine(compound_xblocks: List[entities._XBlock], xblocks: List[entities._XBl
         compound_xblocks.append(S_compound_xblock)
 
     # add the extracted qblock to xblocks
-    B_xblock = entities._XBlock()
+    B_xblock = _XBlock()
     B_xblock.append_qblock(B_qblock)
 
     xblocks.append(B_xblock)
@@ -232,14 +233,14 @@ def refine(compound_xblocks: List[entities._XBlock], xblocks: List[entities._XBl
 
 
 # returns a list of labels splitted in partitions
-def pta(q_partition: List[entities._QBlock]) -> List[Tuple]:
+def pta(q_partition: List[_QBlock]) -> List[Tuple]:
     """Apply the Paige-Tarjan algorithm to an initial partition Q which contains the whole "internal" representation of a graph.
 
     Args:
-        q_partition (list[entities._QBlock]): The initial partition represented as the Q partition (namely with instances of QBlock).
+        q_partition (list[_QBlock]): The initial partition represented as the Q partition (namely with instances of QBlock).
 
     Returns:
-        list[entities._Vertex]: The RSCP of the given initial partition as a list of Vertex instances.
+        list[_Vertex]: The RSCP of the given initial partition as a list of Vertex instances.
     """
 
     # initially, there's only one block in the partition X, the one which contains each block in Q

@@ -1,12 +1,12 @@
-import utilities.rscp_utilities as rscp_utilities
-import paige_tarjan.graph_entities as entities
-import paige_tarjan.graph_decorator as decorator
 import networkx as nx
 import pytest
 
 
+from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
+from bisimulation_algorithms.utilities.rscp_utilities import is_stable_partition, check_block_stability
+
 def build_test_partition(graph, partition, expected):
-    _, vertexes = decorator.initialize(graph, partition)
+    _, vertexes = initialize(graph, partition)
     return ([[vertexes[idx] for idx in block] for block in partition], expected)
 
 
@@ -28,11 +28,11 @@ graphs_partition_expected[2][0].add_edges_from([(0, 2), (1, 3), (2, 2)])
     map(lambda tp: build_test_partition(*tp), graphs_partition_expected),
 )
 def test_check_is_stable_partition(partition, result):
-    assert rscp_utilities.is_stable_partition(partition) == result
+    assert is_stable_partition(partition) == result
 
 
 def build_test_blocks(graph, partition, expected):
-    _, vertexes = decorator.initialize(graph, partition)
+    _, vertexes = initialize(graph, partition)
     return (*[[vertexes[idx] for idx in block] for block in partition][0:2], expected)
 
 
@@ -54,4 +54,4 @@ graphs_partition_expected[2][0].add_edges_from([(0, 2), (1, 3), (2, 2)])
     map(lambda tp: build_test_blocks(*tp), graphs_partition_expected),
 )
 def test_check_block_stability(block1, block2, result):
-    assert rscp_utilities.check_block_stability(block1, block2) == result
+    assert check_block_stability(block1, block2) == result
