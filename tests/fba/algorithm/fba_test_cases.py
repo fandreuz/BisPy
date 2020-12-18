@@ -1,4 +1,4 @@
-import dovier_piazza_policriti.graph_entities as entities
+import bisimulation_algorithms.dovier_piazza_policriti.graph_entities as entities
 import networkx as nx
 
 block_counterimage_cases = []

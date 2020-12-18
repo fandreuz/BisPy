@@ -1,13 +1,14 @@
 import networkx as nx
-import dovier_piazza_policriti.rank as rank
-import paige_tarjan.pta_algorithm as pta
-import dovier_piazza_policriti.graph_entities as entities
 from typing import Iterable, List
 from itertools import islice
-import dovier_piazza_policriti.graph_decorator as decorator
+
+from .rank import compute_rank
+from .graph_entities import _Block, _Vertex
+from .graph_decorator import to_normal_graph
+from bisimulation_algorithms import paige_tarjan
 
 
-def collapse(block: Iterable[entities._Vertex]) -> entities._Vertex:
+def collapse(block: Iterable[_Vertex]) -> _Vertex:
     # prevent index exception
     if len(block) > 0:
         keep_node = list(block)[0]
@@ -19,14 +20,14 @@ def collapse(block: Iterable[entities._Vertex]) -> entities._Vertex:
         return keep_node
 
 
-def build_block_counterimage(block: entities._Block) -> List[entities._Vertex]:
+def build_block_counterimage(block: _Block) -> List[_Vertex]:
     """Given a block B, construct a list of vertexes x such that x->y and y is in B.
 
     Args:
-        block (entities._Block): A block.
+        block (_Block): A block.
 
     Returns:
-        list[entities._Vertex]: A list of vertexes x such that x->y and y is in B (the order doesn't matter).
+        list[_Vertex]: A list of vertexes x such that x->y and y is in B (the order doesn't matter).
     """
 
     block_counterimage = []
@@ -62,12 +63,12 @@ def rank_to_partition_idx(rank: int) -> int:
         return rank + 1
 
 
-def split_upper_ranks(partition: List[List[entities._Block]], block: entities._Block):
+def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     """Update the blocks of the partition whose rank is greater than block.rank, in order to make the partition stable with respect to block.
 
     Args:
-        partition (List[List[entities._Block]]): The current partition.
-        block (entities._Block): The block the partition has to be stable with respect to.
+        partition (List[List[_Block]]): The current partition.
+        block (_Block): The block the partition has to be stable with respect to.
     """
 
     block_counterimage = build_block_counterimage(block)
@@ -79,7 +80,7 @@ def split_upper_ranks(partition: List[List[entities._Block]], block: entities._B
         if vertex.rank > block.rank:
             # if needed, create the aux block to help during the splitting phase
             if vertex.block.aux_block == None:
-                vertex.block.aux_block = entities._Block(vertex.block.rank)
+                vertex.block.aux_block = _Block(vertex.block.rank)
                 modified_blocks.append(vertex.block)
 
             # remove the vertex in the counterimage from its current block
@@ -93,27 +94,27 @@ def split_upper_ranks(partition: List[List[entities._Block]], block: entities._B
         block.aux_block = None
 
 
-def prepare_graph(graph: nx.Graph) -> List[entities._Vertex]:
+def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
     """Prepare the input graph for the algorithm. Computes the rank for each node, and then converts the graph to a usable representation.
 
     Args:
         graph (nx.Graph): The input graph
 
     Returns:
-        List[entities._Vertex]: A convenient representation of the given graph (contains only nodes and edges).
+        List[_Vertex]: A convenient representation of the given graph (contains only nodes and edges).
     """
 
-    rank.compute_rank(graph)
-    return decorator.to_normal_graph(graph)
+    compute_rank(graph)
+    return to_normal_graph(graph)
 
 
 def create_subgraph_of_rank(
-    partition: List[List[entities._Block]], rank: int
+    partition: List[List[_Block]], rank: int
 ) -> nx.Graph:
     """Creates a subgraph of nodes having the given rank, from the given partition.
 
     Args:
-        partition (List[List[entities._Block]]): The current partition.
+        partition (List[List[_Block]]): The current partition.
         rank (int): Rank of the nodes in the subgraph.
 
     Returns:
@@ -159,10 +160,10 @@ def fba(graph: nx.Graph):
     # initialize the initial partition. the first index is for -infty
     # partition contains is a list of lists, each sub-list contains the sub-blocks of nodes at the i-th rank
     if max_rank != float("-inf"):
-        partition = [[entities._Block()] for _ in range(max_rank + 2)]
+        partition = [[_Block()] for _ in range(max_rank + 2)]
     else:
         # there's a single possible rank, -infty
-        partition = [[entities._Block()]]
+        partition = [[_Block()]]
 
     # populate the blocks of the partition according to the ranks
     for vertex in vertexes:
@@ -183,7 +184,7 @@ def fba(graph: nx.Graph):
         subgraph = create_subgraph_of_rank(partition[i], i - 1)
 
         # apply PTA to the subgraph at rank i
-        rscp = pta.rscp(subgraph, partition[i])
+        rscp = paige_tarjan(subgraph, partition[i])
 
         # collapse all the blocks in B_i
         #for rscp_block in rscp:

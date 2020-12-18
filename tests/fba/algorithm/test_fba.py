@@ -1,6 +1,6 @@
 import pytest
-import dovier_piazza_policriti.fba as fba
-import dovier_piazza_policriti.graph_entities as entities
+import bisimulation_algorithms.dovier_piazza_policriti.fba as fba
+import bisimulation_algorithms.dovier_piazza_policriti.graph_entities as entities
 import tests.fba.algorithm.fba_test_cases as test_cases
 
 @pytest.mark.parametrize(
