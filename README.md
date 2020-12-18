@@ -63,7 +63,7 @@ from bisimulation_algorithms import paige_tarjan
 rscp = paige_tarjan(graph)
 print(rscp)
 ```
-`[(3,), (1,), (2, 4), (0,)]`
+Output: `[(3,), (1,), (2, 4), (0,)]`
 
 If we wanted to use a different initial partition, like:
 ```
@@ -71,11 +71,11 @@ initial_partition = [(0,1,2), (3,4)]
 ```
 
 the code would have been:
-```
+```python
 rscp = paige_tarjan(graph, initial_partition)
 print(rscp)
 ```
-`[(3,), (1,), (2,) (4,), (0,)]`
+Output: `[(3,), (1,), (2,) (4,), (0,)]`
 
 ## Examples
 Initial partition | RSCP
