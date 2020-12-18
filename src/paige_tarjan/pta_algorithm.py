@@ -29,7 +29,16 @@ def convert_to_integer_graph(graph: nx.Graph) -> Tuple[nx.Graph, Dict[Any, int]]
     return integer_graph, node_to_idx
 
 
-def check_integer_graph(graph: nx.Graph) -> bool:
+def check_normal_integer_graph(graph: nx.Graph) -> bool:
+    """Checks whether the nodes in the given graph form an integer interval starting from zero without holes.
+
+    Args:
+        graph (nx.Graph): The input graph.
+
+    Returns:
+        bool: True if the graph satisfies the "normal integrality" property.
+    """
+
     return (all(map(lambda node: isinstance(node, int) and node>=0, graph.nodes)) and max(graph.nodes)==len(graph.nodes)-1)
 
 def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_integer_graph: bool = False) -> List[Tuple]:
@@ -45,7 +54,7 @@ def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_
     """
 
     # if True, the input graph is already an integer graph
-    original_graph_is_integer = is_integer_graph or check_integer_graph(graph)
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(graph)
 
     # if initial_partition is None, then it's the trivial partition
     if initial_partition == None:
