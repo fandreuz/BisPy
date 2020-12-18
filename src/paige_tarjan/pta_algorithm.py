@@ -42,7 +42,7 @@ def rscp(graph: nx.Graph, initial_partition: Iterable[Iterable[int]] = None, is_
     """
 
     # if True, the input graph is already an integer graph
-    original_graph_is_integer = None or all(map(lambda node: isinstance(node, int), graph.nodes))
+    original_graph_is_integer = is_integer_graph or all(map(lambda node: isinstance(node, int), graph.nodes))
 
     # if initial_partition is None, then it's the trivial partition
     if initial_partition == None:
