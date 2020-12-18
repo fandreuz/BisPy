@@ -1,6 +1,6 @@
 import networkx as nx
 import dovier_piazza_policriti.well_foundedness as wf
-
+from typing import List
 
 def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
     """A recursive step of the DFS visit. For a given SCC node, set its rank, and when needed visit its neighborhood. After the execution of this function the dictionary associated with each node in graph_scc will contain the key 'rank'.
@@ -33,7 +33,7 @@ def dfs_rank_visit(graph_scc: nx.Graph, current_scc: int):
         graph_scc.nodes[current_scc]["rank"] = current_max
 
 
-def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> list[frozenset]:
+def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> List[frozenset]:
     """Construct a list of ints such that output[node] = [node], where [node] is the SCC node belongs to, and node is a vertex of the input graph.
 
     Args:

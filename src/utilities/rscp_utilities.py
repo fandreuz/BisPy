@@ -1,8 +1,9 @@
 import itertools
 import paige_tarjan.graph_entities as entities
+from typing import List
 
 # check if the given partition is stable with respect to the given block, or if it's stable if the block isn't given
-def is_stable_partition(partition: list[list[entities._Vertex]]) -> bool:
+def is_stable_partition(partition: List[List[entities._Vertex]]) -> bool:
     """Checks the stability of the given partition. The input must be a partition of Vertex instances, and the relation which we consider for the stability is a->b, where a,b are two vertexes.
 
     Args:
@@ -23,7 +24,7 @@ def is_stable_partition(partition: list[list[entities._Vertex]]) -> bool:
 
 # return True if A_block \subseteq R^{-1}(B_block) or A_block \cap R^{-1}(B_block) = \emptyset
 def check_block_stability(
-    A_block_vertexes: list[entities._Vertex], B_block_vertexes: list[entities._Vertex]
+    A_block_vertexes: List[entities._Vertex], B_block_vertexes: List[entities._Vertex]
 ) -> bool:
     """Checks the stability of the first block with respect to the second one. The two inputs must be list of Vertex instances, and the relation which we consider for the stability is a->b, where a,b are two vertexes.
 

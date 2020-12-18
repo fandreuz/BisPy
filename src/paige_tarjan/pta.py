@@ -27,7 +27,7 @@ def extract_splitter(compound_block: entities._XBlock) -> entities._QBlock:
 # this also updates count(x,qblock) = |qblock \cap E({x})| (because qblock is going to become a new xblock)
 # remember to reset the value of aux_count after the refinement
 def build_block_counterimage(B_qblock: entities._QBlock) -> List[entities._Vertex]:
-    """Given a block B of Q, construct a list of vertexes x such that x->y and y is in B. This function also sets vertex.aux_count and increases it by one for each visited vertex in order to find the value |B \cap E({vertex})| for each vertex, where A is the relation '->' of the graph.
+    """Given a block B of Q, construct a list of vertexes x such that x->y and y is in B. This function also sets vertex.aux_count and increases it by one for each visited vertex in order to find the value |B cap E({vertex})| for each vertex, where A is the relation '->' of the graph.
 
     Args:
         B_qblock (entities._QBlock): A block of B.
@@ -64,7 +64,7 @@ def build_block_counterimage(B_qblock: entities._QBlock) -> List[entities._Verte
 # compute the set E^{-1}(B) - E^{-1}(S-B) where S is the entities._XBlock which contained the entities._QBlock B.
 # in order to get the right result, you need to run the method build_splitter_counterimage before, which sets aux_count
 def build_exclusive_B_counterimage(
-    B_qblock_vertexes: list[entities._Vertex],
+    B_qblock_vertexes: List[entities._Vertex],
 ) -> list[entities._Vertex]:
     """Given a block B of Q which has just been extracted from a compound block S of x, generate the exclusive counterimage of B, namely E^{-1}(B) - E^{-1}(S-B), where E is the relation '->' of the graph. It's fundamental that this function is called after build_block_counterimage, since it uses the aux_count values set by that function.
 
@@ -97,7 +97,7 @@ def build_exclusive_B_counterimage(
 
 
 # perform a Split with respect to B_qblock
-def split(B_counterimage: list[entities._Vertex]):
+def split(B_counterimage: List[entities._Vertex]):
     """Given a list of vertexes, use them to split the blocks of the current partition Q. Note that the information about the current partition is contained inside the vertex instances.
 
     Args:
@@ -151,7 +151,7 @@ def split(B_counterimage: list[entities._Vertex]):
 
 
 # each edge a->b should point to |X(b) \cap E({a})| where X(b) is the entities._XBlock b belongs to. Note that B_block is a new entities._XBlock at the end of refine. We decrement the count for the edge because B isn't in S anymore (S was replaced with B, S-B indeed).
-def update_counts(B_block_vertexes: list[entities._Vertex]):
+def update_counts(B_block_vertexes: List[entities._Vertex]):
     """After a block B of Q has become a block of X on its own (it was removed from a compound block S) we need to decrease by one count(x,S) (which is now count(x,S-B)) for each vertex in E^{-1}(B).
 
     Args:
@@ -168,7 +168,7 @@ def update_counts(B_block_vertexes: list[entities._Vertex]):
             edge.count = edge.source.aux_count
 
 
-def refine(compound_xblocks: list[entities._XBlock], xblocks: list[entities._XBlock]):
+def refine(compound_xblocks: List[entities._XBlock], xblocks: List[entities._XBlock]):
     """Perform a refinement step, given the current X partition and the compound blocks of X.
 
     Args:
@@ -232,7 +232,7 @@ def refine(compound_xblocks: list[entities._XBlock], xblocks: list[entities._XBl
 
 
 # returns a list of labels splitted in partitions
-def pta(q_partition: list[entities._QBlock]) -> list[tuple]:
+def pta(q_partition: List[entities._QBlock]) -> List[tuple]:
     """Apply the Paige-Tarjan algorithm to an initial partition Q which contains the whole "internal" representation of a graph.
 
     Args:
@@ -246,11 +246,16 @@ def pta(q_partition: list[entities._QBlock]) -> list[tuple]:
     compound_xblocks = [x_partition[0]]
 
     while len(compound_xblocks) > 0:
-        x_partition, new_qblocks = refine(compound_xblocks=compound_xblocks, xblocks=x_partition)
+        x_partition, new_qblocks = refine(
+            compound_xblocks=compound_xblocks, xblocks=x_partition
+        )
         q_partition.extend(new_qblocks)
         pass
 
-    return sorted([
-        sorted(map(lambda vertex: vertex.label, qblock.vertexes))
-        for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
-    ], key=lambda block: min(block))
+    return sorted(
+        [
+            sorted(map(lambda vertex: vertex.label, qblock.vertexes))
+            for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
+        ],
+        key=lambda block: min(block),
+    )

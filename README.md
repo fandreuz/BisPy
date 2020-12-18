@@ -29,6 +29,34 @@ This library contains the implementation in Python 3 of the following algorithms
 | Dovier-FBA   | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
 | Saha         | Incremental |  Depends on the entity of the changes. |
 
+## Installation
+The package isn't published, therefore the following steps are needed:
+1. Open a terminal window;
+2. Navigate to a suitable directory;
+3. Clone the repository: `git clone https://github.com/fAndreuzzi/Bisimulation-Algorithms.git`;
+4. Open the new directory `cd Bisimulation-Algorithms`;
+5. Install the package in development mode: `pip install -e ./` or `pip3 install -e ./`.
+
+## Usage
+This example shows how to use the PTA algorithm on a given graph. We use [NetworkX](https://networkx.org/) to represent the input. Moreover, we need the initial partition, represented as a list of lists: each inner list is a block. Nodes in the graph should be obtainable with an integer index (like in `graph.nodes[node_idx]`), and likewise blocks are represented by lists of integers.
+
+Therefore the following snippet:
+```python
+graph = nx.DiGraph()
+graph.add_nodes_from(range(5))
+graph.add_edges_from([...])
+
+initial_partition = [[0,1], [2,3], [4]]
+```
+intializes a graph with 5 nodes (from 0 to 4), some edges, and whose nodes are initially splitted in three different blocks.
+
+We can find the RSCP with the Paige-Tarjan Algorithm as follows:
+```python
+import paige_tarjan.pta_algorithm as pta
+rscp = pta.rscp(graph, initial_partition)
+```
+The RSCP is a list of blocks, where nodes are represented by their integer index as in the input graph.
+
 ## Examples
 Initial partition | RSCP
 --- | ---

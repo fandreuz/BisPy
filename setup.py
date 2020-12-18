@@ -9,4 +9,5 @@ setup(
     packages=find_packages(where='src'),
     license="LICENSE",
     description="Python implementation of some algorithms for the computation of the maximum bisimulation",
+    install_requires=['llist', 'networkx']
 )
