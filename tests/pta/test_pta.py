@@ -446,3 +446,24 @@ def test_integer_graph():
     # test the correctness of edges
     for edge in integer_graph.edges:
         assert edge[1] == edge[0] + 1 or edge[1] == 0
+
+def test_integrality_check():
+    # 1
+    g1 = nx.DiGraph()
+    g1.add_nodes_from([1, 2, 3, 4])
+    assert not pta_algorithm.check_normal_integer_graph(g1)
+
+    # 2
+    g2 = nx.DiGraph()
+    g2.add_nodes_from(['a', 0, 2, 3, 4])
+    assert not pta_algorithm.check_normal_integer_graph(g2)
+
+    # 3
+    g3 = nx.DiGraph()
+    g3.add_nodes_from([0, 1, 2, 3, 4])
+    assert pta_algorithm.check_normal_integer_graph(g3)
+
+    # 4
+    g4 = nx.DiGraph()
+    g4.add_nodes_from([0, 2, 3, 4])
+    assert not pta_algorithm.check_normal_integer_graph(g4)
