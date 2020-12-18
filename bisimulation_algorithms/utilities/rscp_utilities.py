@@ -17,8 +17,8 @@ def is_stable_partition(partition: List[List[_Vertex]]) -> bool:
 
     for couple in itertools.product(partition, repeat=2):
         if not (
-            check_block_stability(couple[0], couple[1])
-            and check_block_stability(couple[1], couple[0])
+            check_block_stability(couple[0], couple[1]) and
+            check_block_stability(couple[1], couple[0])
         ):
             return False
     return True

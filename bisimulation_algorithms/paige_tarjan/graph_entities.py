@@ -80,10 +80,11 @@ class _Edge:
         return hash("{}-{}".format(self.source.label, self.destination.label))
 
     def __eq__(self, other):
+        # fmt: off
         return (
-            isinstance(other, _Edge)
-            and self.source == other.source
-            and self.destination == other.destination
+            isinstance(other, _Edge) and
+            self.source == other.source and
+            self.destination == other.destination
         )
 
     def __ne__(self, other):
