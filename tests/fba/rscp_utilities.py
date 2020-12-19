@@ -9,7 +9,7 @@ def check_block_stability(
 
     Args:
         block1 (_Block): The first block.
-        block12 (_Block): The second block.
+        block2 (_Block): The second block.
 
     Returns:
         bool: True if block1 is stable with respect to block2, False otherwise.
@@ -17,15 +17,15 @@ def check_block_stability(
 
     # if there's a vertex y in B_qblock_vertexes such that for the i-th vertex
     # we have i->y, then is_inside_B[i] = True
-    is_inside_B = []
+    goes_inside_block2 = []
     for vertex in block1.vertexes:
         flag = False
         for image_vertex in vertex.image:
-            if image_vertex in block2:
+            if image_vertex in block2.vertexes:
                 flag = True
-        is_inside_B.append(flag)
+        goes_inside_block2.append(flag)
 
     # all == True if for each vertex x in A there's a vertex y such that
     # x \in E({x}) AND y \in B.
     # not any == True if the set "image of A" and B are distinct.
-    return all(is_inside_B) or not any(is_inside_B)
+    return all(goes_inside_block2) or not any(goes_inside_block2)
