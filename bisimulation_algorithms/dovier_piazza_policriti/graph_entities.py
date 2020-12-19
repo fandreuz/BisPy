@@ -39,10 +39,10 @@ class _Vertex:
         self.visited = False
 
     def __str__(self):
-        return str(self.label)
+        return '<{}>'.format(str(self.label))
 
     def __repr__(self):
-        return str(self.label)
+        return '<{}>'.format(str(self.label))
 
     # this is only used for testing purposes
     def __hash__(self):
