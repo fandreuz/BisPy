@@ -123,17 +123,21 @@ def create_subgraph_of_rank(
 
     subgraph = nx.DiGraph()
 
-    vertexes = []
+
+    vertexes_at_rank = []
     for block in blocks_at_rank:
         for vertex in block.vertexes:
+            # add a new block to the subgraph
+            subgraph.add_node(vertex.label)
+
+            # exclude nodes whose rank is not correct
             image_rank_i = filter(
                 lambda image_vertex: image_vertex.rank == rank, vertex.image
             )
+            # add edges going out from vertex to the subgraph
             subgraph.add_edges_from(
-                [(vertex, image_vertex) for image_vertex in image_rank_i]
+                (vertex.label, image_vertex.label) for image_vertex in image_rank_i
             )
-
-    subgraph.add_nodes_from(vertexes)
 
     return subgraph
 
