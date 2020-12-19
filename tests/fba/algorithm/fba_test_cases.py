@@ -62,3 +62,21 @@ graph2e.add_nodes_from([1,2])
 create_subgraph_cases_rank.append(0)
 create_subgraph_expected.append(graph2e)
 create_subgraph_cases.append(fba.create_initial_partition(fba.prepare_graph(graph2))[1])
+
+# ------------------------------------------------------
+
+initial_partition_cases = []
+initial_partition_expected = []
+
+# 1
+v1 = [_Vertex(0, i) for i in range(5)]
+v1.extend([_Vertex(1, i) for i in range(5, 10)])
+v1.extend([_Vertex(2, i) for i in range(10, 15)])
+v1.extend([_Vertex(float('-inf'), i) for i in range(15,20)])
+initial_partition_cases.append(v1)
+initial_partition_expected.append([
+    [v1[15:20]],
+    [v1[0:5]],
+    [v1[5:10]],
+    [v1[10:15]]
+])
