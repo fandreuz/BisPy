@@ -1,7 +1,6 @@
 from typing import Iterable
 from llist import dllist, dllistnode
 
-
 class _Vertex:
     """Represents a vertex of the input graph. The representation holds some key attributes used by the algorithm (O(1) access).
 
@@ -12,7 +11,9 @@ class _Vertex:
         collapsed_to: If this vertex was collapsed, this is a reference to the _Vertex object it was collapsed to
     """
 
-    def __init__(self, rank: int, label: int):
+    def __init__(
+        self, rank: int, label: int
+    ):
         self.label = label
 
         self.rank = rank
@@ -38,24 +39,26 @@ class _Vertex:
         self.visited = False
 
     def __str__(self):
-        return "<{}>".format(str(self.label))
+        return str(self.label)
 
     def __repr__(self):
-        return "<{}>".format(str(self.label))
+        return str(self.label)
 
     # this is only used for testing purposes
     def __hash__(self):
         return self.label
 
     def __eq__(self, other):
-        return isinstance(other, _Vertex) and self.label == other.label
+        return (
+            isinstance(other, _Vertex)
+            and self.label == other.label
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
-
 class _Block:
-    def __init__(self, rank: int, vertexes=[]):
+    def __init__(self, rank: int, vertexes = []):
         self.vertexes = dllist(vertexes)
         self.aux_block = None
 
@@ -71,13 +74,3 @@ class _Block:
     def remove_vertex(self, vertex: _Vertex):
         vertex.block = None
         self.vertexes.remove(vertex.dllistnode)
-
-    def __str__(self):
-        return "({})".format(
-            ",".join([str(vertex) for vertex in self.vertexes])
-        )
-
-    def __repr__(self):
-        return "({})".format(
-            ",".join([str(vertex) for vertex in self.vertexes])
-        )

@@ -1,10 +1,10 @@
 import networkx as nx
-from .graph_entities import _Vertex, _Block
+import dovier_piazza_policriti.graph_entities as entities
 from typing import List
 
 
-def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
-    vertexes = [_Vertex(label=node, rank=graph.nodes[node]['rank']) for node in graph.nodes]
+def to_normal_graph(graph: nx.Graph) -> List[entities._Vertex]:
+    vertexes = [entities._Vertex(label=node, rank=graph.nodes[node]['rank']) for node in graph.nodes]
 
     # build the image/counterimage
     for edge in graph.edges:
