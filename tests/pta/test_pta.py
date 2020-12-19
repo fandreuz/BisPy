@@ -11,7 +11,7 @@ from bisimulation_algorithms.paige_tarjan.pta import split, extract_splitter, bu
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize, prepare_graph_abstraction, preprocess_initial_partition
 from bisimulation_algorithms.paige_tarjan.pta_algorithm import rscp as evaluate_rscp, convert_to_integer_graph, check_normal_integer_graph
 
-from . import pta_test_cases as test_cases
+import tests.pta.pta_test_cases as test_cases
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_preprocess(graph, initial_partition):
