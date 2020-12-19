@@ -4,7 +4,7 @@ from llist import dllist, dllistnode
 import tests.pta.pta_test_cases as test_cases
 import itertools
 
-from bisimulation_algorithms.utilities.rscp_utilities import check_block_stability, is_stable_partition
+from tests.pta.rscp_utilities import check_block_stability, is_stable_partition
 
 from bisimulation_algorithms.paige_tarjan.graph_entities import _Vertex, _Edge, _QBlock, _XBlock
 from bisimulation_algorithms.paige_tarjan.pta import split, extract_splitter, build_block_counterimage, build_exclusive_B_counterimage, refine, pta
