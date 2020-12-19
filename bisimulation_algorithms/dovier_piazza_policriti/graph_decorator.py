@@ -1,5 +1,5 @@
 import networkx as nx
-import dovier_piazza_policriti.graph_entities as entities
+import bisimulation_algorithms.dovier_piazza_policriti.graph_entities as entities
 from typing import List
 
 
