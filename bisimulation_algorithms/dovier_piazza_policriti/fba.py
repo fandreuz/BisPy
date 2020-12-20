@@ -108,7 +108,6 @@ def create_subgraph_of_rank(
 
     subgraph = nx.DiGraph()
 
-
     vertexes_at_rank = []
     for block in blocks_at_rank:
         for vertex in block.vertexes:
@@ -121,10 +120,12 @@ def create_subgraph_of_rank(
             )
             # add edges going out from vertex to the subgraph
             subgraph.add_edges_from(
-                (vertex.label, image_vertex.label) for image_vertex in image_rank_i
+                (vertex.label, image_vertex.label)
+                for image_vertex in image_rank_i
             )
 
     return subgraph
+
 
 def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
     # find the maximum rank in the graph
@@ -136,7 +137,7 @@ def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
         partition = [[_Block(i - 1)] for i in range(max_rank + 2)]
     else:
         # there's a single possible rank, -infty
-        partition = [[_Block(float('-inf'))]]
+        partition = [[_Block(float("-inf"))]]
 
     # populate the blocks of the partition according to the ranks
     for vertex in vertexes:
@@ -144,6 +145,7 @@ def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
         partition[rank_to_partition_idx(vertex.rank)][0].append_vertex(vertex)
 
     return partition
+
 
 def fba(graph: nx.Graph):
     """Apply the FBA algorithm to the given graph. The graph is modified in
@@ -159,10 +161,12 @@ def fba(graph: nx.Graph):
     # collapse B_{-infty}
     if len(partition[0]) > 0:
         # there's only one block in partition[0] (B_{-infty}) at the moment, namely partition[0][0]
-        #survivor_node = collapse(partition[0][0])
+        # survivor_node = collapse(partition[0][0])
 
         # update the partition
-        split_upper_ranks(partition, first_rank_idx=1, collapsed_rank=float("-inf"))
+        split_upper_ranks(
+            partition, first_rank_idx=1, collapsed_rank=float("-inf")
+        )
 
     # loop over the ranks
     for partition_idx in range(1, len(partition)):
@@ -175,8 +179,10 @@ def fba(graph: nx.Graph):
         rscp = paige_tarjan(subgraph, partition[partition_idx])
 
         # collapse all the blocks in B_i
-        #for rscp_block in rscp:
+        # for rscp_block in rscp:
         #    collapse(rscp_block)
 
         # update the partition
-        split_upper_ranks(partition, first_rank_idx=rank+1, collapsed_rank=rank)
+        split_upper_ranks(
+            partition, first_rank_idx=rank + 1, collapsed_rank=rank
+        )
