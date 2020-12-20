@@ -1,12 +1,12 @@
 import networkx as nx
-import bisimulation_algorithms.dovier_piazza_policriti.graph_entities as entities
+from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import _Vertex
 from typing import List
 from .rank import compute_rank
 
 
-def to_normal_graph(graph: nx.Graph) -> List[entities._Vertex]:
+def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
     vertexes = [
-        entities._Vertex(label=node, rank=graph.nodes[node]["rank"])
+        _Vertex(label=node, rank=graph.nodes[node]["rank"])
         for node in graph.nodes
     ]
 
