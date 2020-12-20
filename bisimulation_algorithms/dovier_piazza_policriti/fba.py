@@ -82,10 +82,12 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
                 vertex.block.aux_block = _Block(vertex.block.rank)
                 modified_blocks.append(vertex.block)
 
+            new_vertex_block = vertex.block.aux_block
+
             # remove the vertex in the counterimage from its current block
             vertex.block.remove_vertex(vertex)
             # put the vertex in the counterimage in the aux_block
-            vertex.block.aux_block.insert_vertex(vertex)
+            new_vertex_block.append_vertex(vertex)
 
     # insert the new blocks in the partition, and then reset aux_block for each modified node
     for block in modified_blocks:
@@ -173,8 +175,11 @@ def fba(graph: nx.Graph) -> List[Tuple]:
         # create the subgraph of rank i-1
         subgraph = create_subgraph_of_rank(partition[partition_idx], rank)
 
+        # convert FBA blocks to tuple blocks
+        blocks_at_rank = [tuple(map(lambda vertex: vertex.label, block.vertexes)) for block in partition[partition_idx]]
+
         # apply PTA to the subgraph at rank i
-        rscp = paige_tarjan(subgraph, partition[partition_idx])
+        rscp = paige_tarjan(subgraph, blocks_at_rank)
 
         # collapse all the blocks in B_i
         # for rscp_block in rscp:
@@ -188,4 +193,7 @@ def fba(graph: nx.Graph) -> List[Tuple]:
 
     for rank in partition:
         for block in rank:
-            rscp.append(tuple(block.vertexes))
+            if block.vertexes.size > 0:
+                rscp.append(tuple(map(lambda vertex: vertex.label, block.vertexes)))
+
+    return rscp
