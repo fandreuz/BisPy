@@ -2,9 +2,8 @@ import networkx as nx
 from typing import Iterable, List
 from itertools import islice
 
-from .rank import compute_rank
 from .graph_entities import _Block, _Vertex
-from .graph_decorator import to_normal_graph
+from .graph_decorator import to_normal_graph, prepare_graph
 from bisimulation_algorithms import paige_tarjan
 
 
@@ -92,20 +91,6 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     for block in modified_blocks:
         partition[rank_to_partition_idx(block.rank)].append(block.aux_block)
         block.aux_block = None
-
-
-def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
-    """Prepare the input graph for the algorithm. Computes the rank for each node, and then converts the graph to a usable representation.
-
-    Args:
-        graph (nx.Graph): The input graph
-
-    Returns:
-        List[_Vertex]: A convenient representation of the given graph (contains only nodes and edges).
-    """
-
-    compute_rank(graph)
-    return to_normal_graph(graph)
 
 
 def create_subgraph_of_rank(
