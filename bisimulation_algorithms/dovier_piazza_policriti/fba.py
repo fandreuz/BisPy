@@ -164,9 +164,7 @@ def fba(graph: nx.Graph) -> List[Tuple]:
         # survivor_node = collapse(partition[0][0])
 
         # update the partition
-        split_upper_ranks(
-            partition, first_rank_idx=1, collapsed_rank=float("-inf")
-        )
+        split_upper_ranks(partition, partition[0][0])
 
     # loop over the ranks
     for partition_idx in range(1, len(partition)):
