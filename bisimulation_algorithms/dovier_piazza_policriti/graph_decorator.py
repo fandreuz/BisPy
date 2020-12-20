@@ -1,5 +1,7 @@
 import networkx as nx
-from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import _Vertex
+from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
+    _Vertex,
+)
 from typing import List
 from .rank import compute_rank
 

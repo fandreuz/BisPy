@@ -20,34 +20,39 @@ def collapse(block: Iterable[_Vertex]) -> _Vertex:
 
 
 def build_block_counterimage(block: _Block) -> List[_Vertex]:
-    """Given a block B, construct a list of vertexes x such that x->y and y is in B.
+    """Given a block B, construct a list of vertexes x such that x->y and y is
+    in B.
 
     Args:
         block (_Block): A block.
 
     Returns:
-        list[_Vertex]: A list of vertexes x such that x->y and y is in B (the order doesn't matter).
+        list[_Vertex]: A list of vertexes x such that x->y and y is in B (the
+        order doesn't matter).
     """
 
     block_counterimage = []
 
     for vertex in block.vertexes:
         for counterimage_vertex in vertex.counterimage:
-            # this vertex should be added to the counterimage only if necessary (avoid duplicates)
+            # this vertex should be added to the counterimage only if necessary
+            # (avoid duplicates)
             if not counterimage_vertex.visited:
                 block_counterimage.append(counterimage_vertex)
                 # remember to release this vertex
                 counterimage_vertex.visit()
 
     for vertex in block_counterimage:
-        # release this vertex so that it can be visited again in a next splitting phase
+        # release this vertex so that it can be visited again in a next
+        # splitting phase
         vertex.release()
 
     return block_counterimage
 
 
 def rank_to_partition_idx(rank: int) -> int:
-    """Convert the rank of a block/vertex to its expected index in the list which represents the partition of nodes.
+    """Convert the rank of a block/vertex to its expected index in the list
+    which represents the partition of nodes.
 
     Args:
         rank (int): The input rank (int or float('-inf'))
@@ -63,11 +68,13 @@ def rank_to_partition_idx(rank: int) -> int:
 
 
 def split_upper_ranks(partition: List[List[_Block]], block: _Block):
-    """Update the blocks of the partition whose rank is greater than block.rank, in order to make the partition stable with respect to block.
+    """Update the blocks of the partition whose rank is greater than
+    block.rank, in order to make the partition stable with respect to block.
 
     Args:
         partition (List[List[_Block]]): The current partition.
-        block (_Block): The block the partition has to be stable with respect to.
+        block (_Block): The block the partition has to be stable with respect
+        to.
     """
 
     block_counterimage = build_block_counterimage(block)
@@ -75,10 +82,12 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     modified_blocks = []
 
     for vertex in block_counterimage:
-        # if this is an upper-rank node with respect to the collapsed block, we can split it from its block
+        # if this is an upper-rank node with respect to the collapsed block, we
+        # can split it from its block
         if vertex.rank > block.rank:
-            # if needed, create the aux block to help during the splitting phase
-            if vertex.block.aux_block == None:
+            # if needed, create the aux block to help during the splitting
+            # phase
+            if vertex.block.aux_block is None:
                 vertex.block.aux_block = _Block(vertex.block.rank)
                 modified_blocks.append(vertex.block)
 
@@ -89,7 +98,8 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
             # put the vertex in the counterimage in the aux_block
             new_vertex_block.append_vertex(vertex)
 
-    # insert the new blocks in the partition, and then reset aux_block for each modified node
+    # insert the new blocks in the partition, and then reset aux_block for each
+    # modified node
     for block in modified_blocks:
         partition[rank_to_partition_idx(block.rank)].append(block.aux_block)
         block.aux_block = None
@@ -98,7 +108,8 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
 def create_subgraph_of_rank(
     blocks_at_rank: List[_Block], rank: int
 ) -> nx.Graph:
-    """Creates a subgraph of nodes having the given rank, from the given partition.
+    """Creates a subgraph of nodes having the given rank, from the given
+    partition.
 
     Args:
         partition (List[List[_Block]]): The current partition.
@@ -134,7 +145,8 @@ def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
     max_rank = max(map(lambda vertex: vertex.rank, vertexes))
 
     # initialize the initial partition. the first index is for -infty
-    # partition contains is a list of lists, each sub-list contains the sub-blocks of nodes at the i-th rank
+    # partition contains is a list of lists, each sub-list contains the
+    # sub-blocks of nodes at the i-th rank
     if max_rank != float("-inf"):
         partition = [[_Block(i - 1)] for i in range(max_rank + 2)]
     else:
@@ -143,7 +155,8 @@ def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
 
     # populate the blocks of the partition according to the ranks
     for vertex in vertexes:
-        # put this node in the (only) list at partition_idx in partition (there's only one block for each rank at the moment in the partition)
+        # put this node in the (only) list at partition_idx in partition
+        # (there's only one block for each rank at the moment in the partition)
         partition[rank_to_partition_idx(vertex.rank)][0].append_vertex(vertex)
 
     return partition
@@ -162,7 +175,8 @@ def fba(graph: nx.Graph) -> List[Tuple]:
 
     # collapse B_{-infty}
     if len(partition[0]) > 0:
-        # there's only one block in partition[0] (B_{-infty}) at the moment, namely partition[0][0]
+        # there's only one block in partition[0] (B_{-infty}) at the moment,
+        # namely partition[0][0].
         # survivor_node = collapse(partition[0][0])
 
         # update the partition
@@ -176,7 +190,10 @@ def fba(graph: nx.Graph) -> List[Tuple]:
         subgraph = create_subgraph_of_rank(partition[partition_idx], rank)
 
         # convert FBA blocks to tuple blocks
-        blocks_at_rank = [tuple(map(lambda vertex: vertex.label, block.vertexes)) for block in partition[partition_idx]]
+        blocks_at_rank = [
+            tuple(map(lambda vertex: vertex.label, block.vertexes))
+            for block in partition[partition_idx]
+        ]
 
         # apply PTA to the subgraph at rank i
         rscp = paige_tarjan(subgraph, blocks_at_rank)
@@ -194,6 +211,8 @@ def fba(graph: nx.Graph) -> List[Tuple]:
     for rank in partition:
         for block in rank:
             if block.vertexes.size > 0:
-                rscp.append(tuple(map(lambda vertex: vertex.label, block.vertexes)))
+                rscp.append(
+                    tuple(map(lambda vertex: vertex.label, block.vertexes))
+                )
 
     return rscp
