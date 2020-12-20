@@ -7,7 +7,7 @@ from .graph_decorator import to_normal_graph, prepare_graph
 from bisimulation_algorithms import paige_tarjan
 
 
-def collapse(block: Iterable[_Vertex]) -> _Vertex:
+""" def collapse(block: Iterable[_Vertex]) -> _Vertex:
     # prevent index exception
     if len(block) > 0:
         keep_node = list(block)[0]
@@ -16,7 +16,7 @@ def collapse(block: Iterable[_Vertex]) -> _Vertex:
         for vertex in islice(block, start=1):
             vertex.collapsed_to = keep_node
 
-        return keep_node
+        return keep_node """
 
 
 def build_block_counterimage(block: _Block) -> List[_Vertex]:
