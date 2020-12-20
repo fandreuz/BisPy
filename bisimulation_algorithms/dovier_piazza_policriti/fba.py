@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import Iterable, List
+from typing import Iterable, List, Tuple
 from itertools import islice
 
 from .graph_entities import _Block, _Vertex
@@ -147,7 +147,7 @@ def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
     return partition
 
 
-def fba(graph: nx.Graph):
+def fba(graph: nx.Graph) -> List[Tuple]:
     """Apply the FBA algorithm to the given graph. The graph is modified in
     order to obtain the maximum bisimulation contraction.
 
@@ -183,6 +183,11 @@ def fba(graph: nx.Graph):
         #    collapse(rscp_block)
 
         # update the partition
-        split_upper_ranks(
-            partition, first_rank_idx=rank + 1, collapsed_rank=rank
-        )
+        for collapsed_block in partition[partition_idx]:
+            split_upper_ranks(partition, collapsed_block)
+
+    rscp = []
+
+    for rank in partition:
+        for block in rank:
+            rscp.append(tuple(block.vertexes))
