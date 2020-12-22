@@ -17,3 +17,4 @@ __status__ = "Development"
 __name__ = "bisimulation_algorithms"
 
 from .paige_tarjan.pta import rscp as paige_tarjan
+from .dovier_piazza_policriti.fba import rscp as dovier_piazza_policriti
