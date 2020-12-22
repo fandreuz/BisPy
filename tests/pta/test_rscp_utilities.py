@@ -3,7 +3,7 @@ import pytest
 
 
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
-from bisimulation_algorithms.utilities.rscp_utilities import is_stable_partition, check_block_stability
+from tests.pta.rscp_utilities import is_stable_partition, check_block_stability
 
 def build_test_partition(graph, partition, expected):
     _, vertexes = initialize(graph, partition)

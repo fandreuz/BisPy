@@ -1,16 +1,17 @@
 import pytest
 import networkx as nx
 from llist import dllist, dllistnode
+import tests.pta.pta_test_cases as test_cases
 import itertools
 
-from bisimulation_algorithms.utilities.rscp_utilities import check_block_stability, is_stable_partition
+from tests.pta.rscp_utilities import check_block_stability, is_stable_partition
 
 from bisimulation_algorithms.paige_tarjan.graph_entities import _Vertex, _Edge, _QBlock, _XBlock
 from bisimulation_algorithms.paige_tarjan.pta import split, extract_splitter, build_block_counterimage, build_exclusive_B_counterimage, refine, pta
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize, prepare_graph_abstraction, preprocess_initial_partition
 from bisimulation_algorithms.paige_tarjan.pta_algorithm import rscp as evaluate_rscp, convert_to_integer_graph, check_normal_integer_graph
 
-import pta_test_cases as test_cases
+import tests.pta.pta_test_cases as test_cases
 
 @pytest.mark.parametrize("graph, initial_partition", test_cases.graph_partition_tuples)
 def test_preprocess(graph, initial_partition):
