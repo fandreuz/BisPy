@@ -6,6 +6,11 @@ from .graph_entities import _Block, _Vertex
 from .graph_decorator import to_normal_graph, prepare_graph
 from bisimulation_algorithms import paige_tarjan
 
+from bisimulation_algorithms.utilities.graph_normalization import (
+    check_normal_integer_graph,
+    convert_to_integer_graph,
+    back_to_original
+)
 
 """ def collapse(block: Iterable[_Vertex]) -> _Vertex:
     # prevent index exception
@@ -167,7 +172,7 @@ def fba(graph: nx.Graph) -> List[Tuple]:
     order to obtain the maximum bisimulation contraction.
 
     Args:
-        graph (nx.Graph): The input graph.
+        graph (nx.Graph): The input (integer) graph.
     """
 
     vertexes = prepare_graph(graph)
@@ -216,3 +221,42 @@ def fba(graph: nx.Graph) -> List[Tuple]:
                 )
 
     return rscp
+
+
+def rscp(
+    graph: nx.Graph,
+    is_integer_graph: bool = False,
+) -> List[Tuple]:
+    """Compute the RSCP of the given graph. This function needs to work with an
+    integer graph (nodes represented by an integer), therefore it checks this
+    property before starting the FBA algorithm, and creates an integer graph if
+    needed. Nodes in the graph have to be hashable objects.
+
+    Args:
+        graph (nx.Graph): The input graph.
+        is_integer_graph (bool, optional): If True, the function assumes that
+        the graph is integer, and skips the integrality check (may be useful
+        when performance is important). Defaults to False.
+
+    Returns:
+        List[Tuple]: The RSCP of the given (even non-integer) graph, with the
+        given initial partition.
+    """
+
+    # if True, the input graph is already an integer graph
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
+        graph
+    )
+
+    if not original_graph_is_integer:
+        # convert the graph to an "integer" graph
+        integer_graph, node_to_idx = convert_to_integer_graph(graph)
+    else:
+        integer_graph = graph
+
+    rscp = fba(integer_graph)
+
+    if original_graph_is_integer:
+        return rscp
+    else:
+        return back_to_original(rscp, node_to_idx)
