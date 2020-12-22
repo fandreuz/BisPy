@@ -99,3 +99,13 @@ def test_fba(graph):
     assert set(frozenset(block) for block in fba.fba(graph)) == set(
         frozenset(block) for block in paige_tarjan(graph)
     )
+
+
+@pytest.mark.parametrize(
+    "graph",
+    map(lambda tp: tp[0], graph_partition_rscp_tuples),
+)
+def test_rscp_fba(graph):
+    assert set(frozenset(block) for block in fba.rscp(graph)) == set(
+        frozenset(block) for block in paige_tarjan(graph)
+    )
