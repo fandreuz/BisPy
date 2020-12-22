@@ -6,12 +6,15 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
     _Vertex,
 )
 from tests.fba.rscp_utilities import check_block_stability
-from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import to_normal_graph
+from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+    to_normal_graph,
+)
+
 
 def build_test_blocks(graph, partition, expected):
     # this is needed to avoid an error
     for node in graph.nodes:
-        graph.nodes[node]['rank'] = 0
+        graph.nodes[node]["rank"] = 0
     vertexes = to_normal_graph(graph)
     return (
         _Block(0, [vertexes[idx] for idx in partition[0]]),
