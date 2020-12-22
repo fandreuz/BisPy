@@ -4,6 +4,7 @@ import networkx as nx
 from bisimulation_algorithms.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
+    back_to_original,
 )
 
 
@@ -49,3 +50,22 @@ def test_integrality_check():
     g4 = nx.DiGraph()
     g4.add_nodes_from([0, 2, 3, 4])
     assert not check_normal_integer_graph(g4)
+
+
+def test_back_to_original():
+    nodes = [0, 1, 2, "a", "b", frozenset([5]), None]
+
+    graph = nx.DiGraph()
+    graph.add_nodes_from(nodes)
+
+    _, node_to_idx = convert_to_integer_graph(graph)
+
+    partition = [("a", "b"), (0, 1, 2), (None,), (frozenset([5]),)]
+    integer_partition = [
+        (node_to_idx[node] for node in block) for block in partition
+    ]
+
+    assert set(
+        frozenset(tp)
+        for tp in back_to_original(integer_partition, node_to_idx)
+    ) == set(frozenset(tp) for tp in partition)
