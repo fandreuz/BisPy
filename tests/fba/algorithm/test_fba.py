@@ -5,7 +5,7 @@ import tests.fba.algorithm.fba_test_cases as test_cases
 import networkx as nx
 from tests.fba.rscp_utilities import check_block_stability
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
-from bisimulation_algorithms.paige_tarjan.pta_algorithm import (
+from bisimulation_algorithms.paige_tarjan.pta import (
     rscp as paige_tarjan,
 )
 
