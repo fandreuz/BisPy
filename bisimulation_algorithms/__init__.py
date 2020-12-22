@@ -16,4 +16,4 @@ __email__ = "andreuzzi.francesco@gmail.com"
 __status__ = "Development"
 __name__ = "bisimulation_algorithms"
 
-from .paige_tarjan.pta_algorithm import rscp as paige_tarjan
+from .paige_tarjan.pta import rscp as paige_tarjan

@@ -1,7 +1,11 @@
 import pytest
 import networkx as nx
 
-from bisimulation_algorithms.utilities.graph_normalization import check_normal_integer_graph, convert_to_integer_graph
+from bisimulation_algorithms.utilities.graph_normalization import (
+    check_normal_integer_graph,
+    convert_to_integer_graph,
+)
+
 
 def test_integer_graph():
     nodes = [0, 1, 2, "a", "b", frozenset([5]), None, nx.DiGraph()]
