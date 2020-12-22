@@ -8,6 +8,7 @@ from .graph_decorator import initialize
 from bisimulation_algorithms.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
+    back_to_original
 )
 
 
@@ -334,8 +335,8 @@ def rscp(
     """Compute the RSCP of the given graph, with the given initial partition.
     This function needs to work with an integer graph (nodes represented by an
     integer), therefore it checks this property before starting the
-    Paige-Tarjan algorithm, and creates an integer graph if it is not
-    statisfied.
+    Paige-Tarjan algorithm, and creates an integer graph if needed. Nodes in
+    the graph have to be hashable objects.
 
     Args:
         graph (nx.Graph): The input graph.
@@ -380,8 +381,4 @@ def rscp(
     if original_graph_is_integer:
         return rscp
     else:
-        # create a mapping from idx to the original nodes
-        idx_to_node = sorted(node_to_idx, key=lambda node: node_to_idx[node])
-
-        # compute the RSCP of the original graph
-        return [tuple(idx_to_node[idx] for idx in block) for block in rscp]
+        return back_to_original(rscp, node_to_idx)
