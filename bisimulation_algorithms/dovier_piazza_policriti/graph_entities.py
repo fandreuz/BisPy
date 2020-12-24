@@ -9,7 +9,6 @@ class _Vertex:
     Attributes:
         rank:              The rank of this vertex
         counterimage:      Every A such that A -> self
-        image:             Every A such that self -> A
         label:             The (integer) label of this vertex.
         block:             The block this vertex belongs to.
     """
@@ -20,15 +19,11 @@ class _Vertex:
         self.rank = rank
 
         self.counterimage = []
-        self.image = []
 
         self.block = None
         self._block_dllistnode = None
 
         self.visited = False
-
-    def append_to_image(self, vertex):
-        self.image.append(vertex)
 
     def append_to_counterimage(self, vertex):
         self.counterimage.append(vertex)

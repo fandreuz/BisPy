@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Dict
 from itertools import islice
 
 from .graph_entities import _Block, _Vertex
@@ -9,19 +9,43 @@ from bisimulation_algorithms import paige_tarjan
 from bisimulation_algorithms.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
-    back_to_original
+    back_to_original,
 )
 
-""" def collapse(block: Iterable[_Vertex]) -> _Vertex:
-    # prevent index exception
-    if len(block) > 0:
-        keep_node = list(block)[0]
 
-        # skip the first node
-        for vertex in islice(block, start=1):
-            vertex.collapsed_to = keep_node
+def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
+    """Collapse the given block in a single vertex chosen randomly from the
+    vertexes of the block.
 
-        return keep_node """
+    Args:
+        block (_Block):    The block to collapse.
+
+    Returns:
+        Tuple[_Vertex, List[_Vertex]]: A tuple which contains the single vertex
+        in the block after the collapse, and the list of collapsed vertexes.
+    """
+
+    # "randomly" select a survivor node
+    survivor_node = block.vertexes.first.value
+
+    collapsed_nodes = []
+
+    vertex = block.vertexes.first.next
+    # set all the other nodes to collapsed
+    while vertex is not None:
+        collapsed_nodes.append(vertex.value)
+
+        # append the counterimage of vertex to survivor_node
+        survivor_node.counterimage.extend(vertex.counterimage)
+
+        # acquire a pointer to the next vertex in the list
+        next_vertex = vertex.next
+        # remove the current vertex from the block
+        block.vertexes.remove(vertex)
+        # point vertex to the next vertex to be collapsed
+        vertex = next_vertex
+
+    return (survivor_node, collapsed_nodes)
 
 
 def build_block_counterimage(block: _Block) -> List[_Vertex]:
@@ -132,15 +156,10 @@ def create_subgraph_of_rank(
             # add a new block to the subgraph
             subgraph.add_node(vertex.label)
 
-            # exclude nodes whose rank is not correct
-            image_rank_i = filter(
-                lambda image_vertex: image_vertex.rank == rank, vertex.image
-            )
-            # add edges going out from vertex to the subgraph
-            subgraph.add_edges_from(
-                (vertex.label, image_vertex.label)
-                for image_vertex in image_rank_i
-            )
+            # add the edges from the nodes whose rank is OK
+            for src in vertex.counterimage:
+                if src.rank == rank:
+                    subgraph.add_edge(src.label, vertex.label)
 
     return subgraph
 
