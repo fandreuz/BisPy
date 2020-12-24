@@ -7,23 +7,23 @@ class _Vertex:
     key attributes used by the algorithm (O(1) access).
 
     Attributes:
-        rank:          The rank of this vertex
-        counterimage:  A such that A -> self
-        image: A such that self -> A
-        collapsed_to: If this vertex was collapsed, this is a reference to the
-        _Vertex object it was collapsed to
+        rank:              The rank of this vertex
+        counterimage:      Every A such that A -> self
+        image:             Every A such that self -> A
+        label:             The (integer) label of this vertex.
+        block:             The block this vertex belongs to.
     """
 
     def __init__(self, rank: int, label: int):
         self.label = label
 
         self.rank = rank
+
         self.counterimage = []
         self.image = []
 
-        self.collapsed_to = None
         self.block = None
-        self.dllistnode = None
+        self._block_dllistnode = None
 
         self.visited = False
 
