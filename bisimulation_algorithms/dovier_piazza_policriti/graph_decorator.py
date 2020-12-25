@@ -14,7 +14,6 @@ def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
 
     # build the image/counterimage
     for edge in graph.edges:
-        vertexes[edge[0]].append_to_image(vertexes[edge[1]])
         vertexes[edge[1]].append_to_counterimage(vertexes[edge[0]])
 
     return vertexes
