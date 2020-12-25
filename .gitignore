@@ -3,3 +3,4 @@ __pycache__/
 tester/
 docs/build/
 src/bisimulation_algorithms.egg-info/
+bisimulation_algorithms.egg-info/
