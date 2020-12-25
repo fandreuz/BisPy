@@ -35,10 +35,10 @@ class _Vertex:
         self.visited = False
 
     def __str__(self):
-        return str(self.label)
+        return 'V{}'.format(str(self.label))
 
     def __repr__(self):
-        return str(self.label)
+        return str(self)
 
     # this is only used for testing purposes
     def __hash__(self):
@@ -52,8 +52,8 @@ class _Vertex:
 
 
 class _Block:
-    def __init__(self, rank: int, vertexes=[]):
-        self.vertexes = dllist(vertexes)
+    def __init__(self, rank: int, vertexes: Iterable[_Vertex]):
+        self.vertexes = dllist(list(vertexes))
         self.aux_block = None
 
         self.rank = rank
@@ -68,3 +68,6 @@ class _Block:
     def remove_vertex(self, vertex: _Vertex):
         vertex.block = None
         self.vertexes.remove(vertex.dllistnode)
+
+    def __repr__(self):
+        return 'B[{}]'.format(','.join([str(vertex) for vertex in self.vertexes]))
