@@ -35,7 +35,7 @@ class _Vertex:
         self.visited = False
 
     def __str__(self):
-        return 'V{}'.format(str(self.label))
+        return "V{}".format(str(self.label))
 
     def __repr__(self):
         return str(self)
@@ -70,4 +70,6 @@ class _Block:
         self.vertexes.remove(vertex.dllistnode)
 
     def __repr__(self):
-        return 'B[{}]'.format(','.join([str(vertex) for vertex in self.vertexes]))
+        return "B[{}]".format(
+            ",".join([str(vertex) for vertex in self.vertexes])
+        )
