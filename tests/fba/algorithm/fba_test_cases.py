@@ -38,8 +38,8 @@ graph1.add_nodes_from(range(5))
 graph1.add_edges_from([(i, i + 1) for i in range(4)])
 prepare_graph_cases.append(graph1)
 expected1 = [_Vertex(label=i, rank=4 - i) for i in range(5)]
-for i in range(4):
-    expected1[i].append_to_image(expected1[i + 1])
+for i in range(1,5):
+    expected1[i].append_to_counterimage(expected1[i - 1])
 prepare_graph_expected.append(expected1)
 
 # ------------------------------------------------------

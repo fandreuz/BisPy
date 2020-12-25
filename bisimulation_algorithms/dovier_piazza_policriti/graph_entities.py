@@ -7,28 +7,23 @@ class _Vertex:
     key attributes used by the algorithm (O(1) access).
 
     Attributes:
-        rank:          The rank of this vertex
-        counterimage:  A such that A -> self
-        image: A such that self -> A
-        collapsed_to: If this vertex was collapsed, this is a reference to the
-        _Vertex object it was collapsed to
+        rank:              The rank of this vertex
+        counterimage:      Every A such that A -> self
+        label:             The (integer) label of this vertex.
+        block:             The block this vertex belongs to.
     """
 
     def __init__(self, rank: int, label: int):
         self.label = label
 
         self.rank = rank
-        self.counterimage = []
-        self.image = []
 
-        self.collapsed_to = None
+        self.counterimage = []
+
         self.block = None
-        self.dllistnode = None
+        self._block_dllistnode = None
 
         self.visited = False
-
-    def append_to_image(self, vertex):
-        self.image.append(vertex)
 
     def append_to_counterimage(self, vertex):
         self.counterimage.append(vertex)
@@ -40,10 +35,10 @@ class _Vertex:
         self.visited = False
 
     def __str__(self):
-        return str(self.label)
+        return "V{}".format(str(self.label))
 
     def __repr__(self):
-        return str(self.label)
+        return str(self)
 
     # this is only used for testing purposes
     def __hash__(self):
@@ -57,8 +52,8 @@ class _Vertex:
 
 
 class _Block:
-    def __init__(self, rank: int, vertexes=[]):
-        self.vertexes = dllist(vertexes)
+    def __init__(self, rank: int, vertexes: Iterable[_Vertex]):
+        self.vertexes = dllist(list(vertexes))
         self.aux_block = None
 
         self.rank = rank
@@ -73,3 +68,8 @@ class _Block:
     def remove_vertex(self, vertex: _Vertex):
         vertex.block = None
         self.vertexes.remove(vertex.dllistnode)
+
+    def __repr__(self):
+        return "B[{}]".format(
+            ",".join([str(vertex) for vertex in self.vertexes])
+        )

@@ -56,7 +56,7 @@ def test_create_subgraph_of_rank(blocks_at_rank, rank, expected_graph):
     result = create_subgraph_of_rank(blocks_at_rank, rank)
 
     isomorphic = nx.is_isomorphic(result, expected_graph)
-    same_nodes = list(result.nodes) == list(expected_graph.nodes)
+    same_nodes = set(result.nodes) == set(expected_graph.nodes)
     assert isomorphic and same_nodes
 
 
@@ -103,17 +103,7 @@ def test_split_upper_ranks(partition, block):
     "graph",
     map(lambda tp: tp[0], graph_partition_rscp_tuples),
 )
-def test_fba(graph):
-    assert set(frozenset(block) for block in fba(graph)) == set(
-        frozenset(block) for block in paige_tarjan(graph)
-    )
-
-
-@pytest.mark.parametrize(
-    "graph",
-    map(lambda tp: tp[0], graph_partition_rscp_tuples),
-)
-def test_rscp_fba(graph):
+def test_fba_correctness(graph):
     assert set(frozenset(block) for block in fba_rscp(graph)) == set(
         frozenset(block) for block in paige_tarjan(graph)
     )

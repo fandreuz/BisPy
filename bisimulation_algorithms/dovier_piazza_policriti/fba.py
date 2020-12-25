@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Dict
 from itertools import islice
 
 from .graph_entities import _Block, _Vertex
@@ -9,19 +9,46 @@ from bisimulation_algorithms import paige_tarjan
 from bisimulation_algorithms.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
-    back_to_original
+    back_to_original,
 )
 
-""" def collapse(block: Iterable[_Vertex]) -> _Vertex:
-    # prevent index exception
-    if len(block) > 0:
-        keep_node = list(block)[0]
 
-        # skip the first node
-        for vertex in islice(block, start=1):
-            vertex.collapsed_to = keep_node
+def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
+    """Collapse the given block in a single vertex chosen randomly from the
+    vertexes of the block.
 
-        return keep_node """
+    Args:
+        block (_Block):    The block to collapse.
+
+    Returns:
+        Tuple[_Vertex, List[_Vertex]]: A tuple which contains the single vertex
+        in the block after the collapse, and the list of collapsed vertexes.
+    """
+
+    if block.vertexes.size > 0:
+        # "randomly" select a survivor node
+        survivor_node = block.vertexes.first.value
+
+        collapsed_nodes = []
+
+        vertex = block.vertexes.first.next
+        # set all the other nodes to collapsed
+        while vertex is not None:
+            collapsed_nodes.append(vertex.value)
+
+            # append the counterimage of vertex to survivor_node
+            survivor_node.counterimage.extend(vertex.value.counterimage)
+
+            # acquire a pointer to the next vertex in the list
+            next_vertex = vertex.next
+            # remove the current vertex from the block
+            block.vertexes.remove(vertex)
+            # point vertex to the next vertex to be collapsed
+            vertex = next_vertex
+
+        return (survivor_node, collapsed_nodes)
+    else:
+        return (None, None)
 
 
 def build_block_counterimage(block: _Block) -> List[_Vertex]:
@@ -93,7 +120,7 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
             # if needed, create the aux block to help during the splitting
             # phase
             if vertex.block.aux_block is None:
-                vertex.block.aux_block = _Block(vertex.block.rank)
+                vertex.block.aux_block = _Block(vertex.block.rank, [])
                 modified_blocks.append(vertex.block)
 
             new_vertex_block = vertex.block.aux_block
@@ -132,15 +159,10 @@ def create_subgraph_of_rank(
             # add a new block to the subgraph
             subgraph.add_node(vertex.label)
 
-            # exclude nodes whose rank is not correct
-            image_rank_i = filter(
-                lambda image_vertex: image_vertex.rank == rank, vertex.image
-            )
-            # add edges going out from vertex to the subgraph
-            subgraph.add_edges_from(
-                (vertex.label, image_vertex.label)
-                for image_vertex in image_rank_i
-            )
+            # add the edges from the nodes whose rank is OK
+            for src in vertex.counterimage:
+                if src.rank == rank:
+                    subgraph.add_edge(src.label, vertex.label)
 
     return subgraph
 
@@ -153,10 +175,10 @@ def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
     # partition contains is a list of lists, each sub-list contains the
     # sub-blocks of nodes at the i-th rank
     if max_rank != float("-inf"):
-        partition = [[_Block(i - 1)] for i in range(max_rank + 2)]
+        partition = [[_Block(i - 1, [])] for i in range(max_rank + 2)]
     else:
         # there's a single possible rank, -infty
-        partition = [[_Block(float("-inf"))]]
+        partition = [[_Block(float("-inf"), [])]]
 
     # populate the blocks of the partition according to the ranks
     for vertex in vertexes:
@@ -167,25 +189,34 @@ def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
     return partition
 
 
-def fba(graph: nx.Graph) -> List[Tuple]:
-    """Apply the FBA algorithm to the given graph. The graph is modified in
-    order to obtain the maximum bisimulation contraction.
+def fba(graph: nx.Graph) -> List[Tuple[int]]:
+    """Apply the FBA algorithm to the given graph.
 
     Args:
         graph (nx.Graph): The input (integer) graph.
+
+    Returns:
+        List[Tuple[int]]: The RSCP of the graph.
     """
 
     vertexes = prepare_graph(graph)
     partition = create_initial_partition(vertexes)
 
+    # maps each survivor node to a list of nodes collapsed into it
+    collapse_map = {}
+
     # collapse B_{-infty}
     if len(partition[0]) > 0:
         # there's only one block in partition[0] (B_{-infty}) at the moment,
         # namely partition[0][0].
-        # survivor_node = collapse(partition[0][0])
+        survivor_vertex, collapsed_vertexes = collapse(partition[0][0])
 
-        # update the partition
-        split_upper_ranks(partition, partition[0][0])
+        if survivor_vertex is not None:
+            # update the collapsed nodes map
+            collapse_map[survivor_vertex.label] = collapsed_vertexes
+
+            # update the partition
+            split_upper_ranks(partition, partition[0][0])
 
     # loop over the ranks
     for partition_idx in range(1, len(partition)):
@@ -203,22 +234,45 @@ def fba(graph: nx.Graph) -> List[Tuple]:
         # apply PTA to the subgraph at rank i
         rscp = paige_tarjan(subgraph, blocks_at_rank)
 
-        # collapse all the blocks in B_i
-        # for rscp_block in rscp:
-        #    collapse(rscp_block)
+        # clear the partition at the current rank
+        partition[partition_idx] = []
 
-        # update the partition
-        for collapsed_block in partition[partition_idx]:
-            split_upper_ranks(partition, collapsed_block)
+        # insert the new blocks in the partition at the current rank, and
+        # collapse each block.
+        for block in rscp:
+            internal_block = _Block(
+                rank, map(lambda vertex_idx: vertexes[vertex_idx], block)
+            )
+
+            survivor_vertex, collapsed_vertexes = collapse(internal_block)
+
+            if survivor_vertex is not None:
+                # update the collapsed nodes map
+                collapse_map[survivor_vertex.label] = collapsed_vertexes
+                # add the new block to the partition
+                partition[partition_idx].append(internal_block)
+                # update the upper ranks with respect to this block
+                split_upper_ranks(partition, internal_block)
 
     rscp = []
 
+    # from the partition obtained from the first step, build a partition which
+    # in the external representation (List[Tuple[int]])
     for rank in partition:
         for block in rank:
             if block.vertexes.size > 0:
-                rscp.append(
-                    tuple(map(lambda vertex: vertex.label, block.vertexes))
-                )
+                block_survivor_node = block.vertexes.first.value
+                block_vertexes = [block_survivor_node.label]
+
+                if block_survivor_node.label in collapse_map:
+                    block_vertexes.extend(
+                        map(
+                            lambda vertex: vertex.label,
+                            collapse_map[block_survivor_node.label],
+                        )
+                    )
+
+                rscp.append(tuple(block_vertexes))
 
     return rscp
 
