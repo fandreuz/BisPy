@@ -180,12 +180,12 @@ class _XBlock:
 
     def __str__(self):
         return "X[{}]".format(
-            ",".join([str(qblock) for qblock in self.qblocks])
+            ",".join(str(qblock) for qblock in self.qblocks)
         )
 
     def __repr__(self):
         return "X[{}]".format(
-            ",".join([str(qblock) for qblock in self.qblocks])
+            ",".join(str(qblock) for qblock in self.qblocks)
         )
 
 
