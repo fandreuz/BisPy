@@ -1,10 +1,10 @@
 import pytest
 import networkx as nx
 
-from bisimulation_algorithms.dovier_piazza_policriti.rank import prepare_scc, build_map_to_scc, compute_rank 
-import rank_test_cases as test_cases
+from bisimulation_algorithms.dovier_piazza_policriti.rank import prepare_scc, build_map_to_scc, compute_rank
+from .rank_test_cases import graphs_noderankdict, graphs
 
-@pytest.mark.parametrize("graph", test_cases.graphs)
+@pytest.mark.parametrize("graph", graphs)
 def test_prepare_scc(graph):
     graph_scc = prepare_scc(graph)
     scc_map = build_map_to_scc(graph_scc, graph)
@@ -36,7 +36,7 @@ def test_map_to_scc():
     assert scc_map[4] == components[1]
     assert scc_map[5] == components[2]
 
-@pytest.mark.parametrize("graph, node_rank_dict", test_cases.graphs_noderankdict)
+@pytest.mark.parametrize("graph, node_rank_dict", graphs_noderankdict)
 def test_compute_rank(graph, node_rank_dict: dict):
     compute_rank(graph)
 

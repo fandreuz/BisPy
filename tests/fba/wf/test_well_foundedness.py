@@ -3,7 +3,7 @@ import pytest
 
 from bisimulation_algorithms.dovier_piazza_policriti.well_foundedness import _WHITE, _BLACK, dfs_wf_visit, mark_wf_nodes
 
-import wf_test_cases as test_cases
+from .wf_test_cases import graphs_wf_nwf
 
 def test_dfs_wf_visit_visits_neighborhood():
     graph = nx.DiGraph()
@@ -20,7 +20,7 @@ def test_dfs_wf_visit_visits_neighborhood():
 
     assert graph.nodes[0]["wf"]
 
-@pytest.mark.parametrize("graph, wf_nodes, nwf_nodes", test_cases.graphs_wf_nwf)
+@pytest.mark.parametrize("graph, wf_nodes, nwf_nodes", graphs_wf_nwf)
 def test_mark_wf_nodes_correct(graph, wf_nodes, nwf_nodes):
     mark_wf_nodes(graph)
 
