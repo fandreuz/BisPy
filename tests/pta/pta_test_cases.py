@@ -441,6 +441,7 @@ graph_partition_rscp_tuples.append(
     )
 )
 
+
 def build_full_graphs(num_of_nodes):
         graph = nx.DiGraph()
         for i in range(num_of_nodes):
