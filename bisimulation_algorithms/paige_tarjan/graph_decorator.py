@@ -19,15 +19,6 @@ def prepare_graph_abstraction(graph: nx.Graph) -> List[_Vertex]:
         list[_Vertex]: A list of _Vertexes which represents the input graph.
     """
 
-    # check if the graph nodes are represented by natural integers
-    for node in graph.nodes:
-        if not isinstance(node, int):
-            raise Exception(
-                "Nodes must be represented by integer numbers: {}".format(
-                    str(list(graph.nodes))
-                )
-            )
-
     vertexes = [_Vertex(idx) for idx in range(len(graph.nodes))]
 
     # holds the references to Count objects to assign to the edges (this is OK
