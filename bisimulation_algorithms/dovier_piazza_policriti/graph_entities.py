@@ -34,11 +34,8 @@ class _Vertex:
     def release(self):
         self.visited = False
 
-    def __str__(self):
-        return "V{}".format(str(self.label))
-
     def __repr__(self):
-        return str(self)
+        return 'V{}'.format(str(self.label))
 
     # this is only used for testing purposes
     def __hash__(self):

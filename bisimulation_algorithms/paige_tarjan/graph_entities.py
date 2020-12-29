@@ -61,11 +61,8 @@ class _Vertex:
     def clear_second_splitter_flag(self):
         self.in_second_splitter = False
 
-    def __str__(self):
-        return "V{}".format(self.label)
-
     def __repr__(self):
-        return "V{}".format(self.label)
+        return 'V{}'.format(self.label)
 
 
 class _Edge:
@@ -99,11 +96,8 @@ class _Edge:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __str__(self):
-        return "<{},{}>".format(self.source, self.destination)
-
     def __repr__(self):
-        return "<{},{}>".format(self.source, self.destination)
+        return '<{},{}>'.format(self.source, self.destination)
 
 
 class _QBlock:
@@ -148,14 +142,9 @@ class _QBlock:
     def reset_helper_block(self):
         self.split_helper_block = None
 
-    def __str__(self):
-        return "Q({})".format(
-            ",".join([str(vertex) for vertex in self.vertexes])
-        )
-
     def __repr__(self):
-        return "Q({})".format(
-            ",".join([str(vertex) for vertex in self.vertexes])
+        return 'Q({})'.format(
+            ','.join([str(vertex) for vertex in self.vertexes])
         )
 
 
@@ -178,14 +167,9 @@ class _XBlock:
         self.qblocks.remove(qblock.dllistnode)
         qblock.xblock = None
 
-    def __str__(self):
-        return "X[{}]".format(
-            ",".join(str(qblock) for qblock in self.qblocks)
-        )
-
     def __repr__(self):
-        return "X[{}]".format(
-            ",".join(str(qblock) for qblock in self.qblocks)
+        return 'X[{}]'.format(
+            ','.join(str(qblock) for qblock in self.qblocks)
         )
 
 
@@ -208,8 +192,5 @@ class _Count:
         self.vertex = vertex
         self.value = 0
 
-    def __str__(self):
-        return "C{}:{}".format(self.vertex, self.label)
-
     def __repr__(self):
-        return "C{}:{}".format(self.vertex, self.label)
+        return 'C{}:{}'.format(self.vertex, self.label)
