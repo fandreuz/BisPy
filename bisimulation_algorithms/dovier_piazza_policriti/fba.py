@@ -116,11 +116,11 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     for vertex in block_counterimage:
         # if this is an upper-rank node with respect to the collapsed block, we
         # can split it from its block
-        if vertex.rank > block.rank:
+        if vertex.rank > block.rank():
             # if needed, create the aux block to help during the splitting
             # phase
             if vertex.block.aux_block is None:
-                vertex.block.aux_block = _Block(vertex.block.rank, [])
+                vertex.block.aux_block = _Block([])
                 modified_blocks.append(vertex.block)
 
             new_vertex_block = vertex.block.aux_block
@@ -133,7 +133,7 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     # insert the new blocks in the partition, and then reset aux_block for each
     # modified node
     for block in modified_blocks:
-        partition[rank_to_partition_idx(block.rank)].append(block.aux_block)
+        partition[rank_to_partition_idx(block.rank())].append(block.aux_block)
         block.aux_block = None
 
 
@@ -167,15 +167,17 @@ def create_subgraph_of_rank(
     return subgraph
 
 
-def create_initial_partition(vertexes: List[_Vertex], max_rank: int) -> List[List[_Block]]:
+def create_initial_partition(
+    vertexes: List[_Vertex], max_rank: int
+) -> List[List[_Block]]:
     # initialize the initial partition. the first index is for -infty
     # partition contains is a list of lists, each sub-list contains the
     # sub-blocks of nodes at the i-th rank
     if max_rank != float("-inf"):
-        partition = [[_Block(i - 1, [])] for i in range(max_rank + 2)]
+        partition = [[_Block([])] for i in range(max_rank + 2)]
     else:
         # there's a single possible rank, -infty
-        partition = [[_Block(float("-inf"), [])]]
+        partition = [[_Block([])]]
 
     # populate the blocks of the partition according to the ranks
     for vertex in vertexes:
@@ -238,7 +240,7 @@ def fba(graph: nx.Graph) -> List[Tuple[int]]:
         # collapse each block.
         for block in rscp:
             internal_block = _Block(
-                rank, map(lambda vertex_idx: vertexes[vertex_idx], block)
+                map(lambda vertex_idx: vertexes[vertex_idx], block)
             )
 
             survivor_vertex, collapsed_vertexes = collapse(internal_block)

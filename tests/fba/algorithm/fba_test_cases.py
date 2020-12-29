@@ -18,13 +18,13 @@ vertexes1 = [_Vertex(label=i, rank=0) for i in range(5)]
 for i in range(3, 5):
     vertexes1[0].append_to_counterimage(vertexes1[i])
 vertexes1[1].append_to_counterimage(vertexes1[2])
-block_counterimage_cases.append(_Block(0, [vertexes1[0], vertexes1[1]]))
+block_counterimage_cases.append(_Block([vertexes1[0], vertexes1[1]]))
 block_counterimage_expected.append(vertexes1[2:5])
 
 # 2
 vertexes2 = [_Vertex(label=i, rank=0) for i in range(5)]
 vertexes2[1].append_to_counterimage(vertexes2[2])
-block_counterimage_cases.append(_Block(0, [vertexes2[0], vertexes2[1]]))
+block_counterimage_cases.append(_Block([vertexes2[0], vertexes2[1]]))
 block_counterimage_expected.append([vertexes2[2]])
 
 # ------------------------------------------------------

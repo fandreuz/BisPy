@@ -91,10 +91,10 @@ def test_create_initial_partition(vertexes, expected):
 def test_split_upper_ranks(partition, block):
     split_upper_ranks(partition, block)
 
-    if block.rank == float("-inf"):
+    if block.rank() == float("-inf"):
         block_rank_idx = 0
     else:
-        block_rank_idx = block.rank + 1
+        block_rank_idx = block.rank() + 1
 
     for rank in range(block_rank_idx, len(partition)):
         for block2 in partition[rank]:

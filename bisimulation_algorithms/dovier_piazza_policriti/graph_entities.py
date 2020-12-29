@@ -52,11 +52,9 @@ class _Vertex:
 
 
 class _Block:
-    def __init__(self, rank: int, vertexes: Iterable[_Vertex]):
+    def __init__(self, vertexes: Iterable[_Vertex]):
         self.vertexes = dllist(list(vertexes))
         self.aux_block = None
-
-        self.rank = rank
 
     def size(self) -> int:
         return len(self.vertexes)
@@ -68,6 +66,12 @@ class _Block:
     def remove_vertex(self, vertex: _Vertex):
         vertex.block = None
         self.vertexes.remove(vertex.dllistnode)
+
+    def rank(self) -> int:
+        if self.vertexes.first is not None:
+            return self.vertexes.first.value.rank
+        else:
+            return None
 
     def __repr__(self):
         return "B[{}]".format(
