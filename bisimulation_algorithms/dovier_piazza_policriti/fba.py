@@ -1,6 +1,7 @@
 import networkx as nx
 from typing import Iterable, List, Tuple, Dict
 from itertools import islice
+from llist import dllist
 
 from .graph_entities import _Block, _Vertex
 from .graph_decorator import to_normal_graph, prepare_graph
@@ -131,9 +132,12 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
             new_vertex_block.append_vertex(vertex)
 
     # insert the new blocks in the partition, and then reset aux_block for each
-    # modified node
+    # modified block.
     for block in modified_blocks:
-        partition[rank_to_partition_idx(block.rank())].append(block.aux_block)
+        # we use the rank of aux_block because we're sure it's not None
+        partition[rank_to_partition_idx(block.aux_block.rank())].append(
+            block.aux_block
+        )
         block.aux_block = None
 
 
