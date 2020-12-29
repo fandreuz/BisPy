@@ -300,6 +300,9 @@ def rscp(
         given initial partition.
     """
 
+    if not isinstance(graph, nx.DiGraph):
+        raise Exception('graph should be a directed graph (nx.DiGraph)')
+
     # if True, the input graph is already an integer graph
     original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
         graph
