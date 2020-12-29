@@ -167,10 +167,7 @@ def create_subgraph_of_rank(
     return subgraph
 
 
-def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
-    # find the maximum rank in the graph
-    max_rank = max(map(lambda vertex: vertex.rank, vertexes))
-
+def create_initial_partition(vertexes: List[_Vertex], max_rank: int) -> List[List[_Block]]:
     # initialize the initial partition. the first index is for -infty
     # partition contains is a list of lists, each sub-list contains the
     # sub-blocks of nodes at the i-th rank
@@ -199,8 +196,8 @@ def fba(graph: nx.Graph) -> List[Tuple[int]]:
         List[Tuple[int]]: The RSCP of the graph.
     """
 
-    vertexes = prepare_graph(graph)
-    partition = create_initial_partition(vertexes)
+    vertexes, max_rank = prepare_graph(graph)
+    partition = create_initial_partition(vertexes, max_rank)
 
     # maps each survivor node to a list of nodes collapsed into it
     collapse_map = {}

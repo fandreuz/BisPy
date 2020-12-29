@@ -41,7 +41,7 @@ def test_build_block_counterimage(block, expected):
     zip(test_cases.prepare_graph_cases, test_cases.prepare_graph_expected),
 )
 def test_prepare_graph(graph, expected):
-    assert set(prepare_graph(graph)) == set(expected)
+    assert set(prepare_graph(graph)[0]) == set(expected)
 
 
 @pytest.mark.parametrize(
@@ -68,7 +68,9 @@ def test_create_subgraph_of_rank(blocks_at_rank, rank, expected_graph):
     ),
 )
 def test_create_initial_partition(vertexes, expected):
-    partition = create_initial_partition(vertexes)
+    partition = create_initial_partition(
+        vertexes, max(map(lambda v: v.rank, vertexes))
+    )
 
     for idx in range(len(partition)):
         # initially there's only one block per rank

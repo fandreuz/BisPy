@@ -58,7 +58,7 @@ graph1.add_edge(4, 0)
 create_subgraph_cases_rank.append(float("-inf"))
 create_subgraph_expected.append(graph1)
 create_subgraph_cases.append(
-    create_initial_partition(prepare_graph(graph1))[0]
+    create_initial_partition(*prepare_graph(graph1))[0]
 )
 
 # 2
@@ -72,7 +72,7 @@ graph2e.add_nodes_from([1, 2])
 create_subgraph_cases_rank.append(0)
 create_subgraph_expected.append(graph2e)
 create_subgraph_cases.append(
-    create_initial_partition(prepare_graph(graph2))[1]
+    create_initial_partition(*prepare_graph(graph2))[1]
 )
 
 # ------------------------------------------------------
@@ -99,6 +99,6 @@ split_upper_rank_splitters = []
 graph1 = nx.DiGraph()
 graph1.add_nodes_from(range(5))
 graph1.add_edges_from([(0, 1), (0, 3), (0, 4), (1, 2), (1, 0), (2, 4), (3, 4)])
-partition1 = create_initial_partition(prepare_graph(graph1))
+partition1 = create_initial_partition(*prepare_graph(graph1))
 split_upper_rank_partitions.append(partition1)
 split_upper_rank_splitters.append(partition1[0][0])
