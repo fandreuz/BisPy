@@ -16,6 +16,11 @@ from tests.pta.pta_test_cases import graph_partition_rscp_tuples
 from bisimulation_algorithms.paige_tarjan.pta import (
     rscp as paige_tarjan,
 )
+from operator import attrgetter, or_
+from functools import reduce
+from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
+    _Block,
+)
 
 
 @pytest.mark.parametrize(
@@ -26,79 +31,140 @@ def test_rank_to_partition_idx(rank, expected):
 
 
 @pytest.mark.parametrize(
-    "block, expected",
+    "graph, counterimaged_block_indexes",
     zip(
-        test_cases.block_counterimage_cases,
-        test_cases.block_counterimage_expected,
+        test_cases.graphs,
+        test_cases.block_counterimaged_block,
     ),
 )
-def test_build_block_counterimage(block, expected):
-    assert set(build_block_counterimage(block)) == set(expected)
-
-
-@pytest.mark.parametrize(
-    "graph, expected",
-    zip(test_cases.prepare_graph_cases, test_cases.prepare_graph_expected),
-)
-def test_prepare_graph(graph, expected):
-    assert set(prepare_graph(graph)[0]) == set(expected)
-
-
-@pytest.mark.parametrize(
-    "blocks_at_rank, rank, expected_graph",
-    zip(
-        test_cases.create_subgraph_cases,
-        test_cases.create_subgraph_cases_rank,
-        test_cases.create_subgraph_expected,
-    ),
-)
-def test_create_subgraph_of_rank(blocks_at_rank, rank, expected_graph):
-    result = create_subgraph_of_rank(blocks_at_rank, rank)
-
-    isomorphic = nx.is_isomorphic(result, expected_graph)
-    same_nodes = set(result.nodes) == set(expected_graph.nodes)
-    assert isomorphic and same_nodes
-
-
-@pytest.mark.parametrize(
-    "vertexes, expected",
-    zip(
-        test_cases.initial_partition_cases,
-        test_cases.initial_partition_expected,
-    ),
-)
-def test_create_initial_partition(vertexes, expected):
-    partition = create_initial_partition(
-        vertexes, max(map(lambda v: v.rank, vertexes))
+def test_build_block_counterimage(graph, counterimaged_block_indexes):
+    vertexes, _ = prepare_graph(graph)
+    counterimaged_block = _Block(
+        map(lambda idx: vertexes[idx], counterimaged_block_indexes)
     )
 
-    for idx in range(len(partition)):
-        # initially there's only one block per rank
-        assert len(partition[idx]) == 1 or idx == 0
+    my_counterimage_as_labels = list(
+        map(attrgetter("label"), build_block_counterimage(counterimaged_block))
+    )
 
-        assert set(
-            frozenset(block.vertexes) for block in partition[idx]
-        ) == set(frozenset(block) for block in expected[idx])
+    for edge in graph.edges:
+        if edge[1] in counterimaged_block_indexes:
+            assert edge[0] in my_counterimage_as_labels
+    for counterimage_vertex in my_counterimage_as_labels:
+        assert reduce(
+            or_,
+            [
+                vertex in graph.adj[counterimage_vertex]
+                for vertex in counterimaged_block_indexes
+            ],
+        )
 
 
 @pytest.mark.parametrize(
-    "partition, block",
-    zip(
-        test_cases.split_upper_rank_partitions,
-        test_cases.split_upper_rank_splitters,
-    ),
+    "graph",
+    test_cases.graphs,
 )
-def test_split_upper_ranks(partition, block):
-    split_upper_ranks(partition, block)
+def test_prepare_graph_max_rank(graph):
+    _, max_rank = prepare_graph(graph)
+    assert max_rank == max(
+        map(lambda node: graph.nodes[node]["rank"], graph.nodes)
+    )
 
-    if block.rank() == float("-inf"):
-        block_rank_idx = 0
-    else:
-        block_rank_idx = block.rank() + 1
 
-    for rank in range(block_rank_idx, len(partition)):
-        for block2 in partition[rank]:
-            assert check_block_stability(block, block2)
+@pytest.mark.parametrize(
+    "graph",
+    test_cases.graphs,
+)
+def test_prepare_graph_vertexes(graph):
+    vertexes, _ = prepare_graph(graph)
+
+    # same length
+    assert len(vertexes) == len(graph.nodes)
+
+    # same rank
+    assert all(
+        map(
+            lambda idx: vertexes[idx].rank == graph.nodes[idx]["rank"],
+            range(len(vertexes)),
+        )
+    )
+
+    # counterimage
+    my_counterimage = [
+        map(attrgetter("label"), vertex.counterimage) for vertex in vertexes
+    ]
+    for edge in graph.edges:
+        assert edge[0] in my_counterimage[edge[1]]
+    for idx, vertex_counterimage in enumerate(my_counterimage):
+        for vx in vertex_counterimage:
+            assert vx in graph.adj[idx]
+
+
+@pytest.mark.parametrize("graph", test_cases.graphs)
+def test_create_subgraph_of_rank(graph):
+    vertexes, max_rank = prepare_graph(graph)
+    partition = create_initial_partition(vertexes, max_rank)
+    for idx in range(len(partition)):
+        rank = float("-inf") if idx == 0 else idx - 1
+        # split the single block at rank "rank" in many blocks
+        blocks_at_rank = [
+            _Block([vertex]) for vertex in partition[idx][0].vertexes
+        ]
+
+        my_subgraph = create_subgraph_of_rank(blocks_at_rank, rank)
+
+        # only nodes of rank "rank"
+        assert len(my_subgraph.nodes) == len(partition[idx][0].vertexes)
+        assert all(
+            vertexes[node_idx].rank == rank for node_idx in my_subgraph.nodes
+        )
+        # only edges between nodes of rank "rank"
+        for edge in my_subgraph.edges:
+            assert vertexes[edge[0]].rank == vertexes[edge[1]].rank
+            assert vertexes[edge[0]].rank == rank
+        # all edges
+        for edge in filter(
+            lambda edge: vertexes[edge[0]].rank == vertexes[edge[0]]
+            and vertexes[edge[0]].rank == rank,
+            graph.edges,
+        ):
+            assert edge[1] in my_subgraph.adj[edge[0]]
+
+
+@pytest.mark.parametrize("graph", test_cases.graphs)
+def test_create_initial_partition(graph):
+    vertexes, max_rank = prepare_graph(graph)
+    partition = create_initial_partition(vertexes, max_rank)
+
+    # at most one block per rank
+    assert all(len(partition[idx]) for idx in range(len(partition)))
+
+    # right vertexes in the right place
+    for idx in range(len(partition)):
+        rank = float("-inf") if idx == 0 else idx - 1
+        # right number of vertexes
+        assert partition[idx][0].vertexes.size == [
+            vertex.rank == rank for vertex in vertexes
+        ].count(True)
+        # only right vertexes
+        assert all(
+            vertex.rank == rank for vertex in partition[idx][0].vertexes
+        )
+
+
+@pytest.mark.parametrize("graph", test_cases.graphs)
+def test_split_upper_ranks(graph):
+    vertexes, max_rank = prepare_graph(graph)
+    partition_length = 0 if max_rank == float("-inf") else max_rank + 2
+
+    for idx in range(partition_length):
+        partition = create_initial_partition(vertexes, max_rank)
+        split_upper_ranks(partition, partition[idx][0])
+        assert all(
+            check_block_stability(partition[idx][0], upper_rank_block)
+            for upper_idx in range(idx + 1, partition_length)
+            for upper_rank_block in partition[upper_idx]
+        )
 
 
 @pytest.mark.parametrize(
