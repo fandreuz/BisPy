@@ -3,7 +3,6 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     rank_to_partition_idx,
     build_block_counterimage,
     prepare_graph,
-    create_subgraph_of_rank,
     create_initial_partition,
     split_upper_ranks,
     fba,
@@ -40,7 +39,7 @@ def test_rank_to_partition_idx(rank, expected):
 def test_build_block_counterimage(graph, counterimaged_block_indexes):
     vertexes, _ = prepare_graph(graph)
     counterimaged_block = _Block(
-        map(lambda idx: vertexes[idx], counterimaged_block_indexes)
+        map(lambda idx: vertexes[idx], counterimaged_block_indexes), None
     )
 
     my_counterimage_as_labels = list(
@@ -98,37 +97,6 @@ def test_prepare_graph_vertexes(graph):
     for idx, vertex_counterimage in enumerate(my_counterimage):
         for vx in vertex_counterimage:
             assert vx in graph.adj[idx]
-
-
-@pytest.mark.parametrize("graph", test_cases.graphs)
-def test_create_subgraph_of_rank(graph):
-    vertexes, max_rank = prepare_graph(graph)
-    partition = create_initial_partition(vertexes, max_rank)
-    for idx in range(len(partition)):
-        rank = float("-inf") if idx == 0 else idx - 1
-        # split the single block at rank "rank" in many blocks
-        blocks_at_rank = [
-            _Block([vertex]) for vertex in partition[idx][0].vertexes
-        ]
-
-        my_subgraph = create_subgraph_of_rank(blocks_at_rank, rank)
-
-        # only nodes of rank "rank"
-        assert len(my_subgraph.nodes) == len(partition[idx][0].vertexes)
-        assert all(
-            vertexes[node_idx].rank == rank for node_idx in my_subgraph.nodes
-        )
-        # only edges between nodes of rank "rank"
-        for edge in my_subgraph.edges:
-            assert vertexes[edge[0]].rank == vertexes[edge[1]].rank
-            assert vertexes[edge[0]].rank == rank
-        # all edges
-        for edge in filter(
-            lambda edge: vertexes[edge[0]].rank == vertexes[edge[0]]
-            and vertexes[edge[0]].rank == rank,
-            graph.edges,
-        ):
-            assert edge[1] in my_subgraph.adj[edge[0]]
 
 
 @pytest.mark.parametrize("graph", test_cases.graphs)

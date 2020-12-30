@@ -16,7 +16,8 @@ def to_normal_graph(graph: nx.Graph) -> Tuple[List[_Vertex], int]:
 
     # build the image/counterimage
     for edge in graph.edges:
-        vertexes[edge[1]].append_to_counterimage(vertexes[edge[0]])
+        vertexes[edge[1]].add_to_counterimage(vertexes[edge[0]])
+        vertexes[edge[0]].add_to_image(vertexes[edge[1]])
 
     return (vertexes, max_rank)
 

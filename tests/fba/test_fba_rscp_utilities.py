@@ -17,8 +17,8 @@ def build_test_blocks(graph, partition, expected):
         graph.nodes[node]["rank"] = 0
     (vertexes, _) = to_normal_graph(graph)
     return (
-        _Block([vertexes[idx] for idx in partition[0]]),
-        _Block([vertexes[idx] for idx in partition[1]]),
+        _Block([vertexes[idx] for idx in partition[0]], None),
+        _Block([vertexes[idx] for idx in partition[1]], None),
         expected,
     )
 

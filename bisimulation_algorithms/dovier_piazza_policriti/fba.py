@@ -5,13 +5,15 @@ from llist import dllist
 
 from .graph_entities import _Block, _Vertex
 from .graph_decorator import to_normal_graph, prepare_graph
-from bisimulation_algorithms import paige_tarjan
+from bisimulation_algorithms.paige_tarjan.pta import pta
 
 from bisimulation_algorithms.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
     back_to_original,
 )
+
+from bisimulation_algorithms.paige_tarjan.graph_entities import _XBlock
 
 
 def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
@@ -120,55 +122,27 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
         if vertex.rank > block.rank():
             # if needed, create the aux block to help during the splitting
             # phase
-            if vertex.block.aux_block is None:
-                vertex.block.aux_block = _Block([])
-                modified_blocks.append(vertex.block)
+            if vertex.qblock.split_helper_block is None:
+                vertex.qblock.split_helper_block = _Block(
+                    [], vertex.qblock.xblock
+                )
+                modified_blocks.append(vertex.qblock)
 
-            new_vertex_block = vertex.block.aux_block
+            new_vertex_block = vertex.qblock.split_helper_block
 
             # remove the vertex in the counterimage from its current block
-            vertex.block.remove_vertex(vertex)
-            # put the vertex in the counterimage in the aux_block
+            vertex.qblock.remove_vertex(vertex)
+            # put the vertex in the counterimage in the aux block
             new_vertex_block.append_vertex(vertex)
 
-    # insert the new blocks in the partition, and then reset aux_block for each
+    # insert the new blocks in the partition, and then reset aux block for each
     # modified block.
     for block in modified_blocks:
-        # we use the rank of aux_block because we're sure it's not None
-        partition[rank_to_partition_idx(block.aux_block.rank())].append(
-            block.aux_block
-        )
-        block.aux_block = None
-
-
-def create_subgraph_of_rank(
-    blocks_at_rank: List[_Block], rank: int
-) -> nx.Graph:
-    """Creates a subgraph of nodes having the given rank, from the given
-    partition.
-
-    Args:
-        partition (List[List[_Block]]): The current partition.
-        rank (int): Rank of the nodes in the subgraph.
-
-    Returns:
-        nx.Graph: The subgraph.
-    """
-
-    subgraph = nx.DiGraph()
-
-    vertexes_at_rank = []
-    for block in blocks_at_rank:
-        for vertex in block.vertexes:
-            # add a new block to the subgraph
-            subgraph.add_node(vertex.label)
-
-            # add the edges from the nodes whose rank is OK
-            for src in vertex.counterimage:
-                if src.rank == rank:
-                    subgraph.add_edge(src.label, vertex.label)
-
-    return subgraph
+        # we use the rank of aux block because we're sure it's not None
+        partition[
+            rank_to_partition_idx(block.split_helper_block.rank())
+        ].append(block.split_helper_block)
+        block.split_helper_block = None
 
 
 def create_initial_partition(
@@ -178,10 +152,10 @@ def create_initial_partition(
     # partition contains is a list of lists, each sub-list contains the
     # sub-blocks of nodes at the i-th rank
     if max_rank != float("-inf"):
-        partition = [[_Block([])] for i in range(max_rank + 2)]
+        partition = [[_Block([], _XBlock())] for i in range(max_rank + 2)]
     else:
         # there's a single possible rank, -infty
-        partition = [[_Block([])]]
+        partition = [[_Block([], _XBlock())]]
 
     # populate the blocks of the partition according to the ranks
     for vertex in vertexes:
@@ -223,19 +197,16 @@ def fba(graph: nx.Graph) -> List[Tuple[int]]:
 
     # loop over the ranks
     for partition_idx in range(1, len(partition)):
-        rank = partition_idx - 1
+        # PTA wants an interval without holes starting from zero, therefore we
+        # need to scale
+        scaled_idx_to_vertex = []
+        for block in partition[partition_idx]:
+            for vertex in block.vertexes:
+                vertex.scale_label(len(scaled_idx_to_vertex))
+                scaled_idx_to_vertex.append(vertex)
 
-        # create the subgraph of rank i-1
-        subgraph = create_subgraph_of_rank(partition[partition_idx], rank)
-
-        # convert FBA blocks to tuple blocks
-        blocks_at_rank = [
-            tuple(map(lambda vertex: vertex.label, block.vertexes))
-            for block in partition[partition_idx]
-        ]
-
-        # apply PTA to the subgraph at rank i
-        rscp = paige_tarjan(subgraph, blocks_at_rank)
+        # apply PTA to the subgraph at the current examined rank
+        rscp = pta(partition[partition_idx])
 
         # clear the partition at the current rank
         partition[partition_idx] = []
@@ -243,9 +214,15 @@ def fba(graph: nx.Graph) -> List[Tuple[int]]:
         # insert the new blocks in the partition at the current rank, and
         # collapse each block.
         for block in rscp:
-            internal_block = _Block(
-                map(lambda vertex_idx: vertexes[vertex_idx], block)
-            )
+            block_vertexes = []
+            for scaled_vertex_idx in block:
+                vertex = scaled_idx_to_vertex[scaled_vertex_idx]
+                vertex.back_to_original_label()
+                block_vertexes.append(vertex)
+
+            # we can set XBlock to None because PTA won't be called again on
+            # these blocks
+            internal_block = _Block(block_vertexes, None)
 
             survivor_vertex, collapsed_vertexes = collapse(internal_block)
 
@@ -301,7 +278,7 @@ def rscp(
     """
 
     if not isinstance(graph, nx.DiGraph):
-        raise Exception('graph should be a directed graph (nx.DiGraph)')
+        raise Exception("graph should be a directed graph (nx.DiGraph)")
 
     # if True, the input graph is already an integer graph
     original_graph_is_integer = is_integer_graph or check_normal_integer_graph(

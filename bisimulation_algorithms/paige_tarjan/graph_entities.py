@@ -117,8 +117,8 @@ class _QBlock:
     """
 
     def __init__(self, vertexes, xblock):
-        self.size = len(vertexes)
-        self.vertexes = dllist(vertexes)
+        self.vertexes = dllist(list(vertexes))
+        self.size = self.vertexes.size
         self.xblock = xblock
         self.split_helper_block = None
         self.dllistnode = None
