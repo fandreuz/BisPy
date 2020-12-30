@@ -58,7 +58,7 @@ def build_map_to_scc(graph_scc: nx.Graph, graph: nx.Graph) -> List[frozenset]:
             try:
                 scc_map[node] = scc
             except Exception:
-                print(
+                raise Exception(
                     """you are probably using a grah whose nodes are not
                     properly numbered"""
                 )
