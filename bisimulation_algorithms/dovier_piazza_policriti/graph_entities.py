@@ -3,7 +3,7 @@ from llist import dllist, dllistnode
 from bisimulation_algorithms.paige_tarjan.graph_entities import (
     _Vertex as pta_Vertex,
     _QBlock as pta_Block,
-    _XBlock
+    _XBlock,
 )
 
 
@@ -25,6 +25,7 @@ class _Vertex(pta_Vertex):
 
     def back_to_original_label(self):
         self.label = self.original_label
+
 
 class _Block(pta_Block):
     def __init__(self, vertexes: Iterable[_Vertex], xblock: _XBlock):
