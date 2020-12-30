@@ -14,10 +14,11 @@ class _Vertex(pta_Vertex):
         rank:              The rank of this vertex
     """
 
-    def __init__(self, rank: int, label: int):
+    def __init__(self, label: int):
         super().__init__(label)
-        self.rank = rank
         self.original_label = label
+        self.rank = None
+        self.wf = True
 
     def scale_label(self, scaled_label: int):
         self.label = scaled_label

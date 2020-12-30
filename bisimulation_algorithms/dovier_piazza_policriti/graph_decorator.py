@@ -3,15 +3,14 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
     _Vertex,
 )
 from typing import List, Tuple
-from .rank import compute_rank
+from .rank_computation import compute_rank
 
 
-def to_normal_graph(graph: nx.Graph) -> Tuple[List[_Vertex], int]:
+def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
     max_rank = float('-inf')
     vertexes = []
     for vertex in graph.nodes:
-        new_vertex = _Vertex(label=vertex, rank=graph.nodes[vertex]["rank"])
-        max_rank = max(max_rank, new_vertex.rank)
+        new_vertex = _Vertex(label=vertex)
         vertexes.append(new_vertex)
 
     # build the image/counterimage
@@ -19,10 +18,10 @@ def to_normal_graph(graph: nx.Graph) -> Tuple[List[_Vertex], int]:
         vertexes[edge[1]].add_to_counterimage(vertexes[edge[0]])
         vertexes[edge[0]].add_to_image(vertexes[edge[1]])
 
-    return (vertexes, max_rank)
+    return vertexes
 
 
-def prepare_graph(graph: nx.Graph) -> Tuple[List[_Vertex], int]:
+def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
     """Prepare the input graph for the algorithm. Computes the rank for each
     node, and then converts the graph to a usable representation.
 
@@ -35,5 +34,8 @@ def prepare_graph(graph: nx.Graph) -> Tuple[List[_Vertex], int]:
         int          : The maximum rank in the graph.
     """
 
-    compute_rank(graph)
-    return to_normal_graph(graph)
+    vertexes = to_normal_graph(graph)
+    # sets ranks
+    compute_rank(vertexes)
+
+    return vertexes

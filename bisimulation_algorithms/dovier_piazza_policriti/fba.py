@@ -176,7 +176,8 @@ def fba(graph: nx.Graph) -> List[Tuple[int]]:
         List[Tuple[int]]: The RSCP of the graph.
     """
 
-    vertexes, max_rank = prepare_graph(graph)
+    vertexes = prepare_graph(graph)
+    max_rank = max(vertex.rank for vertex in vertexes)
     partition = create_initial_partition(vertexes, max_rank)
 
     # maps each survivor node to a list of nodes collapsed into it
