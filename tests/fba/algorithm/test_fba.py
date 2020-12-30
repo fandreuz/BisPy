@@ -37,7 +37,7 @@ def test_rank_to_partition_idx(rank, expected):
     ),
 )
 def test_build_block_counterimage(graph, counterimaged_block_indexes):
-    vertexes, _ = prepare_graph(graph)
+    vertexes = prepare_graph(graph)
     counterimaged_block = _Block(
         map(lambda idx: vertexes[idx], counterimaged_block_indexes), None
     )
@@ -63,30 +63,11 @@ def test_build_block_counterimage(graph, counterimaged_block_indexes):
     "graph",
     test_cases.graphs,
 )
-def test_prepare_graph_max_rank(graph):
-    _, max_rank = prepare_graph(graph)
-    assert max_rank == max(
-        map(lambda node: graph.nodes[node]["rank"], graph.nodes)
-    )
-
-
-@pytest.mark.parametrize(
-    "graph",
-    test_cases.graphs,
-)
 def test_prepare_graph_vertexes(graph):
-    vertexes, _ = prepare_graph(graph)
+    vertexes = prepare_graph(graph)
 
     # same length
     assert len(vertexes) == len(graph.nodes)
-
-    # same rank
-    assert all(
-        map(
-            lambda idx: vertexes[idx].rank == graph.nodes[idx]["rank"],
-            range(len(vertexes)),
-        )
-    )
 
     # counterimage
     my_counterimage = [
@@ -101,7 +82,8 @@ def test_prepare_graph_vertexes(graph):
 
 @pytest.mark.parametrize("graph", test_cases.graphs)
 def test_create_initial_partition(graph):
-    vertexes, max_rank = prepare_graph(graph)
+    vertexes = prepare_graph(graph)
+    max_rank = max(vertex.rank for vertex in vertexes)
     partition = create_initial_partition(vertexes, max_rank)
 
     # at most one block per rank
@@ -122,7 +104,8 @@ def test_create_initial_partition(graph):
 
 @pytest.mark.parametrize("graph", test_cases.graphs)
 def test_split_upper_ranks(graph):
-    vertexes, max_rank = prepare_graph(graph)
+    vertexes = prepare_graph(graph)
+    max_rank = max(vertex.rank for vertex in vertexes)
     partition_length = 0 if max_rank == float("-inf") else max_rank + 2
 
     for idx in range(partition_length):
