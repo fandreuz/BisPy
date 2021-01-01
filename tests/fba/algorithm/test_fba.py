@@ -7,6 +7,7 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     split_upper_ranks,
     fba,
     rscp as fba_rscp,
+    bisimulation_contraction as fba_contraction
 )
 import tests.fba.algorithm.fba_test_cases as test_cases
 import networkx as nx
@@ -122,7 +123,19 @@ def test_split_upper_ranks(graph):
     "graph",
     map(lambda tp: tp[0], graph_partition_rscp_tuples),
 )
-def test_fba_correctness(graph):
+def test_fba_rscp_correctness(graph):
     assert set(frozenset(block) for block in fba_rscp(graph)) == set(
         frozenset(block) for block in paige_tarjan(graph)
+    )
+
+
+@pytest.mark.parametrize(
+    "graph",
+    map(lambda tp: tp[0], graph_partition_rscp_tuples),
+)
+def test_fba_collapse_correctness(graph):
+    contraction = fba_contraction(graph)
+    rscp = paige_tarjan(graph)
+    assert all(
+        any(vertex in block for block in rscp) for vertex in contraction
     )

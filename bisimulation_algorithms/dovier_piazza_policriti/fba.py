@@ -166,7 +166,9 @@ def create_initial_partition(
     return partition
 
 
-def fba(graph: nx.Graph) -> List[Tuple[int]]:
+def fba(
+    graph: nx.Graph,
+) -> Tuple[List[List[_Block]], Dict[int, List[_Vertex]]]:
     """Apply the FBA algorithm to the given graph.
 
     Args:
@@ -235,27 +237,7 @@ def fba(graph: nx.Graph) -> List[Tuple[int]]:
                 # update the upper ranks with respect to this block
                 split_upper_ranks(partition, internal_block)
 
-    rscp = []
-
-    # from the partition obtained from the first step, build a partition which
-    # in the external representation (List[Tuple[int]])
-    for rank in partition:
-        for block in rank:
-            if block.vertexes.size > 0:
-                block_survivor_node = block.vertexes.first.value
-                block_vertexes = [block_survivor_node.label]
-
-                if block_survivor_node.label in collapse_map:
-                    block_vertexes.extend(
-                        map(
-                            lambda vertex: vertex.label,
-                            collapse_map[block_survivor_node.label],
-                        )
-                    )
-
-                rscp.append(tuple(block_vertexes))
-
-    return rscp
+    return (partition, collapse_map)
 
 
 def rscp(
@@ -292,9 +274,61 @@ def rscp(
     else:
         integer_graph = graph
 
-    rscp = fba(integer_graph)
+    collapsed_partition, collapse_map = fba(integer_graph)
+
+    # from the collapsed partition obtained from FBA, build the RSCP (external
+    # representation, List[Tuple[int]])
+    rscp = []
+    for rank in collapsed_partition:
+        for block in rank:
+            if block.vertexes.size > 0:
+                block_survivor_node = block.vertexes.first.value
+                block_vertexes = [block_survivor_node.label]
+
+                if block_survivor_node.label in collapse_map:
+                    block_vertexes.extend(
+                        map(
+                            lambda vertex: vertex.label,
+                            collapse_map[block_survivor_node.label],
+                        )
+                    )
+
+                rscp.append(tuple(block_vertexes))
 
     if original_graph_is_integer:
         return rscp
     else:
         return back_to_original(rscp, node_to_idx)
+
+
+def bisimulation_contraction(
+    graph: nx.Graph,
+    is_integer_graph: bool = False,
+) -> List[int]:
+    if not isinstance(graph, nx.DiGraph):
+        raise Exception("graph should be a directed graph (nx.DiGraph)")
+
+    # if True, the input graph is already an integer graph
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
+        graph
+    )
+
+    if not original_graph_is_integer:
+        # convert the graph to an "integer" graph
+        integer_graph, node_to_idx = convert_to_integer_graph(graph)
+    else:
+        integer_graph = graph
+
+    collapsed_partition, _ = fba(integer_graph)
+
+    # convert to external representation (List[int])
+    collapsed_graph_nodes = []
+    for rank in collapsed_partition:
+        for block in rank:
+            if block.size > 0:
+                collapsed_graph_nodes.append(block.vertexes.first.value.label)
+
+    if original_graph_is_integer:
+        return collapsed_graph_nodes
+    else:
+        return back_to_original(collapsed_graph_nodes, node_to_idx)
