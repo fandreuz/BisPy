@@ -24,8 +24,8 @@ def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
         block (_Block):    The block to collapse.
 
     Returns:
-        Tuple[_Vertex, List[_Vertex]]: A tuple which contains the single vertex
-        in the block after the collapse, and the list of collapsed vertexes.
+        _Vertex      : The vertex which survived to the collapse.
+        List[_Vertex]: The list of collapsed vertexes.
     """
 
     if block.vertexes.size > 0:
@@ -55,15 +55,14 @@ def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
 
 
 def build_block_counterimage(block: _Block) -> List[_Vertex]:
-    """Given a block B, construct a list of vertexes x such that x->y and y is
-    in B.
+    """Given a block B, construct the counterimage of the block.
 
     Args:
         block (_Block): A block.
 
     Returns:
-        list[_Vertex]: A list of vertexes x such that x->y and y is in B (the
-        order doesn't matter).
+        list[_Vertex]: A list of vertexes x such that x->y and y is in the
+        given block.
     """
 
     block_counterimage = []
@@ -86,14 +85,14 @@ def build_block_counterimage(block: _Block) -> List[_Vertex]:
 
 
 def rank_to_partition_idx(rank: int) -> int:
-    """Convert the rank of a block/vertex to its expected index in the list
-    which represents the partition of nodes.
+    """Convert the rank of a block/vertex to its index in the list
+    which represents a partition.
 
     Args:
         rank (int): The input rank (int or float('-inf'))
 
     Returns:
-        int: The index in the partition of a block such that block.rank = rank
+        int: The index in the partition.
     """
 
     if rank == float("-inf"):
@@ -103,13 +102,12 @@ def rank_to_partition_idx(rank: int) -> int:
 
 
 def split_upper_ranks(partition: List[List[_Block]], block: _Block):
-    """Update the blocks of the partition whose rank is greater than
-    block.rank, in order to make the partition stable with respect to block.
+    """Update the blocks whose rank is greater than block.rank, in order to
+    make the partition stable with respect to the block.
 
     Args:
         partition (List[List[_Block]]): The current partition.
-        block (_Block): The block the partition has to be stable with respect
-        to.
+        block (_Block): The splitter block.
     """
 
     block_counterimage = build_block_counterimage(block)
@@ -148,6 +146,17 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
 def create_initial_partition(
     vertexes: List[_Vertex], max_rank: int
 ) -> List[List[_Block]]:
+    """Create a partition where vertexes are in different blocks if their rank
+    is not equal.
+
+    Args:
+        vertexes (List[_Vertex]): The list of vertexes.
+        max_rank (int): The maximum rank which appears in vertexes.
+
+    Returns:
+        List[List[_Block]]: The initial partition.
+    """
+
     # initialize the initial partition. the first index is for -infty
     # partition contains is a list of lists, each sub-list contains the
     # sub-blocks of nodes at the i-th rank
@@ -169,13 +178,15 @@ def create_initial_partition(
 def fba(
     graph: nx.Graph,
 ) -> Tuple[List[List[_Block]], List[List[_Vertex]]]:
-    """Apply the FBA algorithm to the given graph.
+    """Apply the FBA algorithm on the given integer directed graph.
 
     Args:
-        graph (nx.Graph): The input (integer) graph.
+        graph (nx.Graph): An integer directed graph.
 
     Returns:
-        List[Tuple[int]]: The RSCP of the graph.
+        List[List[_Block]   : The partition at the end of the algorithm.
+        List[List[_Vertex]] : A list which maps survivor nodes to the list of
+            nodes collapsed to that survivor node.
     """
 
     vertexes = prepare_graph(graph)
@@ -244,20 +255,15 @@ def rscp(
     graph: nx.Graph,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
-    """Compute the RSCP of the given graph. This function needs to work with an
-    integer graph (nodes represented by an integer), therefore it checks this
-    property before starting the FBA algorithm, and creates an integer graph if
-    needed. Nodes in the graph have to be hashable objects.
+    """Obtain the RSCP of the given graph with the FBA algorithm.
 
     Args:
         graph (nx.Graph): The input graph.
-        is_integer_graph (bool, optional): If True, the function assumes that
-        the graph is integer, and skips the integrality check (may be useful
-        when performance is important). Defaults to False.
+        is_integer_graph (bool, optional): If True, the graph is already
+            integer (needed for the algorithm). Defaults to False.
 
     Returns:
-        List[Tuple]: The RSCP of the given (even non-integer) graph, with the
-        given initial partition.
+        List[Tuple]: The RSCP of the graph as a list of tuples.
     """
 
     if not isinstance(graph, nx.DiGraph):
@@ -304,7 +310,19 @@ def rscp(
 def bisimulation_contraction(
     graph: nx.Graph,
     is_integer_graph: bool = False,
-) -> List[int]:
+) -> List:
+    """Compute the bisimulation contraction of the graph with the FBA
+    algorithm.
+
+    Args:
+        graph (nx.Graph): The input graph.
+        is_integer_graph (bool, optional): If True, the graph is already
+            integer (needed for the algorithm). Defaults to False.
+
+    Returns:
+        List: The bisimulation contraction as a list of survivor nodes.
+    """
+
     if not isinstance(graph, nx.DiGraph):
         raise Exception("graph should be a directed graph (nx.DiGraph)")
 
