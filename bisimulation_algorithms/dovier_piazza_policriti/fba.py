@@ -168,7 +168,7 @@ def create_initial_partition(
 
 def fba(
     graph: nx.Graph,
-) -> Tuple[List[List[_Block]], Dict[int, List[_Vertex]]]:
+) -> Tuple[List[List[_Block]], List[List[_Vertex]]]:
     """Apply the FBA algorithm to the given graph.
 
     Args:
@@ -183,7 +183,7 @@ def fba(
     partition = create_initial_partition(vertexes, max_rank)
 
     # maps each survivor node to a list of nodes collapsed into it
-    collapse_map = {}
+    collapse_map = [None for _ in range(len(graph.nodes))]
 
     # collapse B_{-infty}
     if len(partition[0]) > 0:
@@ -285,7 +285,7 @@ def rscp(
                 block_survivor_node = block.vertexes.first.value
                 block_vertexes = [block_survivor_node.label]
 
-                if block_survivor_node.label in collapse_map:
+                if collapse_map[block_survivor_node.label] is not None:
                     block_vertexes.extend(
                         map(
                             lambda vertex: vertex.label,
