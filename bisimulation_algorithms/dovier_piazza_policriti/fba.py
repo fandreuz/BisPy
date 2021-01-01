@@ -16,6 +16,55 @@ from bisimulation_algorithms.utilities.graph_normalization import (
 from bisimulation_algorithms.paige_tarjan.graph_entities import _XBlock
 
 
+def create_initial_partition(
+    vertexes: List[_Vertex], max_rank: int
+) -> List[List[_Block]]:
+    """Create a partition where vertexes are in different blocks if their rank
+    is not equal.
+
+    Args:
+        vertexes (List[_Vertex]): The list of vertexes.
+        max_rank (int): The maximum rank which appears in vertexes.
+
+    Returns:
+        List[List[_Block]]: The initial partition.
+    """
+
+    # initialize the initial partition. the first index is for -infty
+    # partition contains is a list of lists, each sub-list contains the
+    # sub-blocks of nodes at the i-th rank
+    if max_rank != float("-inf"):
+        partition = [[_Block([], _XBlock())] for i in range(max_rank + 2)]
+    else:
+        # there's a single possible rank, -infty
+        partition = [[_Block([], _XBlock())]]
+
+    # populate the blocks of the partition according to the ranks
+    for vertex in vertexes:
+        # put this node in the (only) list at partition_idx in partition
+        # (there's only one block for each rank at the moment in the partition)
+        partition[rank_to_partition_idx(vertex.rank)][0].append_vertex(vertex)
+
+    return partition
+
+
+def rank_to_partition_idx(rank: int) -> int:
+    """Convert the rank of a block/vertex to its index in the list
+    which represents a partition.
+
+    Args:
+        rank (int): The input rank (int or float('-inf'))
+
+    Returns:
+        int: The index in the partition.
+    """
+
+    if rank == float("-inf"):
+        return 0
+    else:
+        return rank + 1
+
+
 def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
     """Collapse the given block in a single vertex chosen randomly from the
     vertexes of the block.
@@ -84,23 +133,6 @@ def build_block_counterimage(block: _Block) -> List[_Vertex]:
     return block_counterimage
 
 
-def rank_to_partition_idx(rank: int) -> int:
-    """Convert the rank of a block/vertex to its index in the list
-    which represents a partition.
-
-    Args:
-        rank (int): The input rank (int or float('-inf'))
-
-    Returns:
-        int: The index in the partition.
-    """
-
-    if rank == float("-inf"):
-        return 0
-    else:
-        return rank + 1
-
-
 def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     """Update the blocks whose rank is greater than block.rank, in order to
     make the partition stable with respect to the block.
@@ -141,38 +173,6 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
             rank_to_partition_idx(block.split_helper_block.rank())
         ].append(block.split_helper_block)
         block.split_helper_block = None
-
-
-def create_initial_partition(
-    vertexes: List[_Vertex], max_rank: int
-) -> List[List[_Block]]:
-    """Create a partition where vertexes are in different blocks if their rank
-    is not equal.
-
-    Args:
-        vertexes (List[_Vertex]): The list of vertexes.
-        max_rank (int): The maximum rank which appears in vertexes.
-
-    Returns:
-        List[List[_Block]]: The initial partition.
-    """
-
-    # initialize the initial partition. the first index is for -infty
-    # partition contains is a list of lists, each sub-list contains the
-    # sub-blocks of nodes at the i-th rank
-    if max_rank != float("-inf"):
-        partition = [[_Block([], _XBlock())] for i in range(max_rank + 2)]
-    else:
-        # there's a single possible rank, -infty
-        partition = [[_Block([], _XBlock())]]
-
-    # populate the blocks of the partition according to the ranks
-    for vertex in vertexes:
-        # put this node in the (only) list at partition_idx in partition
-        # (there's only one block for each rank at the moment in the partition)
-        partition[rank_to_partition_idx(vertex.rank)][0].append_vertex(vertex)
-
-    return partition
 
 
 def fba(
