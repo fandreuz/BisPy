@@ -35,7 +35,6 @@ def counterimage_dfs(
 def dfs_and_rank(
     current_vertex_idx: int,
     vertexes: List[_Vertex],
-    finishing_list: List[_Vertex],
     colors: List[int],
 ):
     # mark this vertex as "visiting"
@@ -65,7 +64,6 @@ def dfs_and_rank(
                 dfs_and_rank(
                     current_vertex_idx=image_vertex.label,
                     vertexes=vertexes,
-                    finishing_list=finishing_list,
                     colors=colors,
                 )
 
@@ -76,9 +74,6 @@ def dfs_and_rank(
 
         # set the rank
         vertexes[current_vertex_idx].rank = max_rank
-    # this vertex visit is over: add the vertex to the ordered list of
-    # finished vertexes
-    finishing_list.append(vertexes[current_vertex_idx])
     # mark this vertex as "visited"
     colors[current_vertex_idx] = _BLACK
 
@@ -99,12 +94,10 @@ def compute_rank(vertexes: List[_Vertex]):
     # perform a visit using the order induced by the finishing time of the
     # counterimage DFS (for decreasing values of finishing time)
     image_dfs_colors = [_WHITE for _ in range(len(vertexes))]
-    image_finishing_list = []
     for idx in range(len(vertexes) - 1, -1, -1):
         if image_dfs_colors[idx] == _WHITE:
             dfs_and_rank(
                 current_vertex_idx=idx,
                 vertexes=vertexes,
-                finishing_list=image_finishing_list,
                 colors=image_dfs_colors,
             )
