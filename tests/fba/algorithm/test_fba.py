@@ -139,3 +139,13 @@ def test_fba_collapse_correctness(graph):
     assert all(
         any(vertex in block for block in rscp) for vertex in contraction
     )
+
+# this is for particular cases which aren't covered in PTA tests
+@pytest.mark.parametrize(
+    "graph",
+    test_cases.fba_correctness_graphs,
+)
+def test_fba_correctness2(graph):
+    assert set(frozenset(block) for block in fba_rscp(graph)) == set(
+        frozenset(block) for block in paige_tarjan(graph)
+    )
