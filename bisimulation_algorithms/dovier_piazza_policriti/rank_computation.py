@@ -18,7 +18,7 @@ def counterimage_dfs(
     for counterimage_vertex in vertexes[current_vertex_idx].counterimage:
         # if the vertex isn't white, a visit is occurring, or has already
         # occurred.
-        if colors[current_vertex_idx] == _WHITE:
+        if colors[counterimage_vertex.label] == _WHITE:
             counterimage_dfs(
                 current_vertex_idx=counterimage_vertex.label,
                 vertexes=vertexes,
@@ -94,7 +94,10 @@ def compute_rank(vertexes: List[_Vertex]):
     # perform a visit using the order induced by the finishing time of the
     # counterimage DFS (for decreasing values of finishing time)
     image_dfs_colors = [_WHITE for _ in range(len(vertexes))]
-    for idx in range(len(vertexes) - 1, -1, -1):
+    for finishing_time_idx in range(len(vertexes) - 1, -1, -1):
+        # compute the index corresponding to this finishing_time
+        idx = counterimage_finishing_list[finishing_time_idx].label
+
         if image_dfs_colors[idx] == _WHITE:
             dfs_and_rank(
                 current_vertex_idx=idx,
