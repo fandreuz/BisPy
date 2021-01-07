@@ -1,5 +1,5 @@
 import itertools
-from typing import List
+from typing import List, Iterable
 
 from bisimulation_algorithms.paige_tarjan.graph_entities import _Vertex
 
@@ -30,7 +30,7 @@ def is_stable_partition(partition: List[List[_Vertex]]) -> bool:
 # return True if A_block \subseteq R^{-1}(B_block) or
 # A_block cap R^{-1}(B_block) = \emptyset
 def check_block_stability(
-    A_block_vertexes: List[_Vertex], B_block_vertexes: List[_Vertex]
+    A_block_vertexes: Iterable[_Vertex], B_block_vertexes: Iterable[_Vertex]
 ) -> bool:
     """Checks the stability of the first block with respect to the second one.
     The two inputs must be list of Vertex instances, and the relation which we
