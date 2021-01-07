@@ -78,10 +78,14 @@ def build_qpartition(
                     initial_partition"""
             )
 
-    if len(union) != len(vertexes):
+    if len(union) < len(vertexes):
         raise Exception(
-            """initial_partition should contain every vertex in one (and only
-                one) block"""
+            """initial_partition contains duplicate vertexes"""
+        )
+
+    if len(union) < len(vertexes):
+        raise Exception(
+            """initial_partition contains more vertexes than expected"""
         )
     # end
 
@@ -97,9 +101,6 @@ def build_qpartition(
         # to dllistnode for vertexes and avoid a double visit of vertexes
         qblock = _QBlock([], initial_x_block)
 
-        # create a new _QBlock from the given initial_partition, and obtain a
-        # reference to dllistobject
-        initial_x_block.append_qblock(qblock)
         for idx in block:
             vertexes[idx] = vertexes[idx]
 

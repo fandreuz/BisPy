@@ -169,9 +169,6 @@ def split(B_counterimage: List[_Vertex]):
         helper_qblock = qblock.split_helper_block
         qblock.reset_helper_block()
 
-        # add the new qblock to the same xblock to which the old qblock
-        # belongs, and obtain its ddllistnode
-        qblock.xblock.append_qblock(helper_qblock)
         new_qblocks.append(helper_qblock)
 
         # if the old qblock has been made empty by the split

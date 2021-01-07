@@ -119,9 +119,11 @@ class _QBlock:
     def __init__(self, vertexes, xblock):
         self.vertexes = dllist(list(vertexes))
         self.size = self.vertexes.size
-        self.xblock = xblock
         self.split_helper_block = None
         self.dllistnode = None
+
+        if xblock is not None:
+            xblock.append_qblock(self)
 
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper _Vertex, not a dllistnode

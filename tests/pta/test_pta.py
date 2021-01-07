@@ -140,8 +140,6 @@ def test_choose_qblock():
         _QBlock([2, 4], compoundblock),
         _QBlock([1, 6, 8], compoundblock),
     ]
-    for qblock in qblocks:
-        compoundblock.append_qblock(qblock)
 
     splitter = extract_splitter(compoundblock)
     assert splitter == qblocks[1]
