@@ -44,7 +44,7 @@ def dfs_and_rank(
         # this is a leaf
         vertexes[current_vertex_idx].rank = 0
     else:
-        max_rank = float("-inf")
+        vertexes[current_vertex_idx].rank = float('-inf')
 
         # visit the counterimage of the current vertex
         for image_vertex in vertexes[current_vertex_idx].image:
@@ -57,6 +57,7 @@ def dfs_and_rank(
                 or not image_vertex.wf
             ):
                 vertexes[current_vertex_idx].wf = False
+                vertexes[image_vertex.label].wf = False
 
             # if the vertex isn't white, a visit is occurring, or has already
             # occurred. Therefore skip.
@@ -68,17 +69,16 @@ def dfs_and_rank(
                 )
 
             if image_vertex.rank is not None:
-                max_rank = max(
-                    max_rank, image_vertex.rank + (1 if image_vertex.wf else 0)
+                vertexes[current_vertex_idx].rank = max(
+                    vertexes[current_vertex_idx].rank,
+                    image_vertex.rank + (1 if image_vertex.wf else 0),
                 )
 
-        # set the rank
-        vertexes[current_vertex_idx].rank = max_rank
     # mark this vertex as "visited"
     colors[current_vertex_idx] = _BLACK
 
 
-def compute_rank(vertexes: List[_Vertex]):
+def compute_finishing_time_list(vertexes: List[_Vertex]) -> List[_Vertex]:
     counterimage_dfs_colors = [_WHITE for _ in range(len(vertexes))]
     counterimage_finishing_list = []
     # perform counterimage DFS
@@ -90,13 +90,18 @@ def compute_rank(vertexes: List[_Vertex]):
                 finishing_list=counterimage_finishing_list,
                 colors=counterimage_dfs_colors,
             )
+    return counterimage_finishing_list
 
+
+def compute_rank(
+    vertexes: List[_Vertex], finishing_list: List[_Vertex]
+):
     # perform a visit using the order induced by the finishing time of the
     # counterimage DFS (for decreasing values of finishing time)
     image_dfs_colors = [_WHITE for _ in range(len(vertexes))]
     for finishing_time_idx in range(len(vertexes) - 1, -1, -1):
         # compute the index corresponding to this finishing_time
-        idx = counterimage_finishing_list[finishing_time_idx].label
+        idx = finishing_list[finishing_time_idx].label
 
         if image_dfs_colors[idx] == _WHITE:
             dfs_and_rank(

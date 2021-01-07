@@ -3,22 +3,31 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
     _Vertex,
 )
 from typing import List, Tuple
-from .rank_computation import compute_rank
+from .rank_computation import compute_rank, compute_finishing_time_list
 
 
 def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
-    max_rank = float('-inf')
+    max_rank = float("-inf")
     vertexes = []
     for vertex in graph.nodes:
         new_vertex = _Vertex(label=vertex)
         vertexes.append(new_vertex)
 
-    # build the image/counterimage
+    # build the counterimage. the image will be constructed using the order
+    # imposed by the rank algorithm
     for edge in graph.edges:
         vertexes[edge[1]].add_to_counterimage(vertexes[edge[0]])
-        vertexes[edge[0]].add_to_image(vertexes[edge[1]])
 
     return vertexes
+
+
+def build_vertexes_image(finishing_time_list: List[_Vertex]):
+    for time_list_idx in range(len(finishing_time_list) - 1, -1, -1):
+        vertex = finishing_time_list[time_list_idx]
+        # use the counterimage of the current vertex to update the images of
+        # the nodes in the counterimage of the current vertex.
+        for counterimage_vertex in vertex.counterimage:
+            counterimage_vertex.add_to_image(vertex)
 
 
 def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
@@ -35,7 +44,11 @@ def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
     """
 
     vertexes = to_normal_graph(graph)
+
+    finishing_time_list = compute_finishing_time_list(vertexes)
+    build_vertexes_image(finishing_time_list)
+
     # sets ranks
-    compute_rank(vertexes)
+    compute_rank(vertexes, finishing_time_list)
 
     return vertexes
