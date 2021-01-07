@@ -126,14 +126,14 @@ class _QBlock:
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper _Vertex, not a dllistnode
     def append_vertex(self, vertex: _Vertex):
-        self.size += 1
         vertex.dllistnode = self.vertexes.append(vertex)
+        self.size = self.vertexes.size
         vertex.qblock = self
 
     # throws an error if the vertex isn't inside this qblock
     def remove_vertex(self, vertex: _Vertex):
-        self.size -= 1
         self.vertexes.remove(vertex.dllistnode)
+        self.size = self.vertexes.size
         vertex.qblock = None
 
     def initialize_split_helper_block(self):
