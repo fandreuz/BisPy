@@ -211,42 +211,49 @@ def fba(
 
     # loop over the ranks
     for partition_idx in range(1, len(partition)):
-        # PTA wants an interval without holes starting from zero, therefore we
-        # need to scale
-        scaled_idx_to_vertex = []
-        for block in partition[partition_idx]:
-            for vertex in block.vertexes:
-                vertex.scale_label(len(scaled_idx_to_vertex))
-                scaled_idx_to_vertex.append(vertex)
+        # OPTIMIZATION: if at the current rank we only have blocks of single
+        # vertexes, skip this step.
+        if any(map(lambda block: block.size > 1, partition[partition_idx])):
+            # PTA wants an interval without holes starting from zero, therefore
+            # we need to scale the labels.
+            scaled_idx_to_vertex = []
+            for block in partition[partition_idx]:
+                for vertex in block.vertexes:
+                    vertex.scale_label(len(scaled_idx_to_vertex))
+                    scaled_idx_to_vertex.append(vertex)
 
-        # apply PTA to the subgraph at the current examined rank
-        rscp = pta(partition[partition_idx])
+            # apply PTA to the subgraph at the current examined rank
+            rscp = pta(partition[partition_idx])
 
-        # clear the partition at the current rank
-        partition[partition_idx] = []
+            # clear the partition at the current rank
+            partition[partition_idx] = []
 
-        # insert the new blocks in the partition at the current rank, and
-        # collapse each block.
-        for block in rscp:
-            block_vertexes = []
-            for scaled_vertex_idx in block:
-                vertex = scaled_idx_to_vertex[scaled_vertex_idx]
-                vertex.back_to_original_label()
-                block_vertexes.append(vertex)
+            # insert the new blocks in the partition at the current rank, and
+            # collapse each block.
+            for block in rscp:
+                block_vertexes = []
+                for scaled_vertex_idx in block:
+                    vertex = scaled_idx_to_vertex[scaled_vertex_idx]
+                    vertex.back_to_original_label()
+                    block_vertexes.append(vertex)
 
-            # we can set XBlock to None because PTA won't be called again on
-            # these blocks
-            internal_block = _Block(block_vertexes, None)
+                # we can set XBlock to None because PTA won't be called again on
+                # these blocks
+                internal_block = _Block(block_vertexes, None)
 
-            survivor_vertex, collapsed_vertexes = collapse(internal_block)
+                survivor_vertex, collapsed_vertexes = collapse(internal_block)
 
-            if survivor_vertex is not None:
-                # update the collapsed nodes map
-                collapse_map[survivor_vertex.label] = collapsed_vertexes
-                # add the new block to the partition
-                partition[partition_idx].append(internal_block)
+                if survivor_vertex is not None:
+                    # update the collapsed nodes map
+                    collapse_map[survivor_vertex.label] = collapsed_vertexes
+                    # add the new block to the partition
+                    partition[partition_idx].append(internal_block)
+                    # update the upper ranks with respect to this block
+                    split_upper_ranks(partition, internal_block)
+        else:
+            for block in partition[partition_idx]:
                 # update the upper ranks with respect to this block
-                split_upper_ranks(partition, internal_block)
+                split_upper_ranks(partition, block)
 
     return (partition, collapse_map)
 
