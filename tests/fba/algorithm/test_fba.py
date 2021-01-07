@@ -7,11 +7,11 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     split_upper_ranks,
     fba,
     rscp as fba_rscp,
-    bisimulation_contraction as fba_contraction
+    bisimulation_contraction as fba_contraction,
 )
 import tests.fba.algorithm.fba_test_cases as test_cases
 import networkx as nx
-from tests.fba.rscp_utilities import check_block_stability
+from tests.pta.rscp_utilities import check_block_stability
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
 from bisimulation_algorithms.paige_tarjan.pta import (
     rscp as paige_tarjan,
@@ -72,13 +72,17 @@ def test_prepare_graph_vertexes(graph):
 
     # counterimage
     my_counterimage = [
-        map(attrgetter("label"), vertex.counterimage) for vertex in vertexes
+        [
+            counterimage_edge.source.label
+            for counterimage_edge in vertex.counterimage
+        ]
+        for vertex in vertexes
     ]
     for edge in graph.edges:
         assert edge[0] in my_counterimage[edge[1]]
     for idx, vertex_counterimage in enumerate(my_counterimage):
         for vx in vertex_counterimage:
-            assert vx in graph.adj[idx]
+            assert idx in graph.adj[vx]
 
 
 @pytest.mark.parametrize("graph", test_cases.graphs)
@@ -113,7 +117,9 @@ def test_split_upper_ranks(graph):
         partition = create_initial_partition(vertexes, max_rank)
         split_upper_ranks(partition, partition[idx][0])
         assert all(
-            check_block_stability(partition[idx][0], upper_rank_block)
+            check_block_stability(
+                partition[idx][0].vertexes, upper_rank_block.vertexes
+            )
             for upper_idx in range(idx + 1, partition_length)
             for upper_rank_block in partition[upper_idx]
         )
@@ -139,6 +145,7 @@ def test_fba_collapse_correctness(graph):
     assert all(
         any(vertex in block for block in rscp) for vertex in contraction
     )
+
 
 # this is for particular cases which aren't covered in PTA tests
 @pytest.mark.parametrize(
