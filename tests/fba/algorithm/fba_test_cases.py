@@ -55,3 +55,11 @@ graph1.add_edges_from(
     (node_map[src], node_map[dst]) for src, dst in graph0.edges
 )
 fba_correctness_graphs.append(graph1)
+
+# 2
+graph2 = nx.DiGraph()
+graph2.add_nodes_from(range(7))
+graph2.add_edges_from(
+    [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (0, 5), (5, 6)]
+)
+fba_correctness_graphs.append(graph2)

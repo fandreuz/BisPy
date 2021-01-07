@@ -71,3 +71,22 @@ graphs.append(graph6)
 noderank_dicts.append(
     dict((node_map[node], noderank_dicts[-1][node]) for node in range(8))
 )
+
+# 7
+graph7 = nx.DiGraph()
+graph7.add_nodes_from(range(7))
+graph7.add_edges_from(
+    [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (0, 5), (5, 6)]
+)
+graphs.append(graph7)
+noderank_dicts.append(
+    {
+        6: 0,
+        5: 1,
+        0: 2,
+        1: 2,
+        2: 2,
+        3: 2,
+        4: 2,
+    }
+)

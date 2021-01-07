@@ -15,11 +15,15 @@ from .rank_test_cases import noderank_dicts, graphs
 @pytest.mark.parametrize("graph, node_rank_dict", zip(graphs, noderank_dicts))
 def test_compute_rank(graph, node_rank_dict: dict):
     vertexes = prepare_graph(graph)
-    compute_rank(vertexes)
 
     for idx in range(len(vertexes)):
         assert vertexes[idx].rank == node_rank_dict[idx]
 
+def test_rank2():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(range(7))
+    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (0, 5), (5, 6)])
+    vertexes = prepare_graph(graph)
 
 def test_dfs_counterimage():
     graph = graphs[6]
