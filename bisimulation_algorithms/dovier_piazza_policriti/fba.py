@@ -32,7 +32,7 @@ def create_initial_partition(
 
     # initialize the initial partition. the first index is for -infty
     # partition contains is a list of lists, each sub-list contains the
-    # sub-blocks of nodes at the i-th rank
+    # sub-blocks of nodes at the i-th rank. there's an XBlock for each rank.
     if max_rank != float("-inf"):
         partition = [[_Block([], _XBlock())] for i in range(max_rank + 2)]
     else:
@@ -117,7 +117,9 @@ def build_block_counterimage(block: _Block) -> List[_Vertex]:
     block_counterimage = []
 
     for vertex in block.vertexes:
-        for counterimage_vertex in vertex.counterimage:
+        for edge in vertex.counterimage:
+            counterimage_vertex = edge.source
+
             # this vertex should be added to the counterimage only if necessary
             # (avoid duplicates)
             if not counterimage_vertex.visited:
@@ -222,8 +224,15 @@ def fba(
             scaled_idx_to_vertex = []
             for block in partition[partition_idx]:
                 for vertex in block.vertexes:
+                    # scale vertex
                     vertex.scale_label(len(scaled_idx_to_vertex))
+                    # remember where a given vertex was mapped
                     scaled_idx_to_vertex.append(vertex)
+
+                    # exclude nodes having the wrong rank from the image and
+                    # counterimage of the vertex. from now they're gone
+                    # forever.
+                    vertex.restrict_to_subgraph()
 
             # apply PTA to the subgraph at the current examined rank
             rscp = pta(partition[partition_idx])
@@ -240,8 +249,8 @@ def fba(
                     vertex.back_to_original_label()
                     block_vertexes.append(vertex)
 
-                # we can set XBlock to None because PTA won't be called again on
-                # these blocks
+                # we can set XBlock to None because PTA won't be called again
+                # on these blocks
                 internal_block = _Block(block_vertexes, None)
 
                 survivor_vertex, collapsed_vertexes = collapse(internal_block)
