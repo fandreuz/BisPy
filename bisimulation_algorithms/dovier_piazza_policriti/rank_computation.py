@@ -15,7 +15,9 @@ def counterimage_dfs(
     # mark this vertex as "visiting"
     colors[current_vertex_idx] = _GRAY
     # visit the counterimage of the current vertex
-    for counterimage_vertex in vertexes[current_vertex_idx].counterimage:
+    for edge in vertexes[current_vertex_idx].counterimage:
+        counterimage_vertex = edge.source
+
         # if the vertex isn't white, a visit is occurring, or has already
         # occurred.
         if colors[counterimage_vertex.label] == _WHITE:
@@ -47,7 +49,9 @@ def dfs_and_rank(
         vertexes[current_vertex_idx].rank = float('-inf')
 
         # visit the counterimage of the current vertex
-        for image_vertex in vertexes[current_vertex_idx].image:
+        for edge in vertexes[current_vertex_idx].image:
+            image_vertex = edge.destination
+
             # if image_vertex's finishing time is before current_vertex's,
             # current_vertex is NWF
             image_vertex_color = colors[image_vertex.label]
