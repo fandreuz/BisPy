@@ -1,7 +1,8 @@
 import networkx as nx
 from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
-    _Vertex,
+    _Vertex
 )
+from bisimulation_algorithms.paige_tarjan.graph_entities import _Edge, _Count
 from typing import List, Tuple
 from .rank_computation import compute_rank, compute_finishing_time_list
 
@@ -16,18 +17,23 @@ def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
     # build the counterimage. the image will be constructed using the order
     # imposed by the rank algorithm
     for edge in graph.edges:
-        vertexes[edge[1]].add_to_counterimage(vertexes[edge[0]])
+        edge = _Edge(vertexes[edge[0]], vertexes[edge[1]])
+        vertexes[edge.destination.label].add_to_counterimage(edge)
 
     return vertexes
 
 
 def build_vertexes_image(finishing_time_list: List[_Vertex]):
+    # use the standard vertex ordering
+    vertex_count = [None for _ in range(len(finishing_time_list))]
+
     for time_list_idx in range(len(finishing_time_list) - 1, -1, -1):
         vertex = finishing_time_list[time_list_idx]
+
         # use the counterimage of the current vertex to update the images of
         # the nodes in the counterimage of the current vertex.
-        for counterimage_vertex in vertex.counterimage:
-            counterimage_vertex.add_to_image(vertex)
+        for edge in vertex.counterimage:
+            edge.source.add_to_image(edge)
 
 
 def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
