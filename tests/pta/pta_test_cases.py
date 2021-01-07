@@ -441,6 +441,21 @@ graph_partition_rscp_tuples.append(
     )
 )
 
+# 11
+graph = nx.DiGraph()
+graph.add_nodes_from(range(5))
+graph.add_edges_from(
+    [
+        (0,1),(1,2),(2,3),(3,4),(4,0)
+    ]
+)
+graph_partition_rscp_tuples.append(
+    (
+        graph,
+        [(4,),(0,1,2,3)],
+        set([(0,), (1,), (2,), (3,), (4,)]),
+    )
+)
 
 def build_full_graphs(num_of_nodes):
         graph = nx.DiGraph()
