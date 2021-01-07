@@ -15,7 +15,6 @@ from .wf_test_cases import graphs_wf_nwf
 @pytest.mark.parametrize("graph, wf_nodes, nwf_nodes", graphs_wf_nwf)
 def test_mark_wf_nodes_correct(graph, wf_nodes, nwf_nodes):
     vertexes = prepare_graph(graph)
-    compute_rank(vertexes)
 
     for i in range(len(graph.nodes)):
         assert (i in wf_nodes and vertexes[i].wf) or (
