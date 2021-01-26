@@ -88,8 +88,7 @@ def test_prepare_graph_vertexes(graph):
 @pytest.mark.parametrize("graph", test_cases.graphs)
 def test_create_initial_partition(graph):
     vertexes = prepare_graph(graph)
-    max_rank = max(vertex.rank for vertex in vertexes)
-    partition = create_initial_partition(vertexes, max_rank)
+    partition = create_initial_partition(vertexes)
 
     # at most one block per rank
     assert all(len(partition[idx]) for idx in range(len(partition)))
@@ -114,7 +113,7 @@ def test_split_upper_ranks(graph):
     partition_length = 0 if max_rank == float("-inf") else max_rank + 2
 
     for idx in range(partition_length):
-        partition = create_initial_partition(vertexes, max_rank)
+        partition = create_initial_partition(vertexes)
         split_upper_ranks(partition, partition[idx][0])
         assert all(
             check_block_stability(
