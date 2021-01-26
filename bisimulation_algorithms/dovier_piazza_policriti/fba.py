@@ -16,19 +16,18 @@ from bisimulation_algorithms.utilities.graph_normalization import (
 from bisimulation_algorithms.paige_tarjan.graph_entities import _XBlock
 
 
-def create_initial_partition(
-    vertexes: List[_Vertex], max_rank: int
-) -> List[List[_Block]]:
+def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
     """Create a partition where vertexes are in different blocks if their rank
     is not equal.
 
     Args:
         vertexes (List[_Vertex]): The list of vertexes.
-        max_rank (int): The maximum rank which appears in vertexes.
 
     Returns:
         List[List[_Block]]: The initial partition.
     """
+
+    max_rank = max(vertex.rank for vertex in vertexes)
 
     # initialize the initial partition. the first index is for -infty
     # partition contains is a list of lists, each sub-list contains the
@@ -195,8 +194,7 @@ def fba(
     """
 
     vertexes = prepare_graph(graph)
-    max_rank = max(vertex.rank for vertex in vertexes)
-    partition = create_initial_partition(vertexes, max_rank)
+    partition = create_initial_partition(vertexes)
 
     # maps each survivor node to a list of nodes collapsed into it
     collapse_map = [None for _ in range(len(graph.nodes))]
