@@ -6,9 +6,36 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
 from typing import List, Tuple
 
 
+def find_vertexes_and_blocks(
+    rscp: List[List[_Block]], label1: int, label2: int
+) -> Tuple[_Vertex, _Vertex]:
+    source_vertex = None
+    destination_vertex = None
+
+    for rank in rscp:
+        for block in rank:
+            for node in block.vertexes:
+                if node.label == label1:
+                    source_vertex = node
+                if node.label == label2:
+                    destination_vertex = node
+
+    if source_vertex is None:
+        raise Exception(
+            """It wasn't possible to determine the source vertex the new
+            edge"""
+        )
+    if destination_vertex is None:
+        raise Exception(
+            """It wasn't possible to determine the destination vertex of the
+            new edge"""
+        )
+
+    return (source_vertex, destination_vertex)
+
+
 def check_old_blocks_relation(
-    old_rscp: List[List[_Block]],
-    new_edge: Tuple[_Vertex],
+    new_edge: Tuple[_Vertex, _Vertex],
 ) -> bool:
     """If in the old RSCP [u] => [v], the addition of the new edge doesn't
     change the RSCP.
@@ -28,35 +55,13 @@ def check_old_blocks_relation(
         if edge.destination.label == new_edge[1].label:
             return True
 
-    source_block = None
-    destination_block = None
-
-    for rank in old_rscp:
-        for block in rank:
-            for node in block.vertexes:
-                if node.label == new_edge[0].label:
-                    source_block = block
-                if node.label == new_edge[1].label:
-                    destination_block = block
-
-    if source_block is None:
-        raise Exception(
-            """It wasn't possible to determine the block of the source of the
-            new edge"""
-        )
-    if destination_block is None:
-        raise Exception(
-            """It wasn't possible to determine the block of the destination of
-            the new edge"""
-        )
-
     # in fact the outer-most for-loop loops 2 times at most
-    for vertex in source_block.vertexes:
+    for vertex in new_edge[0].qblock.vertexes:
         # we're interested in vertexes which aren't the source vertex of the
         # new edge.
         if vertex is not new_edge[0]:
             for edge in vertex.image:
-                if edge.destination.qblock == destination_block:
+                if edge.destination.qblock == new_edge[1].qblock:
                     return True
             # we visited the entire image of a single block (not u) of [u], and
             # it didn't contain an edge to [v], therefore we conclude (since
@@ -66,13 +71,13 @@ def check_old_blocks_relation(
     # we didn't find an edge ([u] contains only u)
     return False
 
+
 def update_rscp(
     old_rscp: List[List[_Block]],
-    new_edge: Tuple[int],
+    new_edge: Tuple[int,int],
     initial_partition: List[Tuple[int]],
 ):
-    source_vertex = None
-    destination_vertex = None
+    source_vertex, destination_vertex = find_vertexes_and_blocks(old_rscp)
 
     # if the new edge connects two blocks A,B such that A => B before the edge
     # is added we don't need to do anything
@@ -80,3 +85,5 @@ def update_rscp(
         old_rscp, (source_vertex, destination_vertex)
     ):
         return old_rscp
+
+    # update the graph representation
