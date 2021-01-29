@@ -6,7 +6,7 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
 from typing import List, Tuple
 
 
-def find_vertexes_and_blocks(
+def find_vertexes(
     rscp: List[List[_Block]], label1: int, label2: int
 ) -> Tuple[_Vertex, _Vertex]:
     source_vertex = None
@@ -34,9 +34,7 @@ def find_vertexes_and_blocks(
     return (source_vertex, destination_vertex)
 
 
-def check_old_blocks_relation(
-    new_edge: Tuple[_Vertex, _Vertex],
-) -> bool:
+def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
     """If in the old RSCP [u] => [v], the addition of the new edge doesn't
     change the RSCP.
 
@@ -51,17 +49,17 @@ def check_old_blocks_relation(
     """
 
     # check if v is already in u's image
-    for edge in new_edge[0].image:
-        if edge.destination.label == new_edge[1].label:
+    for edge in source_vertex.image:
+        if edge.destination.label == destination_vertex.label:
             return True
 
     # in fact the outer-most for-loop loops 2 times at most
-    for vertex in new_edge[0].qblock.vertexes:
+    for vertex in source_vertex.qblock.vertexes:
         # we're interested in vertexes which aren't the source vertex of the
         # new edge.
-        if vertex is not new_edge[0]:
+        if vertex is not source_vertex:
             for edge in vertex.image:
-                if edge.destination.qblock == new_edge[1].qblock:
+                if edge.destination.qblock == destination_vertex.qblock:
                     return True
             # we visited the entire image of a single block (not u) of [u], and
             # it didn't contain an edge to [v], therefore we conclude (since
@@ -74,7 +72,7 @@ def check_old_blocks_relation(
 
 def update_rscp(
     old_rscp: List[List[_Block]],
-    new_edge: Tuple[int,int],
+    new_edge: Tuple[int, int],
     initial_partition: List[Tuple[int]],
 ):
     source_vertex, destination_vertex = find_vertexes_and_blocks(old_rscp)
