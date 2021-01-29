@@ -62,3 +62,6 @@ class _Block(pta_Block):
             return self.vertexes.first.value.rank
         else:
             return None
+
+    def initialize_split_helper_block(self):
+        self.split_helper_block = _Block([], self.xblock)

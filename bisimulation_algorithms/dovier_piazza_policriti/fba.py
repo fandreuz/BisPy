@@ -157,9 +157,7 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
             # if needed, create the aux block to help during the splitting
             # phase
             if vertex.qblock.split_helper_block is None:
-                vertex.qblock.split_helper_block = _Block(
-                    [], vertex.qblock.xblock
-                )
+                vertex.qblock.initialize_split_helper_block()
                 modified_blocks.append(vertex.qblock)
 
             new_vertex_block = vertex.qblock.split_helper_block
