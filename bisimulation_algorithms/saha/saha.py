@@ -10,8 +10,8 @@ def check_old_blocks_relation(
     old_rscp: List[List[_Block]],
     new_edge: Tuple[_Vertex],
 ) -> bool:
-    """Calling the new edge u->v, if in the old RSCP [u] => [v], the addition
-    of the new edge doesn't change the RSCP.
+    """If in the old RSCP [u] => [v], the addition of the new edge doesn't
+    change the RSCP.
 
     Args:
         old_rscp (List[Tuple[int]]): The RSCP before the addition of the edge
@@ -23,12 +23,20 @@ def check_old_blocks_relation(
         bool: True if [u] => [v], False otherwise
     """
 
+    # check if v is already in u's image
+    for edge in new_edge[0].image:
+        if edge.destination.label == new_edge[1].label:
+            return True
+
+    source_block = None
+    destination_block = None
+
     for rank in old_rscp:
         for block in rank:
             for node in block.vertexes:
-                if node == new_edge[0].label:
+                if node.label == new_edge[0].label:
                     source_block = block
-                elif node == new_edge[1].label:
+                if node.label == new_edge[1].label:
                     destination_block = block
 
     if source_block is None:
@@ -43,19 +51,20 @@ def check_old_blocks_relation(
         )
 
     # in fact the outer-most for-loop loops 2 times at most
-    for vertex in predecessor_block:
+    for vertex in source_block.vertexes:
         # we're interested in vertexes which aren't the source vertex of the
         # new edge.
         if vertex is not new_edge[0]:
-            for dest in vertex.image:
-                if dest.qblock == successor_block:
+            for edge in vertex.image:
+                if edge.destination.qblock == destination_block:
                     return True
             # we visited the entire image of a single block (not u) of [u], and
             # it didn't contain an edge to [v], therefore we conclude (since
             # the old partition is stable if we don't consider the new edge)
             # that an edge from [u] to [v] can't exist
             return False
-
+    # we didn't find an edge ([u] contains only u)
+    return False
 
 def update_rscp(
     old_rscp: List[List[_Block]],
