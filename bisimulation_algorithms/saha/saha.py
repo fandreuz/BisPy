@@ -7,12 +7,12 @@ from typing import List, Tuple
 
 
 def find_vertexes(
-    rscp: List[List[_Block]], label1: int, label2: int
+    partition: List[List[_Block]], label1: int, label2: int
 ) -> Tuple[_Vertex, _Vertex]:
     source_vertex = None
     destination_vertex = None
 
-    for rank in rscp:
+    for rank in partition:
         for block in rank:
             for node in block.vertexes:
                 if node.label == label1:
