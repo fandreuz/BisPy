@@ -127,8 +127,9 @@ def build_exclusive_B_counterimage(
 # perform a Split with respect to B_qblock
 def split(B_counterimage: List[_Vertex]):
     """Given a list of vertexes, use them to split the blocks of the current
-    partition Q. Note that the information about the current partition is
-    contained inside the vertex instances.
+    partition Q. The information about the current partition is contained
+    inside the vertex instances. This function doesn't modify the partition,
+    you have to do it using the output.
 
     Args:
         B_counterimage (list[_Vertex]): A list of vertexes which are the
