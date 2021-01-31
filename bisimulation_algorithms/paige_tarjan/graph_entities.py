@@ -161,9 +161,10 @@ class _XBlock:
     def __init__(self):
         self.qblocks = dllist([])
 
-    def append_qblock(self, qblock: _QBlock):
+    def append_qblock(self, qblock: _QBlock) -> _XBlock:
         qblock.dllistnode = self.qblocks.append(qblock)
         qblock.xblock = self
+        return self
 
     def remove_qblock(self, qblock: _QBlock):
         self.qblocks.remove(qblock.dllistnode)
