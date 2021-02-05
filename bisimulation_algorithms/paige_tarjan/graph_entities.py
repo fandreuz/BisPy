@@ -117,7 +117,11 @@ class _QBlock:
     """
 
     def __init__(self, vertexes, xblock):
-        self.vertexes = dllist(list(vertexes))
+        self.vertexes = dllist([])
+
+        for vertex in vertexes:
+            self.append_vertex(vertex)
+
         self.size = self.vertexes.size
         self.split_helper_block = None
         self.dllistnode = None
@@ -161,7 +165,10 @@ class _XBlock:
     def __init__(self):
         self.qblocks = dllist([])
 
-    def append_qblock(self, qblock: _QBlock) -> _XBlock:
+    def size(self):
+        return self.qblocks.size
+
+    def append_qblock(self, qblock: _QBlock):
         qblock.dllistnode = self.qblocks.append(qblock)
         qblock.xblock = self
         return self
