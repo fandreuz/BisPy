@@ -100,15 +100,34 @@ def merge_split_phase():
     pass
 
 
-def propagate_wf(vertex: _Vertex):
+def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
     """Recursively visit the well-founded counterimage of the given vertex and
     update the ranks. The visit is in increasing order of rank. It can be shown
     easily that this is the only way to get correct results.
 
     Args:
-        vertex (_Vertex): The input vertex
+        vertex (_Vertex): The updated vertex (source of the new edge). The rank
+        must already be updated.
+        well_founded_topological (List[_Vertex]): List of WF vertexes of the
+        graph in topological order.
     """
-    pass
+
+    # find the index of the updated vertex. we only need to update ranks of the
+    # wf part of the graph which is "before" this vertex in the topological list
+    until_idx = None
+    for idx,vx in enumerate(well_founded_topological):
+        if vertex == vx:
+            until_idx = idx
+            break
+
+    # O(E)
+    # update the ranks
+    for idx in range(until_idx - 1, -1, -1):
+        mx = float('-inf')
+        for edge in well_founded_topological[idx].image:
+            if edge.destination.wf:
+                mx = max(mx, edge.destination.rank + 1)
+        well_founded_topological[idx].rank = mx
 
 
 def propagate_nwf(vertex: _Vertex):
@@ -119,6 +138,7 @@ def update_rscp(
     old_rscp: List[_Block],
     new_edge: Tuple[int, int],
     initial_partition: List[Tuple[int]],
+    well_founded_topological: List[_Vertex]
 ):
     source_vertex, destination_vertex = find_vertexes(old_rscp)
 
