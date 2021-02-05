@@ -3,7 +3,27 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
     _Vertex,
     _Block,
 )
+from bisimulation_algorithms.paige_tarjan.graph_entities import _Edge, _Count
 from typing import List, Tuple
+
+
+def add_edge(
+    source: _Vertex, destination: _Vertex, partition: List[_Block]
+) -> _Edge:
+    edge = _Edge(source, destination)
+    if len(source.image) > 0:
+        # there's already a _Count instance for the image of this Vertex,
+        # therefore we HAVE to use it.
+        edge.count = source.image[0].count
+    else:
+        edge.count = _Count(source)
+
+    edge.count.value += 1
+
+    source.add_to_image(edge)
+    destination.add_to_counterimage(edge)
+
+    return edge
 
 
 def find_vertexes(
@@ -75,7 +95,7 @@ def update_rscp(
     new_edge: Tuple[int, int],
     initial_partition: List[Tuple[int]],
 ):
-    source_vertex, destination_vertex = find_vertexes_and_blocks(old_rscp)
+    """ source_vertex, destination_vertex = find_vertexes_and_blocks(old_rscp)
 
     # if the new edge connects two blocks A,B such that A => B before the edge
     # is added we don't need to do anything
@@ -84,4 +104,5 @@ def update_rscp(
     ):
         return old_rscp
 
-    # update the graph representation
+    # update the graph representation """
+    pass
