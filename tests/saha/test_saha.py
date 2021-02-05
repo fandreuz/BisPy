@@ -9,7 +9,7 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
 from bisimulation_algorithms.saha.saha import (
     check_old_blocks_relation,
     find_vertexes,
-    add_edge,
+    add_edge, propagate_wf
 )
 
 
@@ -66,3 +66,19 @@ def test_add_edge():
     edge2 = add_edge(vertexes[3], vertexes[4])
     assert edge2.count is not None
     assert edge2.count.value == 1
+
+
+def test_propagate_wf():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(range(5))
+    graph.add_edges_from([(0, 1), (1, 2), (2, 3)])
+
+    vertexes = prepare_graph(graph)
+
+    add_edge(vertexes[3], vertexes[4])
+    vertexes[3].rank = 1
+
+    propagate_wf(vertexes[3], vertexes)
+
+    for idx in range(5):
+        assert vertexes[idx].rank == 4 - idx
