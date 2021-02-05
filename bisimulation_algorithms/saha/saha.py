@@ -100,6 +100,21 @@ def merge_split_phase():
     pass
 
 
+def propagate_wf(vertex: _Vertex):
+    """Recursively visit the well-founded counterimage of the given vertex and
+    update the ranks. The visit is in increasing order of rank. It can be shown
+    easily that this is the only way to get correct results.
+
+    Args:
+        vertex (_Vertex): The input vertex
+    """
+    pass
+
+
+def propagate_nwf(vertex: _Vertex):
+    pass
+
+
 def update_rscp(
     old_rscp: List[_Block],
     new_edge: Tuple[int, int],
@@ -122,30 +137,31 @@ def update_rscp(
         if not source_vertex.wf and destination_vertex.wf:
             if destination_vertex.rank + 1 > source_vertex.rank:
                 source_vertex.rank = destination_vertex.rank + 1
-                # TODO: propagate nwf
+                propagate_nwf(source_vertex)
             merge_phase(source_vertex.qblock, destination_vertex.qblock)
         else:
             if source_vertex.rank > destination_vertex.rank:
-                pass
                 merge_phase(source_vertex.qblock, destination_vertex.qblock)
             else:
                 if check_new_scc():
                     source_vertex.wf = False
                     # TODO: update rank
-                    # TODO: propagate nwf
-                    # TODO: merge 2
+                    propagate_nwf(source_vertex)
+                    merge_split_phase()
                 else:
                     if source_vertex.wf:
                         if destination_vertex.wf:
                             source_vertex.rank = destination_vertex.rank + 1
-                            # TODO: propagate wf
+                            topological_sorted_wf = None
+                            propagate_wf(source_vertex, None)
                         else:
                             if source_vertex.rank < destination_vertex.rank:
                                 source_vertex.rank = destination_vertex.rank
-                                # TODO: propagate nwf
+                                propagate_nwf(source_vertex)
                     else:
                         if source_vertex.rank < destination_vertex.rank:
-                                source_vertex.rank = destination_vertex.rank
-                                # TODO: propagate nwf
-                    merge_phase(source_vertex.qblock, destination_vertex.qblock)
-
+                            source_vertex.rank = destination_vertex.rank
+                            propagate_nwf(source_vertex)
+                    merge_phase(
+                        source_vertex.qblock, destination_vertex.qblock
+                    )
