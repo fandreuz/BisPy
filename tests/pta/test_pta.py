@@ -136,9 +136,9 @@ def test_vertex_counterimage_initialize(graph, initial_partition):
 def test_choose_qblock():
     compoundblock = _XBlock()
     qblocks = [
-        _QBlock([0, 3, 5], compoundblock),
-        _QBlock([2, 4], compoundblock),
-        _QBlock([1, 6, 8], compoundblock),
+        _QBlock([_Vertex(i) for i in [0, 3, 5]], compoundblock),
+        _QBlock([_Vertex(i) for i in [2, 4]], compoundblock),
+        _QBlock([_Vertex(i) for i in [1, 6, 8]], compoundblock),
     ]
 
     splitter = extract_splitter(compoundblock)
