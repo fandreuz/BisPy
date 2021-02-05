@@ -7,9 +7,8 @@ from bisimulation_algorithms.paige_tarjan.graph_entities import _Edge, _Count
 from typing import List, Tuple
 from .ranked_pta import ranked_split
 
-def add_edge(
-    source: _Vertex, destination: _Vertex
-) -> _Edge:
+
+def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
     edge = _Edge(source, destination)
     if len(source.image) > 0:
         # there's already a _Count instance for the image of this Vertex,
@@ -27,18 +26,17 @@ def add_edge(
 
 
 def find_vertexes(
-    partition: List[List[_Block]], label1: int, label2: int
+    partition: List[_Block], label1: int, label2: int
 ) -> Tuple[_Vertex, _Vertex]:
     source_vertex = None
     destination_vertex = None
 
-    for rank in partition:
-        for block in rank:
-            for node in block.vertexes:
-                if node.label == label1:
-                    source_vertex = node
-                if node.label == label2:
-                    destination_vertex = node
+    for block in partition:
+        for node in block.vertexes:
+            if node.label == label1:
+                source_vertex = node
+            if node.label == label2:
+                destination_vertex = node
 
     if source_vertex is None:
         raise Exception(
@@ -90,8 +88,20 @@ def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
     return False
 
 
+def check_new_scc():
+    return True
+
+
+def merge_phase(ublock: _Block, vblock: _Block):
+    pass
+
+
+def merge_split_phase():
+    pass
+
+
 def update_rscp(
-    old_rscp: List[List[_Block]],
+    old_rscp: List[_Block],
     new_edge: Tuple[int, int],
     initial_partition: List[Tuple[int]],
 ):
@@ -108,3 +118,34 @@ def update_rscp(
         add_edge(source_vertex, destination_vertex)
 
         ranked_split(old_rscp, destination_vertex.qblock)
+
+        if not source_vertex.wf and destination_vertex.wf:
+            if destination_vertex.rank + 1 > source_vertex.rank:
+                source_vertex.rank = destination_vertex.rank + 1
+                # TODO: propagate nwf
+            merge_phase(source_vertex.qblock, destination_vertex.qblock)
+        else:
+            if source_vertex.rank > destination_vertex.rank:
+                pass
+                merge_phase(source_vertex.qblock, destination_vertex.qblock)
+            else:
+                if check_new_scc():
+                    source_vertex.wf = False
+                    # TODO: update rank
+                    # TODO: propagate nwf
+                    # TODO: merge 2
+                else:
+                    if source_vertex.wf:
+                        if destination_vertex.wf:
+                            source_vertex.rank = destination_vertex.rank + 1
+                            # TODO: propagate wf
+                        else:
+                            if source_vertex.rank < destination_vertex.rank:
+                                source_vertex.rank = destination_vertex.rank
+                                # TODO: propagate nwf
+                    else:
+                        if source_vertex.rank < destination_vertex.rank:
+                                source_vertex.rank = destination_vertex.rank
+                                # TODO: propagate nwf
+                    merge_phase(source_vertex.qblock, destination_vertex.qblock)
+
