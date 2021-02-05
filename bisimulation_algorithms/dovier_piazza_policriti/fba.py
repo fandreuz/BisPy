@@ -231,6 +231,10 @@ def fba(
                     vertex.restrict_to_subgraph()
 
             # apply PTA to the subgraph at the current examined rank
+            # CAREFUL: if you debug here, you'll see that there are some
+            # "duplicate" nodes (nodes with the same label in different blocks
+            # of the partition). this happens becaus of the SCALING (which is
+            # used to pass a normal graph to PTA)
             rscp = pta(partition[partition_idx])
 
             # clear the partition at the current rank
