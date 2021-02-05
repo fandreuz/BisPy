@@ -41,7 +41,7 @@ def test_ranked_split():
     q_partition = integer_to_partition(integer_partition, vertexes)
 
     # now we modify the graph
-    add_edge(vertexes[3], vertexes[0], q_partition)
+    add_edge(vertexes[3], vertexes[0])
 
     # find [v]
     modified_destination_block = None
