@@ -46,10 +46,10 @@ def test_add_edge():
         for block in ranked_partition:
             partition.append(block)
 
-    edge1 = add_edge(vertexes[0], vertexes[3], partition)
+    edge1 = add_edge(vertexes[0], vertexes[3])
     assert edge1.count is not None
     assert edge1.count.value == 2
 
-    edge2 = add_edge(vertexes[3], vertexes[4], partition)
+    edge2 = add_edge(vertexes[3], vertexes[4])
     assert edge2.count is not None
     assert edge2.count.value == 1

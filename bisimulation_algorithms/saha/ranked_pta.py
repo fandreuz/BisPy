@@ -199,13 +199,14 @@ def pta(
 
 
 def ranked_split(
-    current_partition: List[_QBlock], B_qblock: _QBlock, max_rank: int
+    current_partition: List[List[_QBlock]], B_qblock: _QBlock
 ):
     # initialize x_partition and q_partition
     x_partition = [
         # this also overwrites any information about parent xblocks for qblock
         _XBlock().append_qblock(qblock)
-        for qblock in current_partition
+        for qblock in rank
+        for rank in current_partition
     ]
     q_partition = current_partition
 
@@ -216,7 +217,7 @@ def ranked_split(
     q_partition.extend(new_qblocks)
 
     # note that only new compound xblock are compound xblocks
-    compound_xblocks = [[] for _ in range(max_rank + 2)]
+    compound_xblocks = [[] for _ in range(len(current_partition))]
     for compound_xblock in new_compound_xblocks:
         rank = compound_xblock.qblocks.first.value.vertexes.first.value.rank
         if rank == float("-inf"):

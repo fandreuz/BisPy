@@ -5,10 +5,10 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
 )
 from bisimulation_algorithms.paige_tarjan.graph_entities import _Edge, _Count
 from typing import List, Tuple
-
+from .ranked_pta import ranked_split
 
 def add_edge(
-    source: _Vertex, destination: _Vertex, partition: List[_Block]
+    source: _Vertex, destination: _Vertex
 ) -> _Edge:
     edge = _Edge(source, destination)
     if len(source.image) > 0:
@@ -95,7 +95,7 @@ def update_rscp(
     new_edge: Tuple[int, int],
     initial_partition: List[Tuple[int]],
 ):
-    """ source_vertex, destination_vertex = find_vertexes_and_blocks(old_rscp)
+    source_vertex, destination_vertex = find_vertexes(old_rscp)
 
     # if the new edge connects two blocks A,B such that A => B before the edge
     # is added we don't need to do anything
@@ -103,6 +103,8 @@ def update_rscp(
         old_rscp, (source_vertex, destination_vertex)
     ):
         return old_rscp
+    else:
+        # update the graph representation
+        add_edge(source_vertex, destination_vertex)
 
-    # update the graph representation """
-    pass
+        ranked_split(old_rscp, destination_vertex.qblock)
