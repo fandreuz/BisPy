@@ -57,6 +57,8 @@ class _Block(pta_Block):
     def __init__(self, vertexes: Iterable[_Vertex], xblock: _XBlock):
         super().__init__(vertexes, xblock)
 
+        self.visited = False
+
     def rank(self) -> int:
         if self.vertexes.first is not None:
             return self.vertexes.first.value.rank
