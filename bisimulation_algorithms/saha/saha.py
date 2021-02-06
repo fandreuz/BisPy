@@ -95,7 +95,7 @@ def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
     return False
 
 
-def check_new_scc():
+def find_new_scc() -> List[_Vertex]:
     return True
 
 
@@ -173,26 +173,39 @@ def update_rscp(
 
         ranked_split(old_rscp, destination_vertex.qblock)
 
+        # u isn't well founded, v is well founded
         if not source_vertex.wf and destination_vertex.wf:
+            # if necessary, update the rank of u and propagate the changes
             if destination_vertex.rank + 1 > source_vertex.rank:
                 source_vertex.rank = destination_vertex.rank + 1
                 propagate_nwf(vertexes)
             merge_phase(source_vertex.qblock, destination_vertex.qblock)
         else:
+            # in this case we don't need to update the rank
             if source_vertex.rank > destination_vertex.rank:
                 merge_phase(source_vertex.qblock, destination_vertex.qblock)
             else:
-                if check_new_scc():
-                    source_vertex.wf = False
-                    # TODO: update rank
+                # determine if a new SCC is formed due to the addition of the
+                # new edge
+                new_scc = find_new_scc()
+
+                # in this case u is part of the new SCC (which contains also
+                # v), therefore it isn't well founded
+                if new_scc is not None:
+                    for vertex in new_scc:
+                        vertex.wf = False
+                        # each vertex of the SCC has the same rank
+                        vertex.rank = destination_vertex.rank
                     propagate_nwf(vertexes)
                     merge_split_phase()
                 else:
                     if source_vertex.wf:
                         if destination_vertex.wf:
+                            # we already know that u.rank <= v.rank
                             source_vertex.rank = destination_vertex.rank + 1
                             topological_sorted_wf = None
                             propagate_wf(source_vertex, None)
+                        # u becomes non-well-founded
                         else:
                             if source_vertex.rank < destination_vertex.rank:
                                 source_vertex.rank = destination_vertex.rank
@@ -201,6 +214,7 @@ def update_rscp(
                         if source_vertex.rank < destination_vertex.rank:
                             source_vertex.rank = destination_vertex.rank
                             propagate_nwf(vertexes)
+
                     merge_phase(
                         source_vertex.qblock, destination_vertex.qblock
                     )
