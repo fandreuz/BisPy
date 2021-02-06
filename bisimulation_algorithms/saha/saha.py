@@ -95,10 +95,27 @@ def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
     return False
 
 
-def find_new_scc(
-    vertexes: List[_Vertex], source: _Vertex, destination: _Vertex
-) -> List[_Vertex]:
-    return True
+def check_new_scc(
+    current_source: _Vertex,
+    destination: _Vertex,
+    visited_blocks: List[_Block] = [],
+) -> bool:
+    for edge in current_source.counterimage:
+        # we reached the block [v], therefore this is a new SCC
+        if edge.source.qblock == destination.qblock:
+            # un-visit blocks
+            for block in visited_blocks:
+                block.visited = False
+            return True
+        else:
+            if not edge.source.qblock.visited:
+                edge.source.qblock.visited = True
+                visited_blocks.append(edge.source.qblock)
+                # if at least one of the possible ramifications is True,
+                # return True
+                if check_new_scc(edge.source, destination, visited_blocks):
+                    return True
+    return False
 
 
 def merge_phase(ublock: _Block, vblock: _Block):

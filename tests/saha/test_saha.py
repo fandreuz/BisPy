@@ -12,7 +12,7 @@ from bisimulation_algorithms.saha.saha import (
     add_edge,
     propagate_wf,
     propagate_nwf,
-    find_new_scc,
+    check_new_scc,
 )
 from tests.fba.rank.rank_test_cases import graphs
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
@@ -116,15 +116,41 @@ def test_compute_rank():
         assert vertexes[i].rank == vertexes_copy[i].rank
 
 
-def test_find_new_scc():
+def test_check_new_scc():
     graph = nx.DiGraph()
     graph.add_nodes_from(range(6))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
 
     vertexes = prepare_graph(graph)
+    create_initial_partition(vertexes)
 
     add_edge(vertexes[2], vertexes[0])
 
-    assert set(find_new_scc(vertexes, vertexes[2], vertexes[0])) == set(
-        [0, 1, 2]
-    )
+    assert check_new_scc(vertexes[2], vertexes[0]) == True
+
+    graph2 = nx.DiGraph()
+    graph2.add_nodes_from(range(6))
+    graph2.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
+
+    vertexes2 = prepare_graph(graph2)
+    create_initial_partition(vertexes2)
+
+    add_edge(vertexes[0], vertexes[4])
+
+    assert check_new_scc(vertexes[0], vertexes[4]) == False
+
+
+def test_check_new_scc_cleans():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(range(6))
+    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
+
+    vertexes = prepare_graph(graph)
+    create_initial_partition(vertexes)
+
+    add_edge(vertexes[2], vertexes[0])
+
+    check_new_scc(vertexes[2], vertexes[0]) == True
+
+    for vertex in vertexes:
+        assert vertex.qblock.visited == False
