@@ -6,6 +6,13 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
 from bisimulation_algorithms.paige_tarjan.graph_entities import _Edge, _Count
 from typing import List, Tuple
 from .ranked_pta import ranked_split
+from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
+    compute_rank,
+    compute_finishing_time_list,
+)
+from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+    build_vertexes_image,
+)
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
@@ -115,7 +122,7 @@ def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
     # find the index of the updated vertex. we only need to update ranks of the
     # wf part of the graph which is "before" this vertex in the topological list
     until_idx = None
-    for idx,vx in enumerate(well_founded_topological):
+    for idx, vx in enumerate(well_founded_topological):
         if vertex == vx:
             until_idx = idx
             break
@@ -123,22 +130,34 @@ def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
     # O(E)
     # update the ranks
     for idx in range(until_idx - 1, -1, -1):
-        mx = float('-inf')
+        mx = float("-inf")
         for edge in well_founded_topological[idx].image:
             if edge.destination.wf:
                 mx = max(mx, edge.destination.rank + 1)
         well_founded_topological[idx].rank = mx
 
+    # propagate the changes also to nwf nodes
+    for idx in range(until_idx, -1, -1):
+        for edge in well_founded_topological[idx].counterimage:
+            if not edge.source.wf:
+                propagate_nwf(edge.source)
 
-def propagate_nwf(vertex: _Vertex):
-    pass
+
+def propagate_nwf(vertexes: List[_Vertex]):
+    # temporary: use the standard algorithm for rank computation
+    finishing_time_list = compute_finishing_time_list(vertexes)
+    build_vertexes_image(finishing_time_list)
+
+    # sets ranks
+    compute_rank(vertexes, finishing_time_list)
 
 
 def update_rscp(
     old_rscp: List[_Block],
     new_edge: Tuple[int, int],
     initial_partition: List[Tuple[int]],
-    well_founded_topological: List[_Vertex]
+    well_founded_topological: List[_Vertex],
+    vertexes: List[_Vertex],
 ):
     source_vertex, destination_vertex = find_vertexes(old_rscp)
 
@@ -157,7 +176,7 @@ def update_rscp(
         if not source_vertex.wf and destination_vertex.wf:
             if destination_vertex.rank + 1 > source_vertex.rank:
                 source_vertex.rank = destination_vertex.rank + 1
-                propagate_nwf(source_vertex)
+                propagate_nwf(vertexes)
             merge_phase(source_vertex.qblock, destination_vertex.qblock)
         else:
             if source_vertex.rank > destination_vertex.rank:
@@ -166,7 +185,7 @@ def update_rscp(
                 if check_new_scc():
                     source_vertex.wf = False
                     # TODO: update rank
-                    propagate_nwf(source_vertex)
+                    propagate_nwf(vertexes)
                     merge_split_phase()
                 else:
                     if source_vertex.wf:
@@ -177,11 +196,11 @@ def update_rscp(
                         else:
                             if source_vertex.rank < destination_vertex.rank:
                                 source_vertex.rank = destination_vertex.rank
-                                propagate_nwf(source_vertex)
+                                propagate_nwf(vertexes)
                     else:
                         if source_vertex.rank < destination_vertex.rank:
                             source_vertex.rank = destination_vertex.rank
-                            propagate_nwf(source_vertex)
+                            propagate_nwf(vertexes)
                     merge_phase(
                         source_vertex.qblock, destination_vertex.qblock
                     )

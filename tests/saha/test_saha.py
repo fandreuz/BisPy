@@ -9,7 +9,13 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
 from bisimulation_algorithms.saha.saha import (
     check_old_blocks_relation,
     find_vertexes,
-    add_edge, propagate_wf
+    add_edge,
+    propagate_wf,
+    propagate_nwf,
+)
+from tests.fba.rank.rank_test_cases import graphs
+from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
+    compute_rank, compute_finishing_time_list
 )
 
 
@@ -82,3 +88,27 @@ def test_propagate_wf():
 
     for idx in range(5):
         assert vertexes[idx].rank == 4 - idx
+
+
+def test_compute_rank():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(range(6))
+    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0), (4, 5)])
+
+    copy = nx.DiGraph()
+    copy.add_nodes_from(range(6))
+    copy.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0), (4, 5)])
+
+    vertexes = prepare_graph(graph)
+    vertexes_copy = prepare_graph(copy)
+
+    add_edge(vertexes[3], vertexes[4])
+    add_edge(vertexes_copy[3], vertexes_copy[4])
+
+    propagate_nwf(vertexes)
+
+    finishing_time_list = compute_finishing_time_list(vertexes_copy)
+    compute_rank(vertexes_copy, finishing_time_list)
+
+    for i in range(len(vertexes)):
+        assert vertexes[i].rank == vertexes_copy[i].rank
