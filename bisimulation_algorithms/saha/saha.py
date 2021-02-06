@@ -95,7 +95,9 @@ def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
     return False
 
 
-def find_new_scc() -> List[_Vertex]:
+def find_new_scc(
+    vertexes: List[_Vertex], source: _Vertex, destination: _Vertex
+) -> List[_Vertex]:
     return True
 
 

@@ -12,10 +12,12 @@ from bisimulation_algorithms.saha.saha import (
     add_edge,
     propagate_wf,
     propagate_nwf,
+    find_new_scc,
 )
 from tests.fba.rank.rank_test_cases import graphs
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
-    compute_rank, compute_finishing_time_list
+    compute_rank,
+    compute_finishing_time_list,
 )
 
 
@@ -112,3 +114,17 @@ def test_compute_rank():
 
     for i in range(len(vertexes)):
         assert vertexes[i].rank == vertexes_copy[i].rank
+
+
+def test_find_new_scc():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(range(6))
+    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
+
+    vertexes = prepare_graph(graph)
+
+    add_edge(vertexes[2], vertexes[0])
+
+    assert set(find_new_scc(vertexes, vertexes[2], vertexes[0])) == set(
+        [0, 1, 2]
+    )
