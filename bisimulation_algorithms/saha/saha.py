@@ -243,10 +243,10 @@ def update_rscp(
                     source_vertex.rank,
                     destination_vertex.rank,
                 ):
-                    for vertex in new_scc:
-                        vertex.wf = False
-                        # each vertex of the SCC has the same rank
-                        vertex.rank = destination_vertex.rank
+                    # if you replace propagate_nwf with the right
+                    # implementation you also need to update the rank of
+                    # nodes in the new SCC, with the current implementation
+                    # they are update by propagate_nwf
                     propagate_nwf(vertexes)
                     merge_split_phase()
                 else:
