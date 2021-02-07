@@ -98,23 +98,54 @@ def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
 def check_new_scc(
     current_source: _Vertex,
     destination: _Vertex,
-    visited_blocks: List[_Block] = [],
+    min_rank: int = None,
+    max_rank: int = None,
+    visited_vertexes: List[_Vertex] = [],
+    root_call=True,
 ) -> bool:
+    # this is a consequence of the context where this function is used, keep
+    # in mind when testing!
+    if min_rank is None:
+        min_rank = current_source.rank
+    if max_rank is None:
+        max_rank = destination.rank
+
     for edge in current_source.counterimage:
         # we reached the block [v], therefore this is a new SCC
-        if edge.source.qblock == destination.qblock:
-            # un-visit blocks
-            for block in visited_blocks:
-                block.visited = False
+        if edge.source == destination:
+            for vertex in visited_vertexes:
+                vertex.visited = False
+
             return True
         else:
-            if not edge.source.qblock.visited:
+            if (
+                not edge.source.visited
+                and min_rank <= edge.source.rank
+                and edge.source.rank <= max_rank
+            ):
+                # we don't want to visit a vertex more than one time
+                edge.source.visited = True
+                visited_vertexes.append(edge.source)
+
                 edge.source.qblock.visited = True
-                visited_blocks.append(edge.source.qblock)
+
                 # if at least one of the possible ramifications is True,
                 # return True
-                if check_new_scc(edge.source, destination, visited_blocks):
+                if check_new_scc(
+                    edge.source,
+                    destination,
+                    min_rank,
+                    max_rank,
+                    visited_vertexes,
+                    root_call=False,
+                ):
                     return True
+
+    # we have to clean the flag "visited" for each visited vertex
+    if root_call:
+        for vx in visited_vertexes:
+            vx.visited = False
+
     return False
 
 
@@ -204,13 +235,14 @@ def update_rscp(
             if source_vertex.rank > destination_vertex.rank:
                 merge_phase(source_vertex.qblock, destination_vertex.qblock)
             else:
-                # determine if a new SCC is formed due to the addition of the
-                # new edge
-                new_scc = find_new_scc()
-
                 # in this case u is part of the new SCC (which contains also
                 # v), therefore it isn't well founded
-                if new_scc is not None:
+                if check_new_scc(
+                    source_vertex,
+                    destination_vertex,
+                    source_vertex.rank,
+                    destination_vertex.rank,
+                ):
                     for vertex in new_scc:
                         vertex.wf = False
                         # each vertex of the SCC has the same rank

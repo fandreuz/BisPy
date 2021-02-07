@@ -19,6 +19,11 @@ from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
     compute_rank,
     compute_finishing_time_list,
 )
+from .saha_test_cases import (
+    new_scc_correct_value,
+    new_scc_graphs,
+    new_scc_new_edge,
+)
 
 
 def test_check_old_blocks_relation():
@@ -116,41 +121,30 @@ def test_compute_rank():
         assert vertexes[i].rank == vertexes_copy[i].rank
 
 
-def test_check_new_scc():
-    graph = nx.DiGraph()
-    graph.add_nodes_from(range(6))
-    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
-
+@pytest.mark.parametrize(
+    "graph, new_edge, value",
+    zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
+)
+def test_check_new_scc(graph, new_edge, value):
     vertexes = prepare_graph(graph)
     create_initial_partition(vertexes)
 
-    add_edge(vertexes[2], vertexes[0])
+    add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
-    assert check_new_scc(vertexes[2], vertexes[0]) == True
-
-    graph2 = nx.DiGraph()
-    graph2.add_nodes_from(range(6))
-    graph2.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
-
-    vertexes2 = prepare_graph(graph2)
-    create_initial_partition(vertexes2)
-
-    add_edge(vertexes[0], vertexes[4])
-
-    assert check_new_scc(vertexes[0], vertexes[4]) == False
+    assert check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]]) == value
 
 
-def test_check_new_scc_cleans():
-    graph = nx.DiGraph()
-    graph.add_nodes_from(range(6))
-    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
-
+@pytest.mark.parametrize(
+    "graph, new_edge, value",
+    zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
+)
+def test_check_new_scc_cleans(graph, new_edge, value):
     vertexes = prepare_graph(graph)
     create_initial_partition(vertexes)
 
-    add_edge(vertexes[2], vertexes[0])
+    add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
-    check_new_scc(vertexes[2], vertexes[0]) == True
+    check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
     for vertex in vertexes:
-        assert vertex.qblock.visited == False
+        assert vertex.visited == False
