@@ -43,6 +43,41 @@ class _Vertex:
 
         self.aux_count = None
 
+        self.rank = None
+        self.wf = True
+
+        self.original_label = label
+
+    def scale_label(self, scaled_label: int):
+        self.label = scaled_label
+
+    def back_to_original_label(self):
+        self.label = self.original_label
+
+    def restrict_to_subgraph(self):
+        # this will be called just before calling PTA, therefore set the _Count
+        # instance for each _Edge
+
+        img = self.image
+        self.image = []
+
+        count = _Count(self)
+
+        for edge in img:
+            if edge.destination.rank == self.rank:
+                self.add_to_image(edge)
+
+                # set the count for this _Edge, and increment the counter
+                edge.count = count
+                count.value += 1
+
+        counterimg = self.counterimage
+        self.counterimage = []
+
+        for edge in counterimg:
+            if edge.source.rank == self.rank:
+                self.add_to_counterimage(edge)
+
     def add_to_counterimage(self, edge):
         self.counterimage.append(edge)
 
@@ -62,7 +97,7 @@ class _Vertex:
         self.in_second_splitter = False
 
     def __repr__(self):
-        return 'V{}'.format(self.label)
+        return "V{}".format(self.label)
 
 
 class _Edge:
@@ -97,7 +132,7 @@ class _Edge:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return '<{},{}>'.format(self.source, self.destination)
+        return "<{},{}>".format(self.source, self.destination)
 
 
 class _QBlock:
@@ -125,6 +160,7 @@ class _QBlock:
         self.size = self.vertexes.size
         self.split_helper_block = None
         self.dllistnode = None
+        self.visited = False
 
         if xblock is not None:
             xblock.append_qblock(self)
@@ -148,9 +184,18 @@ class _QBlock:
     def reset_helper_block(self):
         self.split_helper_block = None
 
+    def rank(self) -> int:
+        if self.vertexes.first is not None:
+            return self.vertexes.first.value.rank
+        else:
+            return None
+
+    def initialize_split_helper_block(self):
+        self.split_helper_block = _QBlock([], self.xblock)
+
     def __repr__(self):
-        return 'Q({})'.format(
-            ','.join([str(vertex) for vertex in self.vertexes])
+        return "Q({})".format(
+            ",".join([str(vertex) for vertex in self.vertexes])
         )
 
 
@@ -178,9 +223,7 @@ class _XBlock:
         qblock.xblock = None
 
     def __repr__(self):
-        return 'X[{}]'.format(
-            ','.join(str(qblock) for qblock in self.qblocks)
-        )
+        return "X[{}]".format(",".join(str(qblock) for qblock in self.qblocks))
 
 
 # holds the value of count(vertex,_XBlock) = |_XBlock \cap E({vertex})|
@@ -203,4 +246,4 @@ class _Count:
         self.value = 0
 
     def __repr__(self):
-        return 'C{}:{}'.format(self.vertex, self.label)
+        return "C{}:{}".format(self.vertex, self.label)

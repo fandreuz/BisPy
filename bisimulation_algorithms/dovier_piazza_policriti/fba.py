@@ -3,7 +3,10 @@ from typing import Iterable, List, Tuple, Dict
 from itertools import islice
 from llist import dllist
 
-from .graph_entities import _Block, _Vertex
+from bisimulation_algorithms.utilities.graph_entities import (
+    _QBlock as _Block,
+    _Vertex,
+)
 from .graph_decorator import to_normal_graph, prepare_graph
 from bisimulation_algorithms.paige_tarjan.pta import pta
 
@@ -13,7 +16,7 @@ from bisimulation_algorithms.utilities.graph_normalization import (
     back_to_original,
 )
 
-from bisimulation_algorithms.paige_tarjan.graph_entities import _XBlock
+from bisimulation_algorithms.utilities.graph_entities import _XBlock
 
 
 def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:

@@ -2,13 +2,18 @@ from llist import dllist, dllistnode
 from typing import List, Dict, Any, Tuple, Iterable
 import networkx as nx
 
-from .graph_entities import _Vertex, _XBlock, _QBlock, _Count
+from bisimulation_algorithms.utilities.graph_entities import (
+    _Vertex,
+    _XBlock,
+    _QBlock,
+    _Count,
+)
 from .graph_decorator import initialize
 
 from bisimulation_algorithms.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
-    back_to_original
+    back_to_original,
 )
 
 
@@ -350,7 +355,7 @@ def rscp(
     """
 
     if not isinstance(graph, nx.DiGraph):
-        raise Exception('graph should be a directed graph (nx.DiGraph)')
+        raise Exception("graph should be a directed graph (nx.DiGraph)")
 
     # if True, the input graph is already an integer graph
     original_graph_is_integer = is_integer_graph or check_normal_integer_graph(

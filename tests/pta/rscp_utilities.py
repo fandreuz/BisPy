@@ -1,7 +1,7 @@
 import itertools
 from typing import List, Iterable
 
-from bisimulation_algorithms.paige_tarjan.graph_entities import _Vertex
+from bisimulation_algorithms.utilities.graph_entities import _Vertex
 
 
 # check if the given partition is stable with respect to the given block, or if

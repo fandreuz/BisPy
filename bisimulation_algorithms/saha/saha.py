@@ -1,9 +1,10 @@
 import networkx as nx
-from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
+from bisimulation_algorithms.utilities.graph_entities import (
     _Vertex,
-    _Block,
+    _QBlock as _Block,
+    _Edge,
+    _Count,
 )
-from bisimulation_algorithms.paige_tarjan.graph_entities import _Edge, _Count
 from typing import List, Tuple
 from .ranked_pta import ranked_split
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (

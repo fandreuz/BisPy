@@ -2,7 +2,13 @@ import itertools
 import networkx as nx
 from typing import List
 
-from .graph_entities import _Vertex, _Edge, _XBlock, _QBlock, _Count
+from bisimulation_algorithms.utilities.graph_entities import (
+    _Vertex,
+    _Edge,
+    _XBlock,
+    _QBlock,
+    _Count,
+)
 
 
 def prepare_graph_abstraction(graph: nx.Graph) -> List[_Vertex]:
@@ -79,9 +85,7 @@ def build_qpartition(
             )
 
     if len(union) < len(vertexes):
-        raise Exception(
-            """initial_partition contains duplicate vertexes"""
-        )
+        raise Exception("""initial_partition contains duplicate vertexes""")
 
     if len(union) < len(vertexes):
         raise Exception(

@@ -1,4 +1,4 @@
-from .graph_entities import _Vertex
+from bisimulation_algorithms.utilities.graph_entities import _Vertex
 from typing import List
 
 _BLACK = 10
