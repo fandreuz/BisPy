@@ -1,8 +1,5 @@
 import networkx as nx
-from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
-    _Vertex
-)
-from bisimulation_algorithms.paige_tarjan.graph_entities import _Edge
+from bisimulation_algorithms.utilities.graph_entities import _Edge, _Vertex
 from typing import List, Tuple
 from .rank_computation import compute_rank, compute_finishing_time_list
 

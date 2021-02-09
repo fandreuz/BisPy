@@ -2,12 +2,13 @@ from llist import dllist, dllistnode
 from typing import List, Dict, Any, Tuple, Iterable
 import networkx as nx
 
-from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
+from bisimulation_algorithms.utilities.graph_entities import (
     _Vertex,
-    _Block as _QBlock,
+    _QBlock,
+    _Count,
+    _XBlock,
 )
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
-from bisimulation_algorithms.paige_tarjan.graph_entities import _Count, _XBlock
 from bisimulation_algorithms.paige_tarjan.pta import (
     extract_splitter,
     build_block_counterimage,

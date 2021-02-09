@@ -1,5 +1,5 @@
 import pytest
-from bisimulation_algorithms.paige_tarjan.graph_entities import (
+from bisimulation_algorithms.utilities.graph_entities import (
     _QBlock,
     _Vertex,
     _Edge,

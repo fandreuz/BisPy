@@ -6,7 +6,7 @@ import itertools
 
 from tests.pta.rscp_utilities import check_block_stability, is_stable_partition
 
-from bisimulation_algorithms.paige_tarjan.graph_entities import (
+from bisimulation_algorithms.utilities.graph_entities import (
     _Vertex,
     _Edge,
     _QBlock,

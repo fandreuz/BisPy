@@ -18,8 +18,8 @@ from bisimulation_algorithms.paige_tarjan.pta import (
 )
 from operator import attrgetter, or_
 from functools import reduce
-from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
-    _Block,
+from bisimulation_algorithms.utilities.graph_entities import (
+    _QBlock as _Block,
 )
 
 

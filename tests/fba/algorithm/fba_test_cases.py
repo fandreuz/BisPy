@@ -1,5 +1,5 @@
-from bisimulation_algorithms.dovier_piazza_policriti.graph_entities import (
-    _Block,
+from bisimulation_algorithms.utilities.graph_entities import (
+    _QBlock as _Block,
     _Vertex,
 )
 from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
