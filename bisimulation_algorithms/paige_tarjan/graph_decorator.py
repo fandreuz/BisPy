@@ -1,6 +1,6 @@
 import itertools
 import networkx as nx
-from typing import List
+from typing import List, Tuple
 
 from bisimulation_algorithms.utilities.graph_entities import (
     _Vertex,
@@ -8,6 +8,7 @@ from bisimulation_algorithms.utilities.graph_entities import (
     _XBlock,
     _QBlock,
     _Count,
+    compute_initial_partition_block_id
 )
 
 
@@ -158,7 +159,7 @@ def preprocess_initial_partition(
 
 
 def initialize(
-    graph: nx.Graph, initial_partition: List[tuple]
+    graph: nx.Graph, initial_partition: List[Tuple]
 ) -> (List[_QBlock], List[_Vertex]):
     """Packs the needed processing for a graph (prepare_graph_abstraction,
     preprocess_initial_partition, build_qpartition).
@@ -174,6 +175,18 @@ def initialize(
     """
 
     vertexes = prepare_graph_abstraction(graph)
+
+    if initial_partition is not None:
+        vertex_to_id = [None for _ in graph.nodes]
+
+        for block in initial_partition:
+            block_id = compute_initial_partition_block_id(block)
+            for vertex in block:
+                vertex_to_id[vertex] = block_id
+
+        for vertex in vertexes:
+            vertex.initial_partition_block_id = vertex_to_id[vertex.label]
+
     processed_partition = preprocess_initial_partition(
         vertexes, initial_partition
     )
