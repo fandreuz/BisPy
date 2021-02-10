@@ -1,4 +1,12 @@
 from llist import dllist, dllistnode
+from typing import Iterable
+
+
+def compute_initial_partition_block_id(vertex_labels: Iterable[int]):
+    id = 0
+    for label in vertex_labels:
+        id += 2 ^ label
+    return id
 
 
 class _Vertex:
@@ -47,6 +55,8 @@ class _Vertex:
         self.wf = True
 
         self.original_label = label
+
+        self.initial_partition_block_id = None
 
     def scale_label(self, scaled_label: int):
         self.label = scaled_label
@@ -192,6 +202,12 @@ class _QBlock:
 
     def initialize_split_helper_block(self):
         self.split_helper_block = _QBlock([], self.xblock)
+
+    def initial_partition_block_id(self):
+        if self.vertexes.size > 0:
+            return self.vertexes.first.initial_partition_id
+        else:
+            return None
 
     def __repr__(self):
         return "Q({})".format(
