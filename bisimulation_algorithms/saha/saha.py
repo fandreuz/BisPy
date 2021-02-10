@@ -14,6 +14,7 @@ from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
 from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
     build_vertexes_image,
 )
+from bisimulation_algorithms.paige_tarjan.pta import build_block_counterimage
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
@@ -148,6 +149,43 @@ def check_new_scc(
             vx.visited = False
 
     return False
+
+
+def exists_causal_splitter(
+    block1: _Block, block2: _Block, blocks_and_counterimages: List[Tuple]
+) -> bool:
+    for tp in blocks_and_counterimages:
+        block, counterimage = tp
+
+        block1_goes_to = False
+        block2_goes_to = False
+        for vertex in counterimage:
+            if vertex.qblock == block1:
+                block1_goes_to = True
+            elif vertex.qblock == block2:
+                block2_goes_to = True
+
+        # one goes, the other one doesn't
+        if block1_goes_to != block2_goes_to:
+            return True
+
+
+def merge_condition(
+    block1: _Block, block2: _Block, blocks_and_counterimages: List[Tuple]
+) -> bool:
+    if (
+        block1.initial_partition_block_id()
+        != block2.initial_partition_block_id()
+    ):
+        return False
+    elif block1 == block2:
+        return False
+    elif block1.rank() != block2.rank():
+        return False
+    elif exists_causal_splitter(block1, block2):
+        return False
+    else:
+        return True
 
 
 def merge_phase(ublock: _Block, vblock: _Block):
