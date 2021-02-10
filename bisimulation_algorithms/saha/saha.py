@@ -154,9 +154,7 @@ def check_new_scc(
 def exists_causal_splitter(
     block1: _Block, block2: _Block, blocks_and_counterimages: List[Tuple]
 ) -> bool:
-    for tp in blocks_and_counterimages:
-        block, counterimage = tp
-
+    for block, counterimage in blocks_and_counterimages:
         block1_goes_to = False
         block2_goes_to = False
         for vertex in counterimage:
