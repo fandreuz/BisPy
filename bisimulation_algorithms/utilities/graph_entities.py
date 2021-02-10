@@ -175,6 +175,8 @@ class _QBlock:
         if xblock is not None:
             xblock.append_qblock(self)
 
+        self.deteached = False
+
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper _Vertex, not a dllistnode
     def append_vertex(self, vertex: _Vertex):
@@ -208,6 +210,10 @@ class _QBlock:
             return self.vertexes.first.initial_partition_id
         else:
             return None
+
+    def merge(self, block2):
+        for vertex in block2.vertexes:
+            self.append_vertex(vertex)
 
     def __repr__(self):
         return "Q({})".format(
