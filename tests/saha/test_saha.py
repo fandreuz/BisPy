@@ -148,3 +148,23 @@ def test_check_new_scc_cleans(graph, new_edge, value):
 
     for vertex in vertexes:
         assert vertex.visited == False
+
+
+def test_exists_causal_splitter():
+    pass
+
+
+def test_merge_condition():
+    pass
+
+
+def test_recursive_merge():
+    pass
+
+
+def test_merge_phase():
+    pass
+
+
+def test_merge_split_phase():
+    pass
