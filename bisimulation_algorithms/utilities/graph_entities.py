@@ -214,6 +214,7 @@ class _QBlock:
     def merge(self, block2):
         for vertex in block2.vertexes:
             self.append_vertex(vertex)
+        block2.deteached = True
 
     def __repr__(self):
         return "Q({})".format(
