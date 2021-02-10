@@ -3,6 +3,10 @@ import networkx as nx
 from llist import dllist, dllistnode
 import tests.pta.pta_test_cases as test_cases
 import itertools
+from bisimulation_algorithms.utilities.graph_normalization import (
+    check_normal_integer_graph,
+    convert_to_integer_graph,
+)
 
 from tests.pta.rscp_utilities import check_block_stability, is_stable_partition
 
@@ -11,6 +15,7 @@ from bisimulation_algorithms.utilities.graph_entities import (
     _Edge,
     _QBlock,
     _XBlock,
+    compute_initial_partition_block_id,
 )
 from bisimulation_algorithms.paige_tarjan.pta import (
     split,
@@ -471,10 +476,8 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
 )
 def test_pta_result_is_stable_partition(graph, initial_partition):
     (q_partition, vertexes) = initialize(graph, initial_partition)
-    result = pta(q_partition)
-    assert is_stable_partition(
-        [[vertexes[vertex_idx] for vertex_idx in block] for block in result]
-    )
+    rscp = pta(q_partition)
+    assert is_stable_partition(rscp)
 
 
 @pytest.mark.parametrize(
@@ -504,3 +507,51 @@ def test_no_compound_xblocks():
     G = nx.DiGraph()
     G.add_edges_from([[0, 1], [1, 2], [2, 1]])
     assert len(pta_rscp(G)) == 1
+
+
+def graph_to_integer_graph(graph, initial_partition):
+    original_graph_is_integer = check_normal_integer_graph(graph)
+
+    # if initial_partition is None, then it's the trivial partition
+    if initial_partition is None:
+        # only list(graph.nodes) isn't OK
+        initial_partition = [list(graph.nodes)]
+
+    if not original_graph_is_integer:
+        # convert the graph to an "integer" graph
+        integer_graph, node_to_idx = convert_to_integer_graph(graph)
+
+        # convert the initial partition to a integer partition
+        integer_initial_partition = [
+            [node_to_idx[old_node] for old_node in block]
+            for block in initial_partition
+        ]
+    else:
+        integer_graph = graph
+        integer_initial_partition = initial_partition
+
+    return (integer_graph, integer_initial_partition)
+
+
+@pytest.mark.parametrize(
+    "graph, initial_partition",
+    map(
+        lambda tp: graph_to_integer_graph(tp[0], tp[1]),
+        test_cases.graph_partition_rscp_tuples,
+    ),
+)
+def test_pta_same_initial_partition(graph, initial_partition):
+    q_partition, _ = initialize(graph, initial_partition)
+    rscp = pta(q_partition)
+
+    vertex_to_block = [None for _ in graph.nodes]
+    for block in initial_partition:
+        for vertex in block:
+            vertex_to_block[vertex] = block
+
+    for block in rscp:
+        initial_partition_block_id = compute_initial_partition_block_id(
+            vertex_to_block[block[0].label]
+        )
+        for vertex in block:
+            assert vertex.initial_partition_block_id == initial_partition_block_id
