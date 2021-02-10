@@ -218,15 +218,12 @@ def fba(
         # OPTIMIZATION: if at the current rank we only have blocks of single
         # vertexes, skip this step.
         if any(map(lambda block: block.size > 1, partition[partition_idx])):
-            # PTA wants an interval without holes starting from zero, therefore
-            # we need to scale the labels.
-            scaled_idx_to_vertex = []
+            current_label = 0
             for block in partition[partition_idx]:
                 for vertex in block.vertexes:
                     # scale vertex
-                    vertex.scale_label(len(scaled_idx_to_vertex))
-                    # remember where a given vertex was mapped
-                    scaled_idx_to_vertex.append(vertex)
+                    vertex.scale_label(current_label)
+                    current_label += 1
 
                     # exclude nodes having the wrong rank from the image and
                     # counterimage of the vertex. from now they're gone
@@ -247,10 +244,9 @@ def fba(
             # collapse each block.
             for block in rscp:
                 block_vertexes = []
-                for scaled_vertex_idx in block:
-                    vertex = scaled_idx_to_vertex[scaled_vertex_idx]
-                    vertex.back_to_original_label()
-                    block_vertexes.append(vertex)
+                for scaled_vertex in block:
+                    scaled_vertex.back_to_original_label()
+                    block_vertexes.append(scaled_vertex)
 
                 # we can set XBlock to None because PTA won't be called again
                 # on these blocks

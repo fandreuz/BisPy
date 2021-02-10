@@ -304,7 +304,7 @@ def pta(q_partition: List[_QBlock]) -> List[Tuple]:
         partition (namely with instances of QBlock).
 
     Returns:
-        list[_Vertex]: The RSCP of the given initial partition as a list of
+        List[_Vertex]: The RSCP of the given initial partition as a list of
         Vertex instances.
     """
 
@@ -325,7 +325,7 @@ def pta(q_partition: List[_QBlock]) -> List[Tuple]:
         q_partition.extend(new_qblocks)
 
     return [
-        tuple(map(lambda vertex: vertex.label, qblock.vertexes))
+        tuple(qblock.vertexes)
         for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
     ]
 
@@ -384,7 +384,12 @@ def rscp(
     (q_partition, _) = initialize(integer_graph, integer_initial_partition)
     rscp = pta(q_partition)
 
+    integer_rscp = [
+        tuple(map(lambda vertex: vertex.label, block))
+        for block in rscp
+    ]
+
     if original_graph_is_integer:
-        return rscp
+        return integer_rscp
     else:
-        return back_to_original(rscp, node_to_idx)
+        return back_to_original(integer_rscp, node_to_idx)
