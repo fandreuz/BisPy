@@ -188,8 +188,33 @@ def merge_condition(
         return True
 
 
-def merge_phase(ublock: _Block, vblock: _Block):
-    pass
+def recursive_merge(
+    block1: _Block,
+    block2: _Block,
+    block1_counterimage: List[_Vertex],
+    block2_counterimage: List[_Vertex],
+):
+    block1.merge(block2)
+
+    block1_predecessor_blocks = []
+    for vertex in block1_counterimage:
+        for vertex2 in block2_counterimage:
+            if not (
+                (vertex.qblock == block1 and vertex2.qblock == block2)
+                or (vertex.qblock == block2 and vertex2.qblock == block1)
+            ):
+                if merge_condition(vertex.qblock, vertex2.qblock):
+                    recursive_merge(vertex.qblock, vertex2.qblock)
+
+
+def merge_phase(
+    ublock: _Block, vblock: _Block, blocks_and_counterimages: List[Tuple]
+):
+    for block, counterimage in blocks_and_counterimages:
+        if block == vblock:
+            for vertex in counterimage:
+                if merge_condition(ublock, vertex.qblock):
+                    recursive_merge(ublock, vertex.qblock)
 
 
 def merge_split_phase():
