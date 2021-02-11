@@ -5,7 +5,7 @@ from typing import Iterable
 def compute_initial_partition_block_id(vertex_labels: Iterable[int]):
     id = 0
     for label in vertex_labels:
-        id += 2 ^ label
+        id += pow(2,label)
     return id
 
 
@@ -207,7 +207,7 @@ class _QBlock:
 
     def initial_partition_block_id(self):
         if self.vertexes.size > 0:
-            return self.vertexes.first.initial_partition_id
+            return self.vertexes.first.value.initial_partition_block_id
         else:
             return None
 
