@@ -14,7 +14,9 @@ from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
 from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
     build_vertexes_image,
 )
-from bisimulation_algorithms.paige_tarjan.pta import build_block_counterimage
+from bisimulation_algorithms.dovier_piazza_policriti.fba import (
+    build_block_counterimage,
+)
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
@@ -151,25 +153,42 @@ def check_new_scc(
     return False
 
 
+def both_blocks_go_to_block(
+    block1: _Block, block2: _Block, block_counterimage: List[_Vertex]
+) -> bool:
+    block1_goes = False
+    block2_goes = False
+
+    for vertex in block_counterimage:
+        if vertex.qblock == block1:
+            block1_goes = True
+            # the situation changed: CHECK!
+            if block2_goes:
+                return True
+        elif vertex.qblock == block2:
+            block2_goes = True
+            # the situation changed: CHECK!
+            if block1_goes:
+                return True
+
+    return block1_goes == block2_goes
+
+
 def exists_causal_splitter(
-    block1: _Block, block2: _Block, blocks_and_counterimages: List[Tuple]
+    block1: _Block,
+    block2: _Block,
+    blocks_and_counterimages: List[Tuple[_Block, List[_Vertex]]],
 ) -> bool:
     for block, counterimage in blocks_and_counterimages:
-        block1_goes_to = False
-        block2_goes_to = False
-        for vertex in counterimage:
-            if vertex.qblock == block1:
-                block1_goes_to = True
-            elif vertex.qblock == block2:
-                block2_goes_to = True
-
-        # one goes, the other one doesn't
-        if block1_goes_to != block2_goes_to:
+        if not both_blocks_go_to_block(block1, block2, counterimage):
             return True
+    return False
 
 
 def merge_condition(
-    block1: _Block, block2: _Block, blocks_and_counterimages: List[Tuple]
+    block1: _Block,
+    block2: _Block,
+    blocks_and_counterimages: List[Tuple[_Block, List[_Vertex]]],
 ) -> bool:
     if (
         block1.initial_partition_block_id()
@@ -180,7 +199,7 @@ def merge_condition(
         return False
     elif block1.rank() != block2.rank():
         return False
-    elif exists_causal_splitter(block1, block2):
+    elif exists_causal_splitter(block1, block2, blocks_and_counterimages):
         return False
     else:
         return True
