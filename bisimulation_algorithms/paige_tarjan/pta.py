@@ -295,7 +295,7 @@ def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
 
 
 # returns a list of labels splitted in partitions
-def pta(q_partition: List[_QBlock]) -> List[Tuple]:
+def pta(q_partition: List[_QBlock]) -> List[_QBlock]:
     """Apply the Paige-Tarjan algorithm to an initial partition Q which
     contains the whole "internal" representation of a graph.
 
@@ -325,7 +325,7 @@ def pta(q_partition: List[_QBlock]) -> List[Tuple]:
         q_partition.extend(new_qblocks)
 
     return [
-        tuple(qblock.vertexes)
+        qblock
         for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
     ]
 
@@ -385,7 +385,7 @@ def rscp(
     rscp = pta(q_partition)
 
     integer_rscp = [
-        tuple(map(lambda vertex: vertex.label, block))
+        tuple(map(lambda vertex: vertex.label, block.vertexes))
         for block in rscp
     ]
 

@@ -244,7 +244,7 @@ def fba(
             # collapse each block.
             for block in rscp:
                 block_vertexes = []
-                for scaled_vertex in block:
+                for scaled_vertex in block.vertexes:
                     scaled_vertex.back_to_original_label()
                     block_vertexes.append(scaled_vertex)
 
