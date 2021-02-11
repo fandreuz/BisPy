@@ -117,7 +117,7 @@ def test_split_upper_ranks(graph):
         split_upper_ranks(partition, partition[idx][0])
         assert all(
             check_block_stability(
-                partition[idx][0].vertexes, upper_rank_block.vertexes
+                partition[idx][0], upper_rank_block
             )
             for upper_idx in range(idx + 1, partition_length)
             for upper_rank_block in partition[upper_idx]

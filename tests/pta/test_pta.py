@@ -8,7 +8,11 @@ from bisimulation_algorithms.utilities.graph_normalization import (
     convert_to_integer_graph,
 )
 
-from tests.pta.rscp_utilities import check_block_stability, is_stable_partition
+from tests.pta.rscp_utilities import (
+    check_vertexes_stability,
+    check_block_stability,
+    is_stable_partition,
+)
 
 from bisimulation_algorithms.utilities.graph_entities import (
     _Vertex,
@@ -262,7 +266,7 @@ def test_split(graph, initial_partition):
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
-        assert check_block_stability(
+        assert check_vertexes_stability(
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
 
@@ -357,7 +361,7 @@ def test_second_split(graph, initial_partition):
 
     # after split the partition should be stable with respect to the block chosen for the split
     for qblock in xblock.qblocks:
-        assert check_block_stability(
+        assert check_vertexes_stability(
             [vertex for vertex in qblock.vertexes], second_splitter_vertexes
         )
 
@@ -542,7 +546,7 @@ def graph_to_integer_graph(graph, initial_partition):
 )
 def test_pta_same_initial_partition(graph, initial_partition):
     q_partition, _ = initialize(graph, initial_partition)
-    rscp = pta(q_partition)
+    rscp = [tuple(block.vertexes) for block in pta(q_partition)]
 
     vertex_to_block = [None for _ in graph.nodes]
     for block in initial_partition:
@@ -554,4 +558,6 @@ def test_pta_same_initial_partition(graph, initial_partition):
             vertex_to_block[block[0].label]
         )
         for vertex in block:
-            assert vertex.initial_partition_block_id == initial_partition_block_id
+            assert (
+                vertex.initial_partition_block_id == initial_partition_block_id
+            )
