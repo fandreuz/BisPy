@@ -57,7 +57,7 @@ def prepare_graph_abstraction(graph: nx.Graph) -> List[_Vertex]:
 
 
 def build_qpartition(
-    vertexes: List[_Vertex], initial_partition: List[tuple]
+    vertexes: List[_Vertex], initial_partition: List[Tuple[int]]
 ) -> List[_QBlock]:
     """Constructs the initial Q partition given the list of Vertexes and the
     initial_partition. This function fails if the length of the initial
@@ -66,15 +66,15 @@ def build_qpartition(
     Args:
         vertexes (list[_Vertex]): The list of Vertexes which represents the
             graph.
-        initial_partition (list[tuple]): The initial partition as a list of
-            vertex indexes partitioned in tuples.
+        initial_partition (list[Tuple[int]]): The initial partition as a list
+            of vertex indexes partitioned in tuples.
 
     Returns:
         list[_QBlock]: The initial partition Q as a list of QBlocks.
     """
 
     union = set()
-    # check phase
+    # check number of vertexes and initial partition
     for block in initial_partition:
         old_length = len(union)
         union = union.union(block)
