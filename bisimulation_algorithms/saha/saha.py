@@ -216,10 +216,13 @@ def recursive_merge(
     block1_predecessor_blocks = []
     for vertex in block1_counterimage:
         for vertex2 in block2_counterimage:
+            # the blocks these vertexes belong to have just been merged,
+            # therefore we filter this case
             if not (
                 (vertex.qblock == block1 and vertex2.qblock == block2)
                 or (vertex.qblock == block2 and vertex2.qblock == block1)
             ):
+                # we only want to merge if the two blocks satisfy the condition
                 if merge_condition(vertex.qblock, vertex2.qblock):
                     recursive_merge(vertex.qblock, vertex2.qblock)
 
