@@ -290,7 +290,6 @@ def propagate_nwf(vertexes: List[_Vertex]):
 def update_rscp(
     old_rscp: List[_Block],
     new_edge: Tuple[int, int],
-    initial_partition: List[Tuple[int]],
     well_founded_topological: List[_Vertex],
     vertexes: List[_Vertex],
 ):
