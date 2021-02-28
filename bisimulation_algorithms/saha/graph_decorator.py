@@ -11,8 +11,10 @@ from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
 )
 
 
-def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
-    max_rank = float("-inf")
+def to_normal_graph(
+    graph: nx.Graph, initial_partition: List[Tuple[int]]
+) -> List[_Vertex]:
+
     vertexes = []
     for vertex in graph.nodes:
         new_vertex = _Vertex(label=vertex)
@@ -58,12 +60,15 @@ def build_vertexes_image(finishing_time_list: List[_Vertex]):
             edge.source.add_to_image(edge)
 
 
-def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
+def prepare_graph(
+    graph: nx.Graph, initial_partition: List[Tuple[int]]
+) -> List[_Vertex]:
     """Prepare the input graph for the algorithm. Computes the rank for each
     node, and then converts the graph to a usable representation.
 
     Args:
         graph (nx.Graph): The input graph
+        initial_partition(List[Tuple[int]]): The initial partition
 
     Returns:
         List[_Vertex]: A convenient representation of the given graph (contains
@@ -71,7 +76,7 @@ def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
         int          : The maximum rank in the graph.
     """
 
-    vertexes = to_normal_graph(graph)
+    vertexes = to_normal_graph(graph, initial_partition)
 
     finishing_time_list = compute_finishing_time_list(vertexes)
     build_vertexes_image(finishing_time_list)
