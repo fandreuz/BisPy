@@ -251,7 +251,8 @@ def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
     """
 
     # find the index of the updated vertex. we only need to update ranks of the
-    # wf part of the graph which is "before" this vertex in the topological list
+    # wf part of the graph which is "before" this vertex in the topological
+    # list
     until_idx = None
     for idx, vx in enumerate(well_founded_topological):
         if vertex == vx:
