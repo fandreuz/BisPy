@@ -171,7 +171,7 @@ def pta(
         x_partition, new_qblocks, new_compound_xblocks = refine(
             compound_xblocks=compound_xblocks,
             xblocks=x_partition,
-            first_nonempty_compound_rankindex=first_nonempty_compound_rankindex,
+            first_nonempty_compound_rankindex=first_nonempty_compound_rankindex
         )
         q_partition.extend(new_qblocks)
 
