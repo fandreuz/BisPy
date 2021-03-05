@@ -3,6 +3,7 @@ from bisimulation_algorithms.utilities.graph_entities import (
     _Vertex,
     _Edge,
     _Count,
+    _QBlock
 )
 from typing import List, Tuple
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
@@ -15,10 +16,19 @@ def to_normal_graph(
     graph: nx.Graph, initial_partition: List[Tuple[int]]
 ) -> List[_Vertex]:
 
+    # map vertex to its qblock
+    vertex_to_qblock = [None for _ in graph.nodes]
+
+    for block in initial_partition:
+        qblock = _QBlock([], None)
+        for vx in block:
+            vertex_to_qblock[vx] = qblock
+
     vertexes = []
     for vertex in graph.nodes:
         new_vertex = _Vertex(label=vertex)
         vertexes.append(new_vertex)
+        vertex_to_qblock[vertex].append_vertex(new_vertex)
 
     # holds the references to Count objects to assign to the edges (this is OK
     # because we can consider |V| = O(|E|))
