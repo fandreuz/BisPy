@@ -17,6 +17,8 @@ from bisimulation_algorithms.saha.saha import (
     exists_causal_splitter,
     both_blocks_go_to_block,
     merge_condition,
+    recursive_merge,
+    merge_phase
 )
 from tests.fba.rank.rank_test_cases import graphs
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
@@ -296,8 +298,25 @@ def test_merge_condition_with_rscp(graph, initial_partition):
 
 
 def test_recursive_merge():
-    pass
+    g = nx.DiGraph()
+    g.add_nodes_from(range(4))
+    g.add_edges_from([(0,1),(2,3)])
 
+    partition = [(0,2), (1,), (3,)]
+
+    vertexes = prepare_graph(g, partition)
+
+    vertexes[0].qblock._mitosis([0], [2])
+
+    recursive_merge(vertexes[1].qblock, vertexes[3].qblock)
+
+    assert len(vertexes[0].qblock.vertexes) == 2
+    for vx in vertexes[0].qblock.vertexes:
+        assert vx == vertexes[0] or vx == vertexes[2]
+
+    assert len(vertexes[1].qblock.vertexes) == 2
+    for vx in vertexes[1].qblock.vertexes:
+        assert vx == vertexes[1] or vx == vertexes[3]
 
 def test_merge_phase():
     pass
