@@ -223,7 +223,7 @@ class _QBlock:
 
     # only for testing purposes
     def _mitosis(self, vertexes1, vertexes2):
-        new_block = _QBlock([], self.xblock)
+        new_block = _QBlock([], None)
 
         for to_remove in vertexes2:
             for vertex in self.vertexes:
