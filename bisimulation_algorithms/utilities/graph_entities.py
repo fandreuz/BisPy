@@ -221,6 +221,18 @@ class _QBlock:
             ",".join([str(vertex) for vertex in self.vertexes])
         )
 
+    # only for testing purposes
+    def _mitosis(self, vertexes1, vertexes2):
+        new_block = _QBlock([], self.xblock)
+
+        for to_remove in vertexes2:
+            for vertex in self.vertexes:
+                if to_remove == vertex.label:
+                    self.remove_vertex(vertex)
+                    new_block.append_vertex(vertex)
+
+        return new_block
+
 
 class _XBlock:
     """A block of X in the Paige-Tarjan algorithm.
