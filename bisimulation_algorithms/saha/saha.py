@@ -17,11 +17,7 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
 from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     build_block_counterimage,
 )
-from itertools import chain, imap, product
-
-
-def flatmap(f, items):
-    return chain.from_iterable(imap(f, items))
+from itertools import product
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
@@ -220,8 +216,8 @@ def recursive_merge(block1: _Block, block2: _Block):
         for counterimage_vx_couple in product(
             vx_couple[0].counterimage, vx_couple[1].counterimage
         ):
-            b1 = counterimage_vx_couple[0].qblock
-            b2 = counterimage_vx_couple[1].qblock
+            b1 = counterimage_vx_couple[0].source.qblock
+            b2 = counterimage_vx_couple[1].source.qblock
 
             if b1 == b2 or b1.deteached or b2.deteached:
                 continue
@@ -247,7 +243,9 @@ def merge_phase(
         vblock (_Block):
     """
     for vertex in vblock.vertexes:
-        for v1block in map(lambda vx: vx.qbloc, vertex.counterimage):
+        for v1block in map(
+            lambda edge: edge.source.qblock, vertex.counterimage
+        ):
             if merge_condition(ublock, v1block):
                 recursive_merge(ublock, v1block)
 
