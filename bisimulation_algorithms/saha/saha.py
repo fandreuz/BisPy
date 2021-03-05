@@ -17,6 +17,11 @@ from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
 from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     build_block_counterimage,
 )
+from itertools import chain, imap, product
+
+
+def flatmap(f, items):
+    return chain.from_iterable(imap(f, items))
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
@@ -205,46 +210,46 @@ def merge_condition(
         return True
 
 
-def recursive_merge(
-    block1: _Block,
-    block2: _Block,
-    block1_counterimage: List[_Vertex],
-    block2_counterimage: List[_Vertex],
-):
+def recursive_merge(block1: _Block, block2: _Block):
     block1.merge(block2)
 
-    block1_predecessor_blocks = []
-    for vertex in block1_counterimage:
-        for vertex2 in block2_counterimage:
-            # the blocks these vertexes belong to have just been merged,
-            # therefore we filter this case
-            if not (
-                (vertex.qblock == block1 and vertex2.qblock == block2)
-                or (vertex.qblock == block2 and vertex2.qblock == block1)
+    # construct a list of couples of blocks which needs to be verified
+    verified_couples = {}
+
+    for vx_couple in product(block1.vertexes, block2.vertexes):
+        for counterimage_vx_couple in product(
+            vx_couple[0].counterimage, vx_couple[1].counterimage
+        ):
+            b1 = counterimage_vx_couple[0].qblock
+            b2 = counterimage_vx_couple[1].qblock
+
+            if b1 == b2 or b1.deteached or b2.deteached:
+                continue
+
+            if (
+                not (id(b1), id(b2)) in verified_couples
+                or (id(b2), id(b1)) in verified_couples
             ):
-                # we only want to merge if the two blocks satisfy the condition
-                if merge_condition(vertex.qblock, vertex2.qblock):
-                    recursive_merge(vertex.qblock, vertex2.qblock)
+                verified_couples[id(b1), id(b2)] = True
+                if merge_condition(b1, b2):
+                    recursive_merge(b1, b2)
 
 
 def merge_phase(
     ublock: _Block,
     vblock: _Block,
-    blocks_mode_counterimage: List[Tuple[_Block, List[_Block]]],
 ):
     """If U1 => V && merge_condition(U,U1) then merge (U1,U). Then proceed
     recursively.
 
     Args:
-        ublock (_Block): The
-        vblock (_Block): [description]
-        blocks_mode_counterimage (List[Tuple[_Block, List[_Block]]]): [description]
+        ublock (_Block):
+        vblock (_Block):
     """
-    for block, counterimage in blocks_mode_counterimage:
-        if block == vblock:
-            for u1block in counterimage:
-                if u1block is not None and merge_condition(ublock, u1block):
-                    recursive_merge(ublock, u1block, blocks_mode_counterimage)
+    for vertex in vblock.vertexes:
+        for v1block in map(lambda vx: vx.qbloc, vertex.counterimage):
+            if merge_condition(ublock, v1block):
+                recursive_merge(ublock, v1block)
 
 
 def merge_split_phase():
