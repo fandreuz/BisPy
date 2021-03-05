@@ -228,13 +228,23 @@ def recursive_merge(
 
 
 def merge_phase(
-    ublock: _Block, vblock: _Block, blocks_and_counterimages: List[Tuple]
+    ublock: _Block,
+    vblock: _Block,
+    blocks_mode_counterimage: List[Tuple[_Block, List[_Block]]],
 ):
-    for block, counterimage in blocks_and_counterimages:
+    """If U1 => V && merge_condition(U,U1) then merge (U1,U). Then proceed
+    recursively.
+
+    Args:
+        ublock (_Block): The
+        vblock (_Block): [description]
+        blocks_mode_counterimage (List[Tuple[_Block, List[_Block]]]): [description]
+    """
+    for block, counterimage in blocks_mode_counterimage:
         if block == vblock:
-            for vertex in counterimage:
-                if merge_condition(ublock, vertex.qblock):
-                    recursive_merge(ublock, vertex.qblock)
+            for u1block in counterimage:
+                if u1block is not None and merge_condition(ublock, u1block):
+                    recursive_merge(ublock, u1block, blocks_mode_counterimage)
 
 
 def merge_split_phase():
