@@ -241,28 +241,24 @@ def test_merge_condition():
         for vertex in qb.vertexes:
             node_to_qblock[vertex.label] = qb
 
-    blocks_and_counterimages = [
-        (block, build_block_counterimage(block)) for block in rscp_qblocks
-    ]
-
     # can't merge because no same initial partition
     assert not merge_condition(
-        node_to_qblock[2], node_to_qblock[6], blocks_and_counterimages
+        node_to_qblock[2], node_to_qblock[6],
     )
 
     # different rank
     assert not merge_condition(
-        node_to_qblock[2], node_to_qblock[1], blocks_and_counterimages
+        node_to_qblock[2], node_to_qblock[1],
     )
 
     # same block
     assert not merge_condition(
-        node_to_qblock[4], node_to_qblock[4], blocks_and_counterimages
+        node_to_qblock[4], node_to_qblock[4],
     )
 
     # exists causal splitter
     assert not merge_condition(
-        node_to_qblock[0], node_to_qblock[3], blocks_and_counterimages
+        node_to_qblock[0], node_to_qblock[3],
     )
 
 
@@ -273,12 +269,8 @@ def test_merge_condition():
 def test_merge_condition_with_initial_partition(graph, initial_partition):
     qblocks, vertexes = initialize(graph, initial_partition)
 
-    blocks_and_counterimages = [
-        (block, build_block_counterimage(block)) for block in qblocks
-    ]
-
     for tp in itertools.product(qblocks, qblocks):
-        assert not merge_condition(tp[0], tp[1], blocks_and_counterimages)
+        assert not merge_condition(tp[0], tp[1])
 
 
 @pytest.mark.parametrize(
@@ -289,12 +281,8 @@ def test_merge_condition_with_rscp(graph, initial_partition):
     qblocks, vertexes = initialize(graph, initial_partition)
     rscp = pta(qblocks)
 
-    blocks_and_counterimages = [
-        (block, build_block_counterimage(block)) for block in rscp
-    ]
-
     for tp in itertools.product(rscp, rscp):
-        assert not merge_condition(tp[0], tp[1], blocks_and_counterimages)
+        assert not merge_condition(tp[0], tp[1])
 
 
 def test_recursive_merge():
