@@ -201,13 +201,9 @@ def test_both_blocks_go_or_dont_go_to_block_commutative(qblocks, result_map):
     zip(exists_causal_splitter_qblocks, exists_causal_splitter_result_map),
 )
 def test_exists_causal_splitter(qblocks, result_map):
-    counterimages = [
-        (block, build_block_counterimage(block)) for block in qblocks
-    ]
-
     for couple, result in result_map:
         assert result == exists_causal_splitter(
-            qblocks[couple[0]], qblocks[couple[1]], counterimages
+            qblocks[couple[0]], qblocks[couple[1]]
         )
 
 
@@ -216,15 +212,11 @@ def test_exists_causal_splitter(qblocks, result_map):
     zip(exists_causal_splitter_qblocks, exists_causal_splitter_result_map),
 )
 def test_exists_causal_splitter_commutative(qblocks, result_map):
-    counterimages = [
-        (block, build_block_counterimage(block)) for block in qblocks
-    ]
-
     for couple, _ in result_map:
         assert exists_causal_splitter(
-            qblocks[couple[1]], qblocks[couple[0]], counterimages
+            qblocks[couple[1]], qblocks[couple[0]]
         ) == exists_causal_splitter(
-            qblocks[couple[0]], qblocks[couple[1]], counterimages
+            qblocks[couple[0]], qblocks[couple[1]]
         )
 
 

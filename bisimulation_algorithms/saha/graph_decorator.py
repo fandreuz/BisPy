@@ -15,6 +15,8 @@ from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
 def to_normal_graph(
     graph: nx.Graph, initial_partition: List[Tuple[int]]
 ) -> List[_Vertex]:
+    if initial_partition is None:
+        initial_partition = [tuple(i for i in range(len(graph.nodes)))]
 
     # map vertex to its qblock
     vertex_to_qblock = [None for _ in graph.nodes]
@@ -71,7 +73,7 @@ def build_vertexes_image(finishing_time_list: List[_Vertex]):
 
 
 def prepare_graph(
-    graph: nx.Graph, initial_partition: List[Tuple[int]]
+    graph: nx.Graph, initial_partition: List[Tuple[int]]=None
 ) -> List[_Vertex]:
     """Prepare the input graph for the algorithm. Computes the rank for each
     node, and then converts the graph to a usable representation.
