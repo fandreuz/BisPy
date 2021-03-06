@@ -15,7 +15,7 @@ from bisimulation_algorithms.saha.saha import (
     propagate_nwf,
     check_new_scc,
     exists_causal_splitter,
-    both_blocks_go_to_block,
+    both_blocks_go_or_dont_go_to_block,
     merge_condition,
     recursive_merge,
     merge_phase
@@ -167,13 +167,13 @@ def test_check_new_scc_cleans(graph, new_edge, value):
     "qblocks, result_map",
     zip(exists_causal_splitter_qblocks, both_blocks_goto_result_map),
 )
-def test_both_blocks_go_to_block(qblocks, result_map):
+def test_both_blocks_go_or_dont_go_to_block(qblocks, result_map):
     counterimages = [build_block_counterimage(block) for block in qblocks]
 
     for ints, result in result_map:
         block1, block2, block = ints
         assert (
-            both_blocks_go_to_block(
+            both_blocks_go_or_dont_go_to_block(
                 qblocks[block1], qblocks[block2], counterimages[block]
             )
             == result
@@ -184,14 +184,14 @@ def test_both_blocks_go_to_block(qblocks, result_map):
     "qblocks, result_map",
     zip(exists_causal_splitter_qblocks, both_blocks_goto_result_map),
 )
-def test_both_blocks_go_to_block_commutative(qblocks, result_map):
+def test_both_blocks_go_or_dont_go_to_block_commutative(qblocks, result_map):
     counterimages = [build_block_counterimage(block) for block in qblocks]
 
     for ints, result in result_map:
         block1, block2, block = ints
-        assert both_blocks_go_to_block(
+        assert both_blocks_go_or_dont_go_to_block(
             qblocks[block1], qblocks[block2], counterimages[block]
-        ) == both_blocks_go_to_block(
+        ) == both_blocks_go_or_dont_go_to_block(
             qblocks[block2], qblocks[block1], counterimages[block]
         )
 
