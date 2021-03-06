@@ -154,7 +154,7 @@ def check_new_scc(
     return False
 
 
-def both_blocks_go_to_block(
+def both_blocks_go_or_dont_go_to_block(
     block1: _Block, block2: _Block, block_counterimage: List[_Vertex]
 ) -> bool:
     block1_goes = False
@@ -178,18 +178,22 @@ def both_blocks_go_to_block(
 def exists_causal_splitter(
     block1: _Block,
     block2: _Block,
-    blocks_and_counterimages: List[Tuple[_Block, List[_Vertex]]],
 ) -> bool:
-    for block, counterimage in blocks_and_counterimages:
-        if not both_blocks_go_to_block(block1, block2, counterimage):
-            return True
-    return False
+    def build_block_image(block):
+        s = set()
+        for v in block.vertexes:
+            for edge in v.image:
+                s.add(id(edge.destination.qblock))
+
+    block_image1 = build_block_image(block1)
+    block_image2 = build_block_image(block2)
+
+    return block_image1 == block_image2
 
 
 def merge_condition(
     block1: _Block,
-    block2: _Block,
-    blocks_and_counterimages: List[Tuple[_Block, List[_Vertex]]],
+    block2: _Block
 ) -> bool:
     if (
         block1.initial_partition_block_id()
@@ -200,7 +204,7 @@ def merge_condition(
         return False
     elif block1.rank() != block2.rank():
         return False
-    elif exists_causal_splitter(block1, block2, blocks_and_counterimages):
+    elif exists_causal_splitter(block1, block2):
         return False
     else:
         return True
