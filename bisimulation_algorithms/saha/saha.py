@@ -184,11 +184,12 @@ def exists_causal_splitter(
         for v in block.vertexes:
             for edge in v.image:
                 s.add(id(edge.destination.qblock))
+        return s
 
     block_image1 = build_block_image(block1)
     block_image2 = build_block_image(block2)
 
-    return block_image1 == block_image2
+    return block_image1 != block_image2
 
 
 def merge_condition(
