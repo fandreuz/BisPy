@@ -18,19 +18,21 @@ def to_normal_graph(
     if initial_partition is None:
         initial_partition = [tuple(i for i in range(len(graph.nodes)))]
 
-    # map vertex to its qblock
+    # map vertex to its qblock and initial partition idx
     vertex_to_qblock = [None for _ in graph.nodes]
 
-    for block in initial_partition:
+    for idx,block in enumerate(initial_partition):
         qblock = _QBlock([], None)
         for vx in block:
-            vertex_to_qblock[vx] = qblock
+            vertex_to_qblock[vx] = (qblock,idx)
 
     vertexes = []
     for vertex in graph.nodes:
         new_vertex = _Vertex(label=vertex)
         vertexes.append(new_vertex)
-        vertex_to_qblock[vertex].append_vertex(new_vertex)
+        qblock, idx = vertex_to_qblock[vertex]
+        qblock.append_vertex(new_vertex)
+        new_vertex.initial_partition_block_id = idx
 
     # holds the references to Count objects to assign to the edges (this is OK
     # because we can consider |V| = O(|E|))
