@@ -37,6 +37,7 @@ from tests.pta.pta_test_cases import graph_partition_rscp_tuples
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
 import itertools
 from bisimulation_algorithms.paige_tarjan.pta import pta
+from bisimulation_algorithms.utilities.graph_entities import _Edge
 
 
 def test_check_old_blocks_relation():
@@ -277,6 +278,10 @@ def test_merge_condition_with_rscp(graph, initial_partition):
         assert not merge_condition(tp[0], tp[1])
 
 
+def vertexes_dllist_to_label_list(vx_dllist):
+    return list(vx.label for vx in vx_dllist)
+
+
 def test_recursive_merge():
     g = nx.DiGraph()
     g.add_nodes_from(range(4))
@@ -290,16 +295,61 @@ def test_recursive_merge():
 
     recursive_merge(vertexes[1].qblock, vertexes[3].qblock)
 
-    assert len(vertexes[0].qblock.vertexes) == 2
-    for vx in vertexes[0].qblock.vertexes:
-        assert vx == vertexes[0] or vx == vertexes[2]
-
-    assert len(vertexes[1].qblock.vertexes) == 2
-    for vx in vertexes[1].qblock.vertexes:
-        assert vx == vertexes[1] or vx == vertexes[3]
+    assert vertexes[0].qblock == vertexes[2].qblock
+    assert vertexes[1].qblock == vertexes[3].qblock
+    assert vertexes[0].qblock != vertexes[1].qblock
 
 def test_merge_phase():
-    pass
+    g = nx.DiGraph()
+    g.add_nodes_from(range(5))
+    g.add_edges_from([(0,1),(1,0),(2,1),(2,4),(3,1)])
+
+    partition = [(2,3), (1,0),(4,)]
+
+    vertexes = prepare_graph(g, partition)
+
+    # now split
+    vertexes[2].qblock._mitosis([2], [3])
+
+    # and then add a new vertex
+    new_edge = _Edge(vertexes[3], vertexes[4])
+    vertexes[3].add_to_image(new_edge)
+    vertexes[4].add_to_counterimage(new_edge)
+
+    # update rank
+    propagate_nwf(vertexes)
+
+    merge_phase(vertexes[3].qblock, vertexes[4].qblock)
+
+    assert vertexes[3].qblock == vertexes[2].qblock
+
+    # other qblocks not modified
+    assert vertexes[0].qblock == vertexes[1].qblock
+    assert vertexes[0].qblock != vertexes[2].qblock
+    assert vertexes[2].qblock != vertexes[4].qblock
+    assert vertexes[4].qblock != vertexes[0].qblock
+
+
+def test_initial_partition_block_idx_not_none():
+    g = nx.DiGraph()
+    g.add_nodes_from(range(5))
+    g.add_edges_from([(0,1),(1,0),(2,1),(2,4),(3,1)])
+
+    partition = [(2,3), (1,0),(4,)]
+
+    vertexes = prepare_graph(g, partition)
+
+    for vx in vertexes:
+        assert vx.initial_partition_block_id is not None
+
+    for block in partition:
+        block_id = vertexes[block[0]].initial_partition_block_id
+        for vx_idx in block:
+            assert vertexes[vx_idx].initial_partition_block_id == block_id
+
+        other_vertexes_idx = set(range(5)) - set(block)
+        for vx_idx in other_vertexes_idx:
+            assert vertexes[vx_idx].initial_partition_block_id != block_id
 
 
 def test_merge_split_phase():
