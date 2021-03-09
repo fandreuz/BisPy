@@ -202,9 +202,9 @@ def test_both_blocks_go_or_dont_go_to_block_commutative(qblocks, result_map):
 )
 def test_exists_causal_splitter(qblocks, result_map):
     for couple, result in result_map:
-        assert result == exists_causal_splitter(
+        assert exists_causal_splitter(
             qblocks[couple[0]], qblocks[couple[1]]
-        )
+        ) == result
 
 
 @pytest.mark.parametrize(
