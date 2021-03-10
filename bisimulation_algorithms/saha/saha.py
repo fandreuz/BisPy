@@ -116,12 +116,21 @@ def check_new_scc(
     if max_rank is None:
         max_rank = destination.rank
 
+    if root_call:
+        current_source.visited = True
+        visited_vertexes.append(current_source)
+
     for edge in current_source.counterimage:
         # we reached the block [v], therefore this is a new SCC
         if edge.source == destination:
+            finishing_time_list.append(destination)
+            # the visit of the current source is over
+            finishing_time_list.append(current_source)
+
             # clean visited vertexes
             for vertex in visited_vertexes:
                 vertex.visited = False
+
             # we found that an SCC was created
             return True
         else:
