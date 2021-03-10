@@ -118,9 +118,10 @@ def check_new_scc(
     for edge in current_source.counterimage:
         # we reached the block [v], therefore this is a new SCC
         if edge.source == destination:
+            # clean visited vertexes
             for vertex in visited_vertexes:
                 vertex.visited = False
-
+            # we found that an SCC was created
             return True
         else:
             if (
