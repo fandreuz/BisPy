@@ -103,6 +103,7 @@ def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
 def check_new_scc(
     current_source: _Vertex,
     destination: _Vertex,
+    finishing_time_list,
     min_rank: int = None,
     max_rank: int = None,
     visited_vertexes: List[_Vertex] = [],
@@ -140,12 +141,19 @@ def check_new_scc(
                 if check_new_scc(
                     edge.source,
                     destination,
+                    finishing_time_list,
                     min_rank,
                     max_rank,
                     visited_vertexes,
                     root_call=False,
                 ):
+                    # one of the children of this vertex returned True
+                    # therefore the visit of this node is over
+                    finishing_time_list.append(current_source)
+
                     return True
+
+    finishing_time_list.append(current_source)
 
     # we have to clean the flag "visited" for each visited vertex
     if root_call:
@@ -338,11 +346,15 @@ def update_rscp(
             if source_vertex.rank > destination_vertex.rank:
                 merge_phase(source_vertex.qblock, destination_vertex.qblock)
             else:
+                # we want to save the finishing time list
+                finishing_time_list = []
+
                 # in this case u is part of the new SCC (which contains also
                 # v), therefore it isn't well founded
                 if check_new_scc(
                     source_vertex,
                     destination_vertex,
+                    finishing_time_list,
                     source_vertex.rank,
                     destination_vertex.rank,
                 ):
