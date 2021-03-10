@@ -32,6 +32,7 @@ from .saha_test_cases import (
     exists_causal_splitter_qblocks,
     exists_causal_splitter_result_map,
     both_blocks_goto_result_map,
+    new_scc_finishing_time
 )
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
@@ -145,7 +146,7 @@ def test_check_new_scc(graph, new_edge, value):
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
-    assert check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]]) == value
+    assert check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], []) == value
 
 
 @pytest.mark.parametrize(
@@ -158,10 +159,29 @@ def test_check_new_scc_cleans(graph, new_edge, value):
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
-    check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]])
+    check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], [])
 
     for vertex in vertexes:
         assert vertex.visited == False
+
+
+@pytest.mark.parametrize(
+    "graph, new_edge, value, correct_finishing_time",
+    zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value, new_scc_finishing_time),
+)
+def test_check_new_scc_computes_finishing_time(graph, new_edge, value, correct_finishing_time):
+    vertexes = prepare_graph(graph)
+    create_initial_partition(vertexes)
+
+    add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
+
+    finishing_time_list = []
+    check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], finishing_time_list)
+
+    assert len(finishing_time_list) == len(correct_finishing_time)
+
+    for i in range(len(finishing_time_list)):
+        assert finishing_time_list[i].label == correct_finishing_time[i]
 
 
 @pytest.mark.parametrize(

@@ -5,6 +5,7 @@ from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
 new_scc_graphs = []
 new_scc_new_edge = []
 new_scc_correct_value = []
+new_scc_finishing_time = []
 
 # 0
 g0 = nx.DiGraph()
@@ -14,6 +15,7 @@ new_scc_graphs.append(g0)
 
 new_scc_new_edge.append((2,0))
 new_scc_correct_value.append(True)
+new_scc_finishing_time.append([0,1,2])
 
 # 1
 g1 = nx.DiGraph()
@@ -23,6 +25,7 @@ new_scc_graphs.append(g1)
 
 new_scc_new_edge.append((3, 4))
 new_scc_correct_value.append(False)
+new_scc_finishing_time.append([0,1,2,3])
 
 # 2
 g2 = nx.DiGraph()
@@ -32,6 +35,18 @@ new_scc_graphs.append(g2)
 
 new_scc_new_edge.append((0, 4))
 new_scc_correct_value.append(False)
+new_scc_finishing_time.append([0])
+
+# 3
+g0 = nx.DiGraph()
+g0.add_nodes_from(range(3))
+g0.add_edges_from([(1, 0),(0,1)])
+new_scc_graphs.append(g0)
+
+new_scc_new_edge.append((1,2))
+new_scc_correct_value.append(False)
+new_scc_finishing_time.append([0,1])
+
 
 # exists causal splitter
 exists_causal_splitter_qblocks = []
