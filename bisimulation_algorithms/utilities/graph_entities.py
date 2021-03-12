@@ -58,6 +58,9 @@ class _Vertex:
 
         self.initial_partition_block_id = None
 
+        self.allow_visit = False
+        self.old_qblock_id = None
+
     def scale_label(self, scaled_label: int):
         self.label = scaled_label
 
