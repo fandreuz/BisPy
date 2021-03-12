@@ -392,9 +392,9 @@ def test_merge_split_phase():
     pass
 
 
-def test_merge_split_resets_visited():
+def test_merge_split_resets_visited_allowvisit_oldqblockid():
     pass
 
 
-def test_merge_split_resets_visited_and_triedmerge_qblocks():
+def test_merge_split_resets_visited_triedmerge_qblocks():
     pass
