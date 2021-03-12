@@ -176,6 +176,7 @@ class _QBlock:
             xblock.append_qblock(self)
 
         self.deteached = False
+        self.tried_merge = False
 
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper _Vertex, not a dllistnode

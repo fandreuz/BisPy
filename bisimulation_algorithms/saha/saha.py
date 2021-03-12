@@ -118,12 +118,15 @@ def check_new_scc(
 
     if root_call:
         current_source.visited = True
+        current_source.qblock.visited = True
         visited_vertexes.append(current_source)
 
     for edge in current_source.counterimage:
         # we reached the block [v], therefore this is a new SCC
         if edge.source == destination:
             finishing_time_list.append(destination)
+            destination.qblock.visited = True
+
             # the visit of the current source is over
             finishing_time_list.append(current_source)
 
@@ -194,14 +197,16 @@ def both_blocks_go_or_dont_go_to_block(
 
 
 def exists_causal_splitter(
-    block1: _Block,
-    block2: _Block,
+    block1: _Block, block2: _Block, check_visited: bool = False
 ) -> bool:
     def build_block_image(block):
         s = set()
         for v in block.vertexes:
             for edge in v.image:
-                s.add(id(edge.destination.qblock))
+                # if check_visited is true, we only want to consider
+                # qblock visited in the first DFS (flag visited is true)
+                if not (check_visited and edge.destination.qblock.visited):
+                    s.add(id(edge.destination.qblock))
         return s
 
     block_image1 = build_block_image(block1)
@@ -210,10 +215,7 @@ def exists_causal_splitter(
     return block_image1 != block_image2
 
 
-def merge_condition(
-    block1: _Block,
-    block2: _Block
-) -> bool:
+def merge_condition(block1: _Block, block2: _Block) -> bool:
     if (
         block1.initial_partition_block_id()
         != block2.initial_partition_block_id()
@@ -224,6 +226,8 @@ def merge_condition(
     elif block1.rank() != block2.rank():
         return False
     elif exists_causal_splitter(block1, block2):
+        return False
+    elif block1.deteached or block2.deteached:
         return False
     else:
         return True
@@ -273,8 +277,61 @@ def merge_phase(
                 recursive_merge(ublock, v1block)
 
 
-def merge_split_phase():
-    pass
+def merge_split_phase(finishing_time_list):
+    # a dict of lists of blocks (the key is the initial partition ID)
+    # where each couple can't be merged
+    cant_merge_dict = {}
+
+    # keep track in order to remove the 'visited' flag
+    visited_vertexes = []
+
+    # a partition containing all the touched blocks
+    X = []
+
+    def merge_split_step(vertex):
+        vertex.visited = True
+        visited_vertexes.append(vertex)
+
+        for edge in vertex.image:
+            if not vertex.visited:
+                merge_split_phase(edge.destination)
+
+        if not vertex.qblock.tried_merge:
+            initial_partition_block_id = (
+                vertex.qblock.initial_partition_block_id()
+            )
+            if initial_partition_block_id in cant_merge_dict:
+                merged = False
+                for qblock in cant_merge_dict[initial_partition_block_id]:
+                    if not (
+                        qblock.deteached
+                        or exists_causal_splitter(
+                            vertex.qblock, qblock, check_visited=True
+                        )
+                    ):
+                        # it's preferable to deteach vertex.qblock to reduce the rubbish
+                        recursive_merge(qblock, vertex.qblock)
+                        merged = True
+                        break
+                if not merged:
+                    cant_merge_dict[initial_partition_block_id].append(
+                        vertex.qblock
+                    )
+            else:
+                cant_merge_dict[initial_partition_block_id] = [vertex.qblock]
+                # we only want to add to X here, since otherwise the block is merged with another one
+                X.append(vertex.qblock)
+
+            vertex.qblock.tried_merge = True
+
+    # visit G in order of decreasing finishing times of the first DFS
+    for vertex in finishing_time_list:
+        # a vertex may be reached more than one time
+        if not vertex.visited:
+            merge_split_step(vertex)
+
+    for vx in visited_vertexes:
+        vx.visited = False
 
 
 def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
@@ -372,7 +429,7 @@ def update_rscp(
                     # nodes in the new SCC, with the current implementation
                     # they are update by propagate_nwf
                     propagate_nwf(vertexes)
-                    merge_split_phase()
+                    merge_split_phase(finishing_time_list)
                 else:
                     if source_vertex.wf:
                         if destination_vertex.wf:
