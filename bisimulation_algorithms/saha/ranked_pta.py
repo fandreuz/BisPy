@@ -141,6 +141,35 @@ def refine(
     return (xblocks, new_qblocks, new_compound_xblocks)
 
 
+def ranked_split(
+    current_partition: List[_QBlock], B_qblock: _QBlock, max_rank: int
+):
+    # initialize x_partition and q_partition
+    x_partition = [
+        # this also overwrites any information about parent xblocks for qblock
+        _XBlock().append_qblock(qblock)
+        for qblock in current_partition
+    ]
+    q_partition = current_partition
+
+    #  perform Split(B,Q)
+    B_counterimage = build_block_counterimage(B_qblock)
+    new_qblocks, new_compound_xblocks = split(B_counterimage)
+
+    q_partition.extend(new_qblocks)
+
+    # note that only new compound xblock are compound xblocks
+    compound_xblocks = [[] for _ in range(max_rank + 2)]
+    for compound_xblock in new_compound_xblocks:
+        rank = compound_xblock.qblocks.first.value.vertexes.first.value.rank
+        if rank == float("-inf"):
+            compound_xblocks[0].append(compound_xblock)
+        else:
+            compound_xblocks[rank + 1].append(compound_xblock)
+
+    pta(x_partition, compound_xblocks, q_partition)
+
+
 # returns a list of labels splitted in partitions
 def pta(
     x_partition: List[_XBlock],
@@ -151,6 +180,10 @@ def pta(
     contains the whole "internal" representation of a graph.
 
     Args:
+        x_partition: a list of XBlocks
+        compound_xblocks (List[List[_XBlock]]): A list of list of compound
+        blocks of X, namely those that contain more than one block of Q,
+        sorted by increasing rank.
         q_partition (list[_QBlock]): The initial partition represented as the Q
         partition (namely with instances of QBlock).
 
@@ -197,32 +230,3 @@ def pta(
                     break
 
     return filter(lambda qblock: qblock.size > 0, q_partition)
-
-
-def ranked_split(
-    current_partition: List[_QBlock], B_qblock: _QBlock, max_rank: int
-):
-    # initialize x_partition and q_partition
-    x_partition = [
-        # this also overwrites any information about parent xblocks for qblock
-        _XBlock().append_qblock(qblock)
-        for qblock in current_partition
-    ]
-    q_partition = current_partition
-
-    #  perform Split(B,Q)
-    B_counterimage = build_block_counterimage(B_qblock)
-    new_qblocks, new_compound_xblocks = split(B_counterimage)
-
-    q_partition.extend(new_qblocks)
-
-    # note that only new compound xblock are compound xblocks
-    compound_xblocks = [[] for _ in range(max_rank + 2)]
-    for compound_xblock in new_compound_xblocks:
-        rank = compound_xblock.qblocks.first.value.vertexes.first.value.rank
-        if rank == float("-inf"):
-            compound_xblocks[0].append(compound_xblock)
-        else:
-            compound_xblocks[rank + 1].append(compound_xblock)
-
-    pta(x_partition, compound_xblocks, q_partition)
