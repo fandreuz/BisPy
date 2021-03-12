@@ -164,6 +164,22 @@ def test_check_new_scc_cleans(graph, new_edge, value):
     for vertex in vertexes:
         assert vertex.visited == False
 
+@pytest.mark.parametrize(
+    "graph, new_edge, value",
+    zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
+)
+def test_check_new_scc_qblocks_visited(graph, new_edge, value):
+    vertexes = prepare_graph(graph)
+    create_initial_partition(vertexes)
+
+    add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
+
+    finishing_time_list = []
+    check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], finishing_time_list)
+
+    for vx in finishing_time_list:
+        assert vx.qblock.visited
+
 
 @pytest.mark.parametrize(
     "graph, new_edge, value, correct_finishing_time",
@@ -373,4 +389,12 @@ def test_initial_partition_block_idx_not_none():
 
 
 def test_merge_split_phase():
+    pass
+
+
+def test_merge_split_resets_visited():
+    pass
+
+
+def test_merge_split_resets_visited_and_triedmerge_qblocks():
     pass
