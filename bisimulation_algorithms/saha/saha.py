@@ -4,9 +4,10 @@ from bisimulation_algorithms.utilities.graph_entities import (
     _QBlock as _Block,
     _Edge,
     _Count,
+    _XBlock,
 )
 from typing import List, Tuple
-from .ranked_pta import ranked_split
+from .ranked_pta import ranked_split, pta
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
     compute_rank,
     compute_finishing_time_list,
@@ -277,7 +278,7 @@ def merge_phase(
                 recursive_merge(ublock, v1block)
 
 
-def merge_split_phase(finishing_time_list):
+def merge_split_phase(qpartition, finishing_time_list, max_rank):
     # a dict of lists of blocks (the key is the initial partition ID)
     # where each couple can't be merged
     cant_merge_dict = {}
@@ -332,6 +333,37 @@ def merge_split_phase(finishing_time_list):
 
     for vx in visited_vertexes:
         vx.visited = False
+
+    for block in X:
+        # this is needed for PTA
+        block.xblock = _XBlock()
+        # clean visited
+        block.visited = False
+
+        for vx in block.vertexes:
+            # mark as visitable by PTA
+            vx.allow_visit = True
+            # remember which qblock you were in
+            vx.old_qblock_id = id(vx.qblock)
+
+    X2 = qblocks = pta(X)
+
+    # keep track of the blocks which are the result of a split
+    splitted_blocks = []
+
+    for block in X2:
+        for vx in block.vertexes:
+            # clean allow_visit
+            vx.allow_visit = False
+            # check if changed
+            if not vx.qblock.visited and vx.old_qblock_id != id(vx.qblock):
+                ranked_split(None, vx.qblock, max_rank)
+                vx.qblock.visited = True
+                splitted_blocks.append(vx.qblock)
+
+    # clean block.visited
+    for block in splitted_blocks:
+        block.visited = False
 
 
 def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
