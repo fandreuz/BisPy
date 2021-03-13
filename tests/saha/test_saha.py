@@ -18,7 +18,8 @@ from bisimulation_algorithms.saha.saha import (
     both_blocks_go_or_dont_go_to_block,
     merge_condition,
     recursive_merge,
-    merge_phase
+    merge_phase,
+    merge_split_phase
 )
 from tests.fba.rank.rank_test_cases import graphs
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
@@ -393,8 +394,44 @@ def test_merge_split_phase():
 
 
 def test_merge_split_resets_visited_allowvisit_oldqblockid():
-    pass
+    g = nx.DiGraph()
+    g.add_nodes_from(range(5))
+    g.add_edges_from([(0,1),(1,0),(2,1),(2,4),(3,1)])
+
+    partition = [(2,3), (1,0),(4,)]
+
+    vertexes = prepare_graph(g, partition)
+    qblocks = [block for ls in create_initial_partition(vertexes) for block in ls]
+
+    finishing_time_list = [vertexes[2], vertexes[1], vertexes[0]]
+
+    merge_split_phase(qblocks, finishing_time_list)
+
+    assert all([not vertex.visited for vertex in vertexes])
+    assert all([not vertex.allow_visit for vertex in vertexes])
+    assert all([vertex.old_qblock_id == None for vertex in vertexes])
 
 
 def test_merge_split_resets_visited_triedmerge_qblocks():
+    g = nx.DiGraph()
+    g.add_nodes_from(range(5))
+    g.add_edges_from([(0,1),(1,0),(2,1),(2,4),(3,1)])
+
+    partition = [(2,3), (1,0),(4,)]
+
+    vertexes = prepare_graph(g, partition)
+    qblocks = [block for ls in create_initial_partition(vertexes) for block in ls]
+
+    qblocks[0].visited = True
+    qblocks[2].visited = True
+
+    finishing_time_list = [vertexes[2], vertexes[1], vertexes[0]]
+
+    qpartition = merge_split_phase(qblocks, finishing_time_list)
+
+    assert all([not block.visited for block in qpartition])
+    assert all([not block.tried_merge for block in qpartition])
+
+
+def test_update_rscp():
     pass
