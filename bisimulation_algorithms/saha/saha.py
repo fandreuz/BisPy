@@ -278,7 +278,11 @@ def merge_phase(
                 recursive_merge(ublock, v1block)
 
 
-def merge_split_phase(qpartition, finishing_time_list, max_rank):
+def merge_split_phase(qpartition, finishing_time_list):
+    max_rank = float('-inf')
+    for block in qpartition:
+        max_rank = max(max_rank, block.rank())
+
     # a dict of lists of blocks (the key is the initial partition ID)
     # where each couple can't be merged
     cant_merge_dict = {}
@@ -334,11 +338,22 @@ def merge_split_phase(qpartition, finishing_time_list, max_rank):
     for vx in visited_vertexes:
         vx.visited = False
 
+    # reset block.visited flag (was set by first DFS) and tried_merge
+    for block in qpartition:
+        block.visited = False
+        block.tried_merge = False
+
+    # we need to create a different xblock for each rank of the qblocks
+    xblock_dict = {}
     for block in X:
         # this is needed for PTA
-        block.xblock = _XBlock()
-        # clean visited
-        block.visited = False
+        if block.rank() in xblock_dict:
+            block.xblock = xblock_dict[block.rank()]
+        else:
+            block.xblock = _XBlock()
+            xblock_dict[block.rank()] = block.xblock
+        # set visited flag in order to extract qpartition - X
+        block.visited = True
 
         for vx in block.vertexes:
             # mark as visitable by PTA
@@ -346,24 +361,67 @@ def merge_split_phase(qpartition, finishing_time_list, max_rank):
             # remember which qblock you were in
             vx.old_qblock_id = id(vx.qblock)
 
-    X2 = qblocks = pta(X)
+    # build the new qpartition, without blocks in X (which may be split)
+    new_qpartition = []
+    for block in qpartition:
+        if not block.visited:
+            new_qpartition.append(block)
+
+    # clean block.visited
+    for block in X:
+        block.visited = False
+
+    # build x_partition and compound_xblocks for PTA
+    x_partition = list(xblock_dict.values())
+
+    # we want to "consume" the dict: we stop when we find all the ranks
+    dict_residual_length = len(xblock_dict)
+
+    compound_xblocks = []
+    if float('-inf') in xblock_dict:
+        compound_xblocks.append([xblock_dict[float('-inf')]])
+        dict_residual_length -= 1
+    else:
+        compound_xblocks.append([])
+
+    current_rank = 0
+    while dict_residual_length > 0:
+        key = current_rank + 1
+        if key in xblock_dict:
+            compound_xblocks.append([xblock_dict[key]])
+            dict_residual_length -= 1
+        else:
+            compound_xblocks.append([])
+        current_rank += 1
+
+    # apply PTA and append the blocks to the new partition
+    X2 = pta(x_partition, compound_xblocks, X)
+    new_qpartition.extend(X2)
 
     # keep track of the blocks which are the result of a split
     splitted_blocks = []
-
     for block in X2:
         for vx in block.vertexes:
             # clean allow_visit
             vx.allow_visit = False
             # check if changed
             if not vx.qblock.visited and vx.old_qblock_id != id(vx.qblock):
-                ranked_split(None, vx.qblock, max_rank)
-                vx.qblock.visited = True
+                ranked_split(new_qpartition, vx.qblock, max_rank)
                 splitted_blocks.append(vx.qblock)
+
+                # this is used as a flag to prevent splitting twice
+                vx.qblock.visited = True
+
+    # clear old_qblock_id
+    for block in new_qpartition:
+        for vertex in block.vertexes:
+            vertex.old_qblock_id = None
 
     # clean block.visited
     for block in splitted_blocks:
         block.visited = False
+
+    return new_qpartition
 
 
 def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
