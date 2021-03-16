@@ -311,7 +311,7 @@ def pta(q_partition: List[_QBlock]) -> List[_QBlock]:
     # initially, there's only one block in the partition X, the one which
     # contains each block in Q
     x_partition = [q_partition[0].xblock]
-    # if there's more than one block of Q in the (sinlge) block in X, we can
+    # if there's more than one block of Q in the (single) block in X, we can
     # add it to compound_blocks
     if len(x_partition[0].qblocks) > 1:
         compound_xblocks = [x_partition[0]]
