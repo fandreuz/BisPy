@@ -3,6 +3,10 @@ import networkx as nx
 from bisimulation_algorithms.saha.graph_decorator import (
     prepare_graph,
 )
+from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+    prepare_graph as prepare_graph_fba,
+)
+from bisimulation_algorithms.dovier_piazza_policriti.fba import fba
 from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     create_initial_partition,
     build_block_counterimage,
@@ -19,7 +23,9 @@ from bisimulation_algorithms.saha.saha import (
     merge_condition,
     recursive_merge,
     merge_phase,
-    merge_split_phase
+    merge_split_phase,
+    build_well_founded_topological_list,
+    update_rscp
 )
 from tests.fba.rank.rank_test_cases import graphs
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
@@ -39,7 +45,8 @@ from tests.pta.pta_test_cases import graph_partition_rscp_tuples
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
 import itertools
 from bisimulation_algorithms.paige_tarjan.pta import pta
-from bisimulation_algorithms.utilities.graph_entities import _Edge
+from bisimulation_algorithms.utilities.graph_entities import _Edge, _XBlock
+from bisimulation_algorithms.saha.ranked_pta import pta as ranked_pta
 
 
 def test_check_old_blocks_relation():
@@ -433,5 +440,64 @@ def test_merge_split_resets_visited_triedmerge_qblocks():
     assert all([not block.tried_merge for block in qpartition])
 
 
-def test_update_rscp():
-    pass
+@pytest.mark.parametrize(
+    "graph",
+    map(lambda x: x[0], graph_partition_rscp_tuples),
+)
+# at the moment we ignore initial_partition
+def test_update_rscp(graph):
+    initial_rscp = fba(graph)
+
+    qblocks = []
+    vertexes = []
+    for block in initial_rscp:
+        qblocks.append(block[0].qblock)
+        vertexes.extend(block)
+
+    # add an edge
+    source_vertex = qblocks[0].vertexes.first.value
+    dest_vertex = qblocks[-1].vertexes.last.value
+    add_edge(source_vertex, dest_vertex)
+
+    # create a new graph from the current representation
+    new_graph = nx.DiGraph()
+    new_graph.add_nodes_from(range(len(graph.nodes)))
+    for vertex in vertexes:
+        for edge in vertex.image:
+            new_graph.add_edge(vertex.label, edge.destination.label)
+    # compute its rscp
+    new_rscp = fba(new_graph)
+
+    # now use the incremental algorithm
+    update_rscp(qblocks, (source_vertex.label, dest_vertex.label), vertexes)
+
+
+def test_well_founded_topological():
+    g = nx.DiGraph()
+    g.add_nodes_from(range(8))
+    g.add_edges_from([(0,1), (1,2), (3,4), (4,5), (6,7), (7,6)])
+
+    partition = [(0,3), (1,4), (2,5), (6,7)]
+
+    vertexes = prepare_graph(g, partition)
+
+    for vx in vertexes:
+        vx.allow_visit = True
+
+    qpartition = [block for ls in create_initial_partition(vertexes) for block in ls]
+
+    topo = build_well_founded_topological_list(qpartition)
+
+    assert len(topo) == 6
+
+    assert topo[0] == vertexes[2] or topo[0] == vertexes[5]
+    assert topo[1] == vertexes[2] or topo[1] == vertexes[5]
+    assert topo[0] != topo[1]
+
+    assert topo[2] == vertexes[1] or topo[2] == vertexes[4]
+    assert topo[3] == vertexes[1] or topo[3] == vertexes[4]
+    assert topo[2] != topo[3]
+
+    assert topo[4] == vertexes[0] or topo[4] == vertexes[3]
+    assert topo[5] == vertexes[0] or topo[5] == vertexes[3]
+    assert topo[4] != topo[5]
