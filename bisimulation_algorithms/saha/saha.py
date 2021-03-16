@@ -348,10 +348,11 @@ def merge_split_phase(qpartition, finishing_time_list):
     for block in X:
         # this is needed for PTA
         if block.rank() in xblock_dict:
-            block.xblock = xblock_dict[block.rank()]
+            xblock_dict[block.rank()].append_qblock(block)
         else:
-            block.xblock = _XBlock()
-            xblock_dict[block.rank()] = block.xblock
+            xblock = _XBlock()
+            xblock.append_qblock(block)
+            xblock_dict[block.rank()] = xblock
         # set visited flag in order to extract qpartition - X
         block.visited = True
 
@@ -386,22 +387,28 @@ def merge_split_phase(qpartition, finishing_time_list):
 
     current_rank = 0
     while dict_residual_length > 0:
-        key = current_rank + 1
-        if key in xblock_dict:
-            compound_xblocks.append([xblock_dict[key]])
+        if current_rank in xblock_dict:
             dict_residual_length -= 1
+            xblock = xblock_dict[current_rank]
+            if xblock.size() > 1:
+                compound_xblocks.append([xblock])
         else:
             compound_xblocks.append([])
         current_rank += 1
 
+    for block in X:
+        for vx in block.vertexes:
+            vx.restrict_to_allowed_subraph()
+
     # apply PTA and append the blocks to the new partition
-    X2 = pta(x_partition, compound_xblocks, X)
+    X2 = pta(X)
     new_qpartition.extend(X2)
 
     # keep track of the blocks which are the result of a split
     splitted_blocks = []
     for block in X2:
         for vx in block.vertexes:
+            vx.back_to_original_graph()
             # clean allow_visit
             vx.allow_visit = False
             # check if changed
@@ -422,6 +429,15 @@ def merge_split_phase(qpartition, finishing_time_list):
         block.visited = False
 
     return new_qpartition
+
+
+def propagate_nwf(vertexes: List[_Vertex]):
+    # temporary: use the standard algorithm for rank computation
+    finishing_time_list = compute_finishing_time_list(vertexes)
+    build_vertexes_image(finishing_time_list)
+
+    # sets ranks
+    compute_rank(vertexes, finishing_time_list)
 
 
 def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
@@ -461,22 +477,31 @@ def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex]):
                 propagate_nwf(edge.source)
 
 
-def propagate_nwf(vertexes: List[_Vertex]):
-    # temporary: use the standard algorithm for rank computation
-    finishing_time_list = compute_finishing_time_list(vertexes)
-    build_vertexes_image(finishing_time_list)
-
-    # sets ranks
-    compute_rank(vertexes, finishing_time_list)
+def build_well_founded_topological_list(old_rscp):
+    dict_by_rank = {}
+    well_founded_topological = []
+    for block in old_rscp:
+        if block.rank() in dict_by_rank:
+            ls = dict_by_rank[block.rank()]
+        else:
+            ls = []
+            dict_by_rank[block.rank()] = ls
+        for vertex in block.vertexes:
+            if vertex.wf:
+                ls.append(vertex)
+    for _, ls in dict_by_rank.items():
+        well_founded_topological.extend(ls)
+    return well_founded_topological
 
 
 def update_rscp(
     old_rscp: List[_Block],
     new_edge: Tuple[int, int],
-    well_founded_topological: List[_Vertex],
     vertexes: List[_Vertex],
 ):
     source_vertex, destination_vertex = find_vertexes(old_rscp)
+
+    well_founded_topological = build_well_founded_topological_list(old_rscp)
 
     # if the new edge connects two blocks A,B such that A => B before the edge
     # is added we don't need to do anything
@@ -496,11 +521,11 @@ def update_rscp(
             if destination_vertex.rank + 1 > source_vertex.rank:
                 source_vertex.rank = destination_vertex.rank + 1
                 propagate_nwf(vertexes)
-            merge_phase(source_vertex.qblock, destination_vertex.qblock)
+            return merge_phase(source_vertex.qblock, destination_vertex.qblock)
         else:
             # in this case we don't need to update the rank
             if source_vertex.rank > destination_vertex.rank:
-                merge_phase(source_vertex.qblock, destination_vertex.qblock)
+                return merge_phase(source_vertex.qblock, destination_vertex.qblock)
             else:
                 # we want to save the finishing time list
                 finishing_time_list = []
@@ -519,7 +544,7 @@ def update_rscp(
                     # nodes in the new SCC, with the current implementation
                     # they are update by propagate_nwf
                     propagate_nwf(vertexes)
-                    merge_split_phase(finishing_time_list)
+                    return merge_split_phase(finishing_time_list)
                 else:
                     if source_vertex.wf:
                         if destination_vertex.wf:
@@ -537,6 +562,6 @@ def update_rscp(
                             source_vertex.rank = destination_vertex.rank
                             propagate_nwf(vertexes)
 
-                    merge_phase(
+                    return merge_phase(
                         source_vertex.qblock, destination_vertex.qblock
                     )
