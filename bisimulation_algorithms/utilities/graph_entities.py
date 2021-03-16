@@ -67,6 +67,8 @@ class _Vertex:
     def back_to_original_label(self):
         self.label = self.original_label
 
+    # creates a subgraph which contains only vertexes of the
+    # same rank of this vertex.
     def restrict_to_subgraph(self):
         # this will be called just before calling PTA, therefore set the _Count
         # instance for each _Edge
@@ -90,6 +92,43 @@ class _Vertex:
         for edge in counterimg:
             if edge.source.rank == self.rank:
                 self.add_to_counterimage(edge)
+
+    def restrict_to_allowed_subraph(self):
+        self._original_img = self.image
+        self.image = []
+
+        self._original_count = None
+
+        count = _Count(self)
+
+        for edge in self._original_img:
+            if edge.destination.allow_visit:
+                self.add_to_image(edge)
+
+                if self._original_count is None:
+                    self._original_count = edge.count
+
+                # set the count for this _Edge, and increment the counter
+                edge.count = count
+                count.value += 1
+
+        self._original_counterimg = self.counterimage
+        self.counterimage = []
+
+        for edge in self._original_counterimg:
+            if edge.source.rank.allow_visit:
+                self.add_to_counterimage(edge)
+
+    def back_to_original_graph(self):
+        self.image = self._original_img
+        self.counterimage = self._original_counterimg
+
+        for edge in self.image:
+            edge.count = self._original_count
+
+        self._original_count = None
+        self._original_counterimg = None
+        self._original_img = None
 
     def add_to_counterimage(self, edge):
         self.counterimage.append(edge)
