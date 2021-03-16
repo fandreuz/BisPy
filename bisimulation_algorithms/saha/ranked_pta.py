@@ -288,7 +288,7 @@ def pta(
                     first_nonempty_compound_rankindex = i
                     break
 
-    return filter(lambda qblock: qblock.size > 0, q_partition)
+    return list(filter(lambda qblock: qblock.size > 0, q_partition))
 
 
 def ranked_split(
