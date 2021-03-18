@@ -90,3 +90,35 @@ noderank_dicts.append(
         4: 2,
     }
 )
+
+graph8 = nx.DiGraph()
+graph8.add_nodes_from(range(5))
+graph8.add_edges_from(
+    [(0,1), (0,4), (1,2), (2,3), (3,0)]
+)
+graphs.append(graph8)
+noderank_dicts.append(
+    {
+        0: 1,
+        1: 1,
+        2: 1,
+        3: 1,
+        4: 0
+    }
+)
+
+graph9 = nx.DiGraph()
+graph9.add_nodes_from(range(5))
+graph9.add_edges_from(
+    [(0,1), (0,4), (1,2), (2,3), (3,0), (2,4)]
+)
+graphs.append(graph9)
+noderank_dicts.append(
+    {
+        0: 1,
+        1: 1,
+        2: 1,
+        3: 1,
+        4: 0
+    }
+)

@@ -20,6 +20,8 @@ def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
     return vertexes
 
 
+# this re-arranges the image of each vertex in a convenient order for further
+# visits
 def build_vertexes_image(finishing_time_list: List[_Vertex]):
     # use the standard vertex ordering
     vertex_count = [None for _ in range(len(finishing_time_list))]

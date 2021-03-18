@@ -10,6 +10,9 @@ from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
     compute_rank,
     compute_finishing_time_list,
 )
+from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+    build_vertexes_image
+)
 
 
 def to_normal_graph(
@@ -18,21 +21,16 @@ def to_normal_graph(
     if initial_partition is None:
         initial_partition = [tuple(i for i in range(len(graph.nodes)))]
 
-    # map vertex to its qblock and initial partition idx
-    vertex_to_qblock = [None for _ in graph.nodes]
-
+    # instantiate QBlocks and Vertexes, put Vertexes into QBlocks and set their
+    # initial block id
+    vertexes = []
     for idx,block in enumerate(initial_partition):
         qblock = _QBlock([], None)
         for vx in block:
-            vertex_to_qblock[vx] = (qblock,idx)
-
-    vertexes = []
-    for vertex in graph.nodes:
-        new_vertex = _Vertex(label=vertex)
-        vertexes.append(new_vertex)
-        qblock, idx = vertex_to_qblock[vertex]
-        qblock.append_vertex(new_vertex)
-        new_vertex.initial_partition_block_id = idx
+            new_vertex = _Vertex(label=vx)
+            vertexes.append(new_vertex)
+            qblock.append_vertex(new_vertex)
+            new_vertex.initial_partition_block_id = idx
 
     # holds the references to Count objects to assign to the edges (this is OK
     # because we can consider |V| = O(|E|))
@@ -55,26 +53,14 @@ def to_normal_graph(
         my_edge.count = vertex_count[edge[0]]
         my_edge.count.value += 1
 
-        my_edge.source.add_to_image(my_edge)
+        # the edge will be added to the image in build_vertexes_image
+        # my_edge.source.add_to_image(my_edge)
         my_edge.destination.add_to_counterimage(my_edge)
 
     return vertexes
 
 
-def build_vertexes_image(finishing_time_list: List[_Vertex]):
-    # use the standard vertex ordering
-    vertex_count = [None for _ in range(len(finishing_time_list))]
-
-    for time_list_idx in range(len(finishing_time_list) - 1, -1, -1):
-        vertex = finishing_time_list[time_list_idx]
-
-        # use the counterimage of the current vertex to update the images of
-        # the nodes in the counterimage of the current vertex.
-        for edge in vertex.counterimage:
-            edge.source.add_to_image(edge)
-
-
-def prepare_graph(
+def prepare_nx_graph(
     graph: nx.Graph, initial_partition: List[Tuple[int]]=None
 ) -> List[_Vertex]:
     """Prepare the input graph for the algorithm. Computes the rank for each
@@ -99,3 +85,33 @@ def prepare_graph(
     compute_rank(vertexes, finishing_time_list)
 
     return vertexes
+
+
+def prepare_internal_graph(vertexes, initial_partition):
+    if initial_partition is not None:
+        # set Vertexes initial block id
+        for idx,block in enumerate(initial_partition):
+            for vx in block:
+                vertexes[vx].initial_partition_block_id = idx
+                # also delete the image, since we're going to call
+                # build_vertexes_image next
+                vertexes[vx].image = []
+    else:
+        for vx in vertexes:
+            vx.initial_partition_block_id = None
+            # also delete the image, since we're going to call
+            # build_vertexes_image next
+            vertexes[vx].image = []
+
+    # set count reference
+    for vertex in vertexes:
+        count = _Count(vertex)
+        for edge in vertex.image:
+            edge.count = count
+            edge.count.value += 1
+
+    finishing_time_list = compute_finishing_time_list(vertexes)
+    build_vertexes_image(finishing_time_list)
+
+    # sets ranks
+    compute_rank(vertexes, finishing_time_list)

@@ -38,14 +38,34 @@ new_scc_correct_value.append(False)
 new_scc_finishing_time.append([0])
 
 # 3
-g0 = nx.DiGraph()
-g0.add_nodes_from(range(3))
-g0.add_edges_from([(1, 0),(0,1)])
-new_scc_graphs.append(g0)
+g3 = nx.DiGraph()
+g3.add_nodes_from(range(3))
+g3.add_edges_from([(1, 0),(0,1)])
+new_scc_graphs.append(g3)
 
 new_scc_new_edge.append((1,2))
 new_scc_correct_value.append(False)
 new_scc_finishing_time.append([0,1])
+
+# 4
+g4 = nx.DiGraph()
+g4.add_nodes_from(range(6))
+g4.add_edges_from([(1,2), (0,2), (0,3), (2,4), (3,4)])
+new_scc_graphs.append(g4)
+
+new_scc_new_edge.append((4,2))
+new_scc_correct_value.append(True)
+new_scc_finishing_time.append(None)
+
+# 5
+g5 = nx.DiGraph()
+g5.add_nodes_from(range(5))
+g5.add_edges_from([(0,1), (1,2), (2,3), (3,0), (0,4)])
+new_scc_graphs.append(g5)
+
+new_scc_new_edge.append(((4,0)))
+new_scc_correct_value.append(True)
+new_scc_finishing_time.append(None)
 
 
 # exists causal splitter
@@ -68,3 +88,17 @@ both_blocks_goto_result_map = []
 
 # 0
 both_blocks_goto_result_map.append([((0,1,0), True), ((0,1,1), True), ((0,1,2), True), ((0,1,3), True), ((0,2,0), False), ((0,2,1), False), ((0,2,2), False), ((0,2,3), True), ((0,3,0), True), ((0,3,1), False), ((0,3,2), False), ((1,2,0), False), ((1,2,1), False), ((1,2,2), False), ((1,2,3), True), ((1,3,0), True), ((1,3,1), False), ((1,3,2), False), ((1,3,3), True), ((2,3,0), False), ((2,3,1), True), ((2,3,2), True), ((2,3,3), True)])
+
+
+# update rscp
+update_rscp_graphs = []
+update_rscp_new_edge = []
+update_rscp_initial_partition = []
+
+# 0
+g0 = nx.DiGraph()
+g0.add_nodes_from(range(6))
+g0.add_edges_from([(1, 0), (2, 1), (3, 2), (3, 0), (1, 4), (1, 5)])
+update_rscp_graphs.append(g0)
+update_rscp_initial_partition.append([(0,), (1, 3, 5), (2, 4)])
+update_rscp_new_edge.append((4,3))

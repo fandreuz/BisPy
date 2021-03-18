@@ -270,7 +270,7 @@ def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
 
     # note that, since we are employing the strategy proposed in the paper,
-    # we don't even need to pass the XBLock S
+    # we don't even need to pass the XBlock S
     second_splitter_counterimage = build_exclusive_B_counterimage(
         B_qblock_vertexes
     )

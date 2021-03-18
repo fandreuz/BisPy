@@ -5,7 +5,7 @@ from typing import Iterable
 def compute_initial_partition_block_id(vertex_labels: Iterable[int]):
     id = 0
     for label in vertex_labels:
-        id += pow(2,label)
+        id += pow(2, label)
     return id
 
 
@@ -116,7 +116,7 @@ class _Vertex:
         self.counterimage = []
 
         for edge in self._original_counterimg:
-            if edge.source.rank.allow_visit:
+            if edge.source.allow_visit:
                 self.add_to_counterimage(edge)
 
     def back_to_original_graph(self):
@@ -264,9 +264,16 @@ class _QBlock:
             ",".join([str(vertex) for vertex in self.vertexes])
         )
 
+    def fast_mitosis(self, extract_vertexes):
+        new_block = _QBlock([], self.xblock)
+        for vertex in extract_vertexes:
+            self.remove_vertex(vertex)
+            new_block.append_vertex(vertex)
+        return new_block
+
     # only for testing purposes
     def _mitosis(self, vertexes1, vertexes2):
-        new_block = _QBlock([], None)
+        new_block = _QBlock([], self.xblock)
 
         for to_remove in vertexes2:
             for vertex in self.vertexes:
@@ -324,4 +331,4 @@ class _Count:
         self.value = 0
 
     def __repr__(self):
-        return "C{}:{}".format(self.vertex, self.label)
+        return "C{}:{}".format(self.vertex, self.value)

@@ -490,7 +490,7 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
 )
 def test_pta_correctness(graph, initial_partition, expected_q_partition):
     rscp = pta_rscp(graph, initial_partition)
-    assert set(rscp) == set(expected_q_partition)
+    assert set(frozenset(tp) for tp in rscp) == set(frozenset(tp) for tp in expected_q_partition)
 
 
 def test_pta_no_initial_partition():

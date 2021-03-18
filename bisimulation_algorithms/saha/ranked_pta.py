@@ -76,22 +76,21 @@ def build_block_counterimage(B_qblock: _QBlock) -> List[_Vertex]:
 
     for vertex in B_qblock.vertexes:
         for edge in vertex.counterimage:
-            if edge.source.allow_visit:
-                counterimage_vertex = edge.source
+            counterimage_vertex = edge.source
 
-                # this vertex should be added to the counterimage only if necessary
-                # (avoid duplicates)
-                if not counterimage_vertex.visited:
-                    qblock_counterimage.append(counterimage_vertex)
-                    # remember to release this vertex
-                    counterimage_vertex.visit()
+            # this vertex should be added to the counterimage only if necessary
+            # (avoid duplicates)
+            if not counterimage_vertex.visited:
+                qblock_counterimage.append(counterimage_vertex)
+                # remember to release this vertex
+                counterimage_vertex.visit()
 
-                # if this is the first time we found a destination in qblock for
-                # whom this node is a source, create a new instance of Count.
-                # remember to set it to None
-                if not counterimage_vertex.aux_count:
-                    counterimage_vertex.aux_count = _Count(counterimage_vertex)
-                counterimage_vertex.aux_count.value += 1
+            # if this is the first time we found a destination in qblock for
+            # whom this node is a source, create a new instance of Count.
+            # remember to set it to None
+            if not counterimage_vertex.aux_count:
+                counterimage_vertex.aux_count = _Count(counterimage_vertex)
+            counterimage_vertex.aux_count.value += 1
 
     for vertex in qblock_counterimage:
         # release this vertex so that it can be visited again in a next
@@ -126,7 +125,7 @@ def build_exclusive_B_counterimage(
 
     for vertex in B_qblock_vertexes:
         for edge in vertex.counterimage:
-            if edge.source.allow_visit and not edge.source.in_second_splitter:
+            if edge.source.in_second_splitter:
                 # determine count(vertex,B) = |B \cap E({vertex})|
                 count_B = edge.source.aux_count
 
@@ -306,7 +305,14 @@ def ranked_split(
     B_counterimage = build_block_counterimage(B_qblock)
     new_qblocks, new_compound_xblocks = split(B_counterimage)
 
+    # reset aux_count
+    for vx in B_counterimage:
+        vx.aux_count = None
+
     q_partition.extend(new_qblocks)
+
+    if max_rank == float('-inf'):
+        max_rank = -1
 
     # note that only new compound xblock are compound xblocks
     compound_xblocks = [[] for _ in range(max_rank + 2)]
@@ -317,4 +323,4 @@ def ranked_split(
         else:
             compound_xblocks[rank + 1].append(compound_xblock)
 
-    pta(x_partition, compound_xblocks, q_partition)
+    return pta(x_partition, compound_xblocks, q_partition)
