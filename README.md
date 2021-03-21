@@ -4,14 +4,9 @@
 # Bisimulation-Algorithms
 
 ## The problem
-Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation R on V which satisfies the following property:
+Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation R on V which satisfies the following two properties:
 
 ![Bisimulation definition](res/bisimulation-definition.png)
-
-the following conditions hold:
-
-<img src="https://render.githubusercontent.com/render/math?math=1. \,\,\forall a_1 \mid \left(a, a_1\right) \in E, \exists \, b_1 \mid \left(b, b_1\right) \in E \lor R(a_1,b_1)">
-<img src="https://render.githubusercontent.com/render/math?math=2. \,\forall b_1 \mid \left(b, b_1\right) \in E, \exists \, a_1 \mid \left(a, a_1\right) \in E \lor R(a_1,b_1)">
 
 This is in fact a condition on the *behavior* of the nodes: two nodes *behave* in the *same way* if for each node reached by one of them, there's a fourth node reached by the other node which *behaves* like the third.
 
