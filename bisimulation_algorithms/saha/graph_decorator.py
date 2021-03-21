@@ -3,7 +3,7 @@ from bisimulation_algorithms.utilities.graph_entities import (
     _Vertex,
     _Edge,
     _Count,
-    _QBlock
+    _QBlock,
 )
 from typing import List, Tuple
 from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
@@ -11,7 +11,7 @@ from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
     compute_finishing_time_list,
 )
 from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
-    build_vertexes_image
+    build_vertexes_image,
 )
 
 
@@ -24,7 +24,7 @@ def to_normal_graph(
     # instantiate QBlocks and Vertexes, put Vertexes into QBlocks and set their
     # initial block id
     vertexes = []
-    for idx,block in enumerate(initial_partition):
+    for idx, block in enumerate(initial_partition):
         qblock = _QBlock([], None)
         for vx in block:
             new_vertex = _Vertex(label=vx)
@@ -63,7 +63,7 @@ def to_normal_graph(
 
 
 def prepare_nx_graph(
-    graph: nx.Graph, initial_partition: List[Tuple[int]]=None
+    graph: nx.Graph, initial_partition: List[Tuple[int]] = None
 ) -> List[_Vertex]:
     """Prepare the input graph for the algorithm. Computes the rank for each
     node, and then converts the graph to a usable representation.
@@ -92,7 +92,7 @@ def prepare_nx_graph(
 def prepare_internal_graph(vertexes, initial_partition):
     if initial_partition is not None:
         # set Vertexes initial block id
-        for idx,block in enumerate(initial_partition):
+        for idx, block in enumerate(initial_partition):
             for vx in block:
                 vertexes[vx].initial_partition_block_id = idx
                 # also delete the image, since we're going to call

@@ -132,8 +132,8 @@ def check_new_scc(
 
         if (
             not edge.source.visited
-            #and min_rank <= edge.source.rank
-            #and edge.source.rank <= max_rank
+            # and min_rank <= edge.source.rank
+            # and edge.source.rank <= max_rank
         ):
             # we don't want to visit a vertex more than one time
             edge.source.visited = True
@@ -143,15 +143,18 @@ def check_new_scc(
 
             # if at least one of the possible ramifications is True,
             # return True
-            flag_scc_found = (check_new_scc(
-                edge.source,
-                destination,
-                finishing_time_list,
-                min_rank,
-                max_rank,
-                visited_vertexes,
-                root_call=False,
-            ) or flag_scc_found)
+            flag_scc_found = (
+                check_new_scc(
+                    edge.source,
+                    destination,
+                    finishing_time_list,
+                    min_rank,
+                    max_rank,
+                    visited_vertexes,
+                    root_call=False,
+                )
+                or flag_scc_found
+            )
 
     finishing_time_list.append(current_source)
 
@@ -197,8 +200,10 @@ def exists_causal_splitter(
                 if not (check_visited and current_block.visited):
                     # causal splitter HAVE TO be blocks such that we KNOW they
                     # are in the new rscp of G' (the updated graph)
-                    if (current_block.rank < block.rank
-                        or current_block == the_other_block):
+                    if (
+                        current_block.rank < block.rank
+                        or current_block == the_other_block
+                    ):
                         s.add(id(edge.destination.qblock))
         return s
 
@@ -208,8 +213,9 @@ def exists_causal_splitter(
     return block_image1 != block_image2
 
 
-def merge_condition(block1: _Block, block2: _Block,
-    check_visited: bool = False) -> bool:
+def merge_condition(
+    block1: _Block, block2: _Block, check_visited: bool = False
+) -> bool:
     if (
         block1.initial_partition_block_id()
         != block2.initial_partition_block_id()
@@ -442,8 +448,9 @@ def propagate_nwf(vertexes: List[_Vertex]):
     compute_rank(vertexes, finishing_time_list)
 
 
-def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex],
-    vertexes=None):
+def propagate_wf(
+    vertex: _Vertex, well_founded_topological: List[_Vertex], vertexes=None
+):
     """Recursively visit the well-founded counterimage of the given vertex and
     update the ranks. The visit is in increasing order of rank. It can be shown
     easily that this is the only way to get correct results.
@@ -477,7 +484,7 @@ def propagate_wf(vertex: _Vertex, well_founded_topological: List[_Vertex],
     for idx in range(until_idx, -1, -1):
         for edge in well_founded_topological[idx].counterimage:
             if not edge.source.wf:
-                #propagate_nwf(edge.source)
+                # propagate_nwf(edge.source)
                 propagate_nwf(vertexes)
 
 
@@ -568,8 +575,9 @@ def update_rscp(
                             source_vertex.rank = destination_vertex.rank + 1
                             topological_sorted_wf = None
                             propagate_wf(
-                                source_vertex, well_founded_topological,
-                                vertexes=vertexes
+                                source_vertex,
+                                well_founded_topological,
+                                vertexes=vertexes,
                             )
                         # u becomes non-well-founded
                         else:
