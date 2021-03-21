@@ -153,7 +153,7 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     for vertex in block_counterimage:
         # if this is an upper-rank node with respect to the collapsed block, we
         # need to split. the split is not needed if the block is a singoletto.
-        if vertex.rank > block.rank() and not (
+        if vertex.rank > block.rank and not (
             vertex.qblock.split_helper_block is None
             and vertex.qblock.size <= 1
         ):
@@ -175,7 +175,7 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     for mod_block in modified_blocks:
         # we use the rank of aux block because we're sure it's not None
         partition[
-            rank_to_partition_idx(mod_block.split_helper_block.rank())
+            rank_to_partition_idx(mod_block.split_helper_block.rank)
         ].append(mod_block.split_helper_block)
         mod_block.split_helper_block = None
 

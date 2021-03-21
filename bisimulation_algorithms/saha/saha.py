@@ -197,7 +197,7 @@ def exists_causal_splitter(
                 if not (check_visited and current_block.visited):
                     # causal splitter HAVE TO be blocks such that we KNOW they
                     # are in the new rscp of G' (the updated graph)
-                    if (current_block.rank() < block.rank()
+                    if (current_block.rank < block.rank
                         or current_block == the_other_block):
                         s.add(id(edge.destination.qblock))
         return s
@@ -217,7 +217,7 @@ def merge_condition(block1: _Block, block2: _Block,
         return False
     elif block1 == block2:
         return False
-    elif block1.rank() != block2.rank():
+    elif block1.rank != block2.rank:
         return False
     elif block1.deteached or block2.deteached:
         return False
@@ -327,7 +327,7 @@ def preprocess_initial_partition(qblocks: List[_Block]):
 def merge_split_phase(qpartition, finishing_time_list):
     max_rank = float("-inf")
     for block in qpartition:
-        max_rank = max(max_rank, block.rank())
+        max_rank = max(max_rank, block.rank)
 
     # a dict of lists of blocks (the key is the initial partition ID)
     # where each couple can't be merged
@@ -389,37 +389,6 @@ def merge_split_phase(qpartition, finishing_time_list):
         else:
             # now we can clean the flag, this block was already discarded
             block.visited = False
-
-    # build x_partition PTA
-    # x_partition = list(xblock_dict.values())
-
-    """ # we need to build compound_blocks, which is a list with one index for each
-    # feasible rank, therefore there can be empty cells.
-    # to do this, we "consume" the number of elements in the dict
-    dict_residual_length = len(xblock_dict)
-    compound_xblocks = []
-
-    def infinite_sequence():
-        num = 0
-        while True:
-            yield num
-            num += 1
-
-    ranks = chain([float('-inf')], infinite_sequence)
-    for current_rank in ranks:
-        # if the rank is in the dict..
-        if current_rank in xblock_dict:
-            # decrease the number of missing ranks
-            dict_residual_length -= 1
-            xblock = xblock_dict[current_rank]
-            # we only add to compound if the size is more than 1
-            if xblock.size() > 1:
-                compound_xblocks.append([xblock])
-        else:
-            compound_xblocks.append([])
-
-        if dict_residual_length == 0:
-            break """
 
     for block in X:
         for vx in block.vertexes:
@@ -516,11 +485,11 @@ def build_well_founded_topological_list(old_rscp):
     dict_by_rank = {}
     well_founded_topological = []
     for block in old_rscp:
-        if block.rank() in dict_by_rank:
-            ls = dict_by_rank[block.rank()]
+        if block.rank in dict_by_rank:
+            ls = dict_by_rank[block.rank]
         else:
             ls = []
-            dict_by_rank[block.rank()] = ls
+            dict_by_rank[block.rank] = ls
         for vertex in block.vertexes:
             if vertex.wf:
                 ls.append(vertex)
@@ -538,7 +507,7 @@ def update_rscp(
     new_edge: Tuple,
     vertexes: List[_Vertex],
 ):
-    max_rank = max(map(lambda block: block.rank(), old_rscp))
+    max_rank = max(map(lambda block: block.rank, old_rscp))
 
     if isinstance(new_edge[0], int) and isinstance(new_edge[1], int):
         source_vertex, destination_vertex = find_vertexes(old_rscp, *new_edge)

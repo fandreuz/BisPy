@@ -1,5 +1,6 @@
 import networkx as nx
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
+from bisimulation_algorithms.saha.graph_decorator import prepare_internal_graph
 
 # new scc
 new_scc_graphs = []
@@ -76,11 +77,13 @@ exists_causal_splitter_result_map = []
 g0 = nx.DiGraph()
 g0.add_nodes_from(range(6))
 g0.add_edges_from([(5,0),(5,5),(6,5), (0,3), (1,3), (2,4), (3,3), (4,3)])
+ip0 = [(0, 1, 2), (3, 4), (5,), (6,)]
 
-qblocks0, _ = initialize(g0, [(0,1,2),(3,4),(5,),(6,)])
+qblocks0, vertexes0 = initialize(g0, ip0)
+prepare_internal_graph(vertexes0, ip0)
 exists_causal_splitter_qblocks.append(qblocks0)
 # integer tuples are the indexes of the blocks in qblocks0
-result0 = [((2,3), True), ((0,1), False), ((1,2), True)]
+result0 = [((2,3), True), ((0,1), True), ((1,2), False)]
 exists_causal_splitter_result_map.append(result0)
 
 # both blocks go to block

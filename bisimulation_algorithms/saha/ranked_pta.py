@@ -42,8 +42,8 @@ def append_new_compound_xblocks(
         first_qblock = new_compound_xblock.qblocks.first
         rank_index = (
             0
-            if first_qblock.rank() == float("-inf")
-            else first_qblock.rank() + 1
+            if first_qblock.rank == float("-inf")
+            else first_qblock.rank + 1
         )
         compound_xblocks[rank_index].append(new_compound_xblock)
 

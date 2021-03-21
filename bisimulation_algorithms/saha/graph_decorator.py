@@ -32,6 +32,8 @@ def to_normal_graph(
             qblock.append_vertex(new_vertex)
             new_vertex.initial_partition_block_id = idx
 
+    vertexes.sort(key=lambda vx: vx.label)
+
     # holds the references to Count objects to assign to the edges (this is OK
     # because we can consider |V| = O(|E|))
     # count(x) = count(x,V) = |V \cap E({x})| = |E({x})|

@@ -239,11 +239,23 @@ class _QBlock:
     def reset_helper_block(self):
         self.split_helper_block = None
 
+    @property
     def rank(self) -> int:
         if self.vertexes.first is not None:
             return self.vertexes.first.value.rank
         else:
             return None
+
+    @property
+    def xblock(self):
+        if hasattr(self, '_xblock'):
+            return self._xblock
+        else:
+            return None
+
+    @xblock.setter
+    def xblock(self, value):
+        self._xblock = value
 
     def initialize_split_helper_block(self):
         self.split_helper_block = _QBlock([], self.xblock)
