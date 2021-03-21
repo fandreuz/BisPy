@@ -6,7 +6,7 @@
 ## The problem
 Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation R on V which satisfies the following property:
 
-<img src="https://render.githubusercontent.com/render/math?math=\forall a,b \mid R(a,b)">
+![Bisimulation definition](res/bisimulation-definition.png)
 
 the following conditions hold:
 
@@ -22,7 +22,7 @@ The somewhat recursive statement of the problem makes the bisimulation an appare
 
 The *RSCP* of a set S given a binary relation R, as the name suggests, is the *coarsest* (which contains the fewest number of blocks) *stable partition*, where *stability* is a quality of partitions which is defined as follows for a given partition P:
 
-<img src="https://render.githubusercontent.com/render/math?math=\forall A,B \in P, A \subseteq R^{-1}(B) \lor A \cap R^{-1}(B) = \emptyset">
+![Stability definition](res/stability-definition.png)
 
 This statemente is reassuring: in order to verify that two nodes are *bisimilar* (which is quite interesting for the applications) we do not need to visit exhaustively their children, and then the children of the children, and so on. We only need to compute the RSCP of V with respect to the relation E, and check whether the two nodes are in the same block.
 
@@ -30,8 +30,8 @@ This statemente is reassuring: in order to verify that two nodes are *bisimilar*
 This library contains the implementation in Python 3 of the following algorithms:
 |  Name        |  Strategy   | Complexity  |
 |--------------|:-------------:|:---:|
-| Paige-Tarjan | Negative    | <img src="https://render.githubusercontent.com/render/math?math=O(\mid E\mid \log \mid V \mid)">  |
-| Dovier-FBA   | Negative    | <img src="https://render.githubusercontent.com/render/math?math=O(\mid E\mid \log \mid V \mid)">  |
+| Paige-Tarjan | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
+| Dovier-FBA   | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
 | Saha         | Incremental |  Depends on the entity of the changes. |
 
 ## Installation
