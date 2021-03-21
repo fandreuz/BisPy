@@ -462,34 +462,55 @@ def propagate_wf(
         graph in topological order.
     """
 
-    # find the index of the updated vertex. we only need to update ranks of the
-    # wf part of the graph which is "before" this vertex in the topological
-    # list
-    until_idx = None
-    for idx, vx in enumerate(well_founded_topological):
-        if vertex == vx:
-            until_idx = idx
-            break
-
-    # O(E)
-    # update the ranks
-    for idx in range(until_idx - 1, -1, -1):
-        mx = float("-inf")
-        for edge in well_founded_topological[idx].image:
+    for vx in well_founded_topological:
+        mx = vx.rank
+        for edge in vx.image:
             if edge.destination.wf:
                 mx = max(mx, edge.destination.rank + 1)
-        well_founded_topological[idx].rank = mx
+        vx.rank = mx
 
     # propagate the changes also to nwf nodes
-    for idx in range(until_idx, -1, -1):
-        for edge in well_founded_topological[idx].counterimage:
+    for vx in well_founded_topological:
+        for edge in vx.counterimage:
             if not edge.source.wf:
                 # propagate_nwf(edge.source)
                 propagate_nwf(vertexes)
 
 
-def build_well_founded_topological_list(old_rscp):
-    dict_by_rank = {}
+def build_well_founded_topological_list(old_rscp, source, max_rank):
+    if source.rank == float("-inf"):
+        source_position = 0
+    else:
+        source_position = source.rank + 1
+
+    if max_rank == float("-inf"):
+        buckets = [None]
+    else:
+        buckets = [None for _ in range(max_rank + 2 - source_position)]
+
+    for block in old_rscp:
+        if block.rank == float("-inf"):
+            idx = 0
+        elif block.rank >= source.rank:
+            idx = block.rank + 1 - source_position
+        else:
+            # we ignore blocks of rank lower than the rank of the source
+            continue
+
+        if buckets[idx] is None:
+            buckets[idx] = []
+
+        for vx in block.vertexes:
+            if vx.wf:
+                buckets[idx].append(vx)
+
+    wft = []
+    for rank_list in buckets:
+        if rank_list is not None:
+            wft.extend(rank_list)
+    return wft
+
+    """ dict_by_rank = {}
     well_founded_topological = []
     for block in old_rscp:
         if block.rank in dict_by_rank:
@@ -502,7 +523,7 @@ def build_well_founded_topological_list(old_rscp):
                 ls.append(vertex)
     for _, ls in dict_by_rank.items():
         well_founded_topological.extend(ls)
-    return well_founded_topological
+    return well_founded_topological """
 
 
 def filter_deteached(blocks: List[_Block]) -> List[_Block]:
@@ -523,7 +544,9 @@ def update_rscp(
     else:
         raise ValueError("You must pass integers or Vertex instances!")
 
-    well_founded_topological = build_well_founded_topological_list(old_rscp)
+    well_founded_topological = build_well_founded_topological_list(
+        old_rscp, vertexes[new_edge[0]], max_rank
+    )
 
     # if the new edge connects two blocks A,B such that A => B before the edge
     # is added we don't need to do anything

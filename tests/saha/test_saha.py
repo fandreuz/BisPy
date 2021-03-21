@@ -48,7 +48,7 @@ from .saha_test_cases import (
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
 import itertools
-from bisimulation_algorithms.paige_tarjan.pta import pta
+from bisimulation_algorithms.paige_tarjan.pta import pta, rscp as paige_tarjan
 from bisimulation_algorithms.utilities.graph_entities import _Edge, _XBlock
 from bisimulation_algorithms.saha.ranked_pta import pta as ranked_pta
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
@@ -60,7 +60,7 @@ def test_check_old_blocks_relation():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
-    vertexes = prepare_nx_graph(graph)
+    vertexes, _ = prepare_nx_graph(graph)
     create_initial_partition(vertexes)
 
     assert check_old_blocks_relation(vertexes[0], vertexes[1])
@@ -76,7 +76,7 @@ def test_find_vertex():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
-    vertexes = prepare_nx_graph(graph)
+    vertexes, _ = prepare_nx_graph(graph)
     ranked_partition = create_initial_partition(vertexes)
     nonranked_partition = [
         qblock for rank in ranked_partition for qblock in rank
@@ -93,7 +93,7 @@ def test_add_edge():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
-    vertexes = prepare_nx_graph(graph)
+    vertexes, _ = prepare_nx_graph(graph)
     ranked_partition = create_initial_partition(vertexes)
 
     partition = []
@@ -115,12 +115,16 @@ def test_propagate_wf():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3)])
 
-    vertexes = prepare_nx_graph(graph)
+    vertexes, qblocks = prepare_nx_graph(graph, [(0,), (1,), (2,), (3,4)])
+    max_rank = max(map(lambda vx: vx.rank, vertexes))
+
+    # be careful: for build_well_founded_topological vertexes in the same
+    # block have to be of the same rank
+    topo = build_well_founded_topological_list(qblocks, vertexes[3], max_rank)
 
     add_edge(vertexes[3], vertexes[4])
-    vertexes[3].rank = 1
 
-    propagate_wf(vertexes[3], vertexes)
+    propagate_wf(vertexes[3], topo, vertexes)
 
     for idx in range(5):
         assert vertexes[idx].rank == 4 - idx
@@ -135,8 +139,8 @@ def test_compute_rank():
     copy.add_nodes_from(range(6))
     copy.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0), (4, 5)])
 
-    vertexes = prepare_nx_graph(graph)
-    vertexes_copy = prepare_nx_graph(copy)
+    vertexes, _ = prepare_nx_graph(graph)
+    vertexes_copy, _ = prepare_nx_graph(copy)
 
     add_edge(vertexes[3], vertexes[4])
     add_edge(vertexes_copy[3], vertexes_copy[4])
@@ -155,7 +159,7 @@ def test_compute_rank():
     zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
 )
 def test_check_new_scc(graph, new_edge, value):
-    vertexes = prepare_nx_graph(graph)
+    vertexes, _ = prepare_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -171,7 +175,7 @@ def test_check_new_scc(graph, new_edge, value):
     zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
 )
 def test_check_new_scc_cleans(graph, new_edge, value):
-    vertexes = prepare_nx_graph(graph)
+    vertexes, _ = prepare_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -187,7 +191,7 @@ def test_check_new_scc_cleans(graph, new_edge, value):
     zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
 )
 def test_check_new_scc_qblocks_visited(graph, new_edge, value):
-    vertexes = prepare_nx_graph(graph)
+    vertexes, _ = prepare_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -216,7 +220,7 @@ def test_check_new_scc_computes_finishing_time(
     if correct_finishing_time is None:
         return
 
-    vertexes = prepare_nx_graph(graph)
+    vertexes, _ = prepare_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -371,7 +375,7 @@ def test_recursive_merge():
 
     partition = [(0, 2), (1,), (3,)]
 
-    vertexes = prepare_nx_graph(g, partition)
+    vertexes, _ = prepare_nx_graph(g, partition)
 
     vertexes[0].qblock._mitosis([0], [2])
 
@@ -389,7 +393,7 @@ def test_merge_phase():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes = prepare_nx_graph(g, partition)
+    vertexes, _ = prepare_nx_graph(g, partition)
 
     # now split
     vertexes[2].qblock._mitosis([2], [3])
@@ -420,7 +424,7 @@ def test_initial_partition_block_idx_not_none():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes = prepare_nx_graph(g, partition)
+    vertexes, _ = prepare_nx_graph(g, partition)
 
     for vx in vertexes:
         assert vx.initial_partition_block_id is not None
@@ -446,7 +450,7 @@ def test_merge_split_resets_visited_allowvisit_oldqblockid():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes = prepare_nx_graph(g, partition)
+    vertexes, _ = prepare_nx_graph(g, partition)
     qblocks = [
         block for ls in create_initial_partition(vertexes) for block in ls
     ]
@@ -467,7 +471,7 @@ def test_merge_split_resets_visited_triedmerge_qblocks():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes = prepare_nx_graph(g, partition)
+    vertexes, _ = prepare_nx_graph(g, partition)
     qblocks = [
         block for ls in create_initial_partition(vertexes) for block in ls
     ]
@@ -483,10 +487,50 @@ def test_merge_split_resets_visited_triedmerge_qblocks():
     assert all([not block.tried_merge for block in qpartition])
 
 
-def all_new_edges(graph, initial_partition):
+def test_well_founded_topological():
+    g = nx.DiGraph()
+    g.add_nodes_from(range(8))
+    g.add_edges_from([(0, 1), (1, 2), (3, 4), (4, 5), (6, 7), (7, 6)])
+
+    partition = [(0, 3), (1, 4), (2, 5), (6, 7)]
+
+    vertexes, _ = prepare_nx_graph(g, partition)
+
+    max_rank = max(map(lambda vx: vx.rank, vertexes))
+
+    qpartition = [
+        block for ls in create_initial_partition(vertexes) for block in ls
+    ]
+
+    topo = build_well_founded_topological_list(qpartition, vertexes[5], max_rank)
+
+    assert len(topo) == 6
+
+    last_rank = None
+    for vx in topo:
+        assert vx.wf
+        if last_rank is not None:
+            assert last_rank <= vx.rank
+        last_rank = vx.rank
+
+
+def all_possible_new_edges(graph, initial_partition):
     for source, dest in product(graph.nodes, graph.nodes):
         if not (source, dest) in graph.edges:
             yield (graph, (source, dest), initial_partition)
+
+
+def vertexes_to_set(qblocks):
+    return set(
+        [
+            frozenset(map(lambda vx: vx.label, block.vertexes))
+            for block in qblocks
+        ]
+    )
+
+
+def ints_to_set(blocks):
+    return set([frozenset(block) for block in blocks])
 
 
 @pytest.mark.parametrize(
@@ -495,7 +539,7 @@ def all_new_edges(graph, initial_partition):
         [
             tp
             for iterator in map(
-                lambda x: (all_new_edges(x[0], x[1])),
+                lambda x: (all_possible_new_edges(x[0], x[1])),
                 graph_partition_rscp_tuples,
             )
             for tp in iterator
@@ -507,68 +551,59 @@ def all_new_edges(graph, initial_partition):
         ),
     ),
 )
-# at the moment we ignore initial_partition
 def test_update_rscp_correctness(graph, new_edge, initial_partition):
-    if new_edge[1] >= len(graph.nodes):
-        new_edge = (new_edge[0], 0)
-
     qblocks, vertexes = initialize(graph, initial_partition)
     qblocks = pta(qblocks)
 
+    # compute incrementally
     prepare_internal_graph(vertexes, initial_partition)
     update_result = update_rscp(qblocks, new_edge, vertexes)
+    update_result = vertexes_to_set(update_result)
 
+    # compute from scratch
     graph2 = nx.DiGraph()
     graph2.add_nodes_from(graph.nodes)
     graph2.add_edges_from(graph.edges)
     graph2.add_edge(*new_edge)
     new_qblocks, new_vertexes = initialize(graph2, initial_partition)
     new_rscp = pta(new_qblocks)
-
-    new_rscp = set(
-        [
-            frozenset(map(lambda vx: vx.label, block.vertexes))
-            for block in new_rscp
-        ]
-    )
-    update_result = set(
-        [
-            frozenset(map(lambda vx: vx.label, block.vertexes))
-            for block in update_result
-        ]
-    )
+    new_rscp = vertexes_to_set(new_rscp)
 
     assert update_result == new_rscp
 
+@pytest.mark.parametrize(
+    "goal_graph, initial_partition",
+    chain(
+        [(tp[0], tp[1]) for tp in graph_partition_rscp_tuples],
+        zip(
+            update_rscp_graphs,
+            update_rscp_initial_partition,
+        ),
+    ),
+)
+def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
+    initial_graph = nx.DiGraph()
+    initial_graph.add_nodes_from(goal_graph.nodes)
+    vertexes, qblocks = prepare_nx_graph(initial_graph, initial_partition)
 
-def test_well_founded_topological():
-    g = nx.DiGraph()
-    g.add_nodes_from(range(8))
-    g.add_edges_from([(0, 1), (1, 2), (3, 4), (4, 5), (6, 7), (7, 6)])
+    edges = []
+    for edge in goal_graph.edges:
+        edges.append(edge)
 
-    partition = [(0, 3), (1, 4), (2, 5), (6, 7)]
+        g = nx.DiGraph()
+        g.add_nodes_from(goal_graph.nodes)
+        g.add_edges_from(edges)
 
-    vertexes = prepare_nx_graph(g, partition)
+        # compute its rscp
+        rscp = paige_tarjan(g, initial_partition, is_integer_graph=True)
+        rscp = ints_to_set(rscp)
 
-    for vx in vertexes:
-        vx.allow_visit = True
+        # compute the rscp incrementally
+        qblocks = update_rscp(qblocks, edge, vertexes)
+        qblocks_as_int = [tuple(vx.label for vx in block.vertexes)
+            for block in qblocks]
+        qblocks_as_int = ints_to_set(qblocks_as_int)
 
-    qpartition = [
-        block for ls in create_initial_partition(vertexes) for block in ls
-    ]
+        assert qblocks_as_int == rscp
 
-    topo = build_well_founded_topological_list(qpartition)
 
-    assert len(topo) == 6
-
-    assert topo[0] == vertexes[2] or topo[0] == vertexes[5]
-    assert topo[1] == vertexes[2] or topo[1] == vertexes[5]
-    assert topo[0] != topo[1]
-
-    assert topo[2] == vertexes[1] or topo[2] == vertexes[4]
-    assert topo[3] == vertexes[1] or topo[3] == vertexes[4]
-    assert topo[2] != topo[3]
-
-    assert topo[4] == vertexes[0] or topo[4] == vertexes[3]
-    assert topo[5] == vertexes[0] or topo[5] == vertexes[3]
-    assert topo[4] != topo[5]

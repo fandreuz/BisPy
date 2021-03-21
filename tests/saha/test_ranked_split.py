@@ -35,7 +35,7 @@ def test_resets_aux_count():
     g.add_nodes_from(range(5))
     g.add_edges_from([(0, 1), (0, 2), (3, 1), (3, 2), (4, 1), (4, 2), (4, 3)])
 
-    vertexes = prepare_graph(g)
+    vertexes, _ = prepare_graph(g)
 
     integer_partition = rscp(g)
     q_partition = integer_to_partition(integer_partition, vertexes)
@@ -62,7 +62,7 @@ def test_ranked_split():
     g.add_nodes_from(range(5))
     g.add_edges_from([(0, 1), (0, 2), (3, 1), (3, 2), (4, 1), (4, 2), (4, 3)])
 
-    vertexes = prepare_graph(g)
+    vertexes, _ = prepare_graph(g)
 
     integer_partition = rscp(g)
     q_partition = integer_to_partition(integer_partition, vertexes)

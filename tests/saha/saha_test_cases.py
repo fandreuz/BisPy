@@ -105,3 +105,14 @@ g0.add_edges_from([(1, 0), (2, 1), (3, 2), (3, 0), (1, 4), (1, 5)])
 update_rscp_graphs.append(g0)
 update_rscp_initial_partition.append([(0,), (1, 3, 5), (2, 4)])
 update_rscp_new_edge.append((4,3))
+
+# 1
+g1 = nx.DiGraph()
+g1.add_nodes_from(range(8))
+g1.add_edges_from([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 7), (1, 2),
+    (1, 7), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (4, 7),
+    (5, 6)
+])
+update_rscp_graphs.append(g1)
+update_rscp_initial_partition.append([(1,), (2,), (3,), (4,), (0, 5, 6, 7)])
+update_rscp_new_edge.append((6,7))

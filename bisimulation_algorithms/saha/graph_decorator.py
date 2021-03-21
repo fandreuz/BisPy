@@ -24,8 +24,10 @@ def to_normal_graph(
     # instantiate QBlocks and Vertexes, put Vertexes into QBlocks and set their
     # initial block id
     vertexes = []
+    qblocks = []
     for idx, block in enumerate(initial_partition):
         qblock = _QBlock([], None)
+        qblocks.append(qblock)
         for vx in block:
             new_vertex = _Vertex(label=vx)
             vertexes.append(new_vertex)
@@ -59,7 +61,7 @@ def to_normal_graph(
         # my_edge.source.add_to_image(my_edge)
         my_edge.destination.add_to_counterimage(my_edge)
 
-    return vertexes
+    return (vertexes, qblocks)
 
 
 def prepare_nx_graph(
@@ -78,7 +80,7 @@ def prepare_nx_graph(
         int          : The maximum rank in the graph.
     """
 
-    vertexes = to_normal_graph(graph, initial_partition)
+    vertexes, qblocks = to_normal_graph(graph, initial_partition)
 
     finishing_time_list = compute_finishing_time_list(vertexes)
     build_vertexes_image(finishing_time_list)
@@ -86,7 +88,7 @@ def prepare_nx_graph(
     # sets ranks
     compute_rank(vertexes, finishing_time_list)
 
-    return vertexes
+    return (vertexes, qblocks)
 
 
 def prepare_internal_graph(vertexes, initial_partition):

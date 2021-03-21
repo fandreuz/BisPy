@@ -39,7 +39,7 @@ def append_new_compound_xblocks(
     min_index = 100000000
 
     for new_compound_xblock in new_compound_xblocks:
-        first_qblock = new_compound_xblock.qblocks.first
+        first_qblock = new_compound_xblock.qblocks.first.value
         rank_index = (
             0
             if first_qblock.rank == float("-inf")
