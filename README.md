@@ -24,10 +24,10 @@ This statemente is reassuring: in order to verify that two nodes are *bisimilar*
 ## Algorithms
 This library contains the implementation in Python 3 of the following algorithms:
 |  Name        |  Strategy   | Complexity  |
-|--------------|:-------------:|:---:|
-| Paige-Tarjan | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
-| Dovier-Piazza-Policriti | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
-| Saha         | Incremental |  Depends on the entity of the changes. |
+|:------------:|:-------------:|:---:|
+| **Paige-Tarjan** | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
+| **Dovier-Piazza-Policriti** | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
+| **Saha**         | Incremental |  Depends on changes. |
 
 ## Installation
 The package isn't published, therefore the following steps are needed:
