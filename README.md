@@ -26,7 +26,7 @@ This library contains the implementation in Python 3 of the following algorithms
 |  Name        |  Strategy   | Complexity  |
 |--------------|:-------------:|:---:|
 | Paige-Tarjan | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
-| Dovier-FBA   | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
+| Dovier-Piazza-Policriti | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  |
 | Saha         | Incremental |  Depends on the entity of the changes. |
 
 ## Installation
