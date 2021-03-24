@@ -83,4 +83,4 @@ def append_caption(image_name, partition, font=None):
     editable_image.text(((width - w) / 2, height + 80), partition_string, fill='black', font=font)
     new_image.save(image_name)
 
-arial = ImageFont.truetype("ArialTh.ttf", 60)
+arial = ImageFont.truetype("files/ArialTh.ttf", 60)
