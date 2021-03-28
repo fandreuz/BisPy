@@ -606,4 +606,42 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
 
         assert qblocks_as_int == rscp
 
+@pytest.mark.parametrize(
+    "goal_graph, initial_partition",
+    chain(
+        [(tp[0], tp[1]) for tp in graph_partition_rscp_tuples],
+        zip(
+            update_rscp_graphs,
+            update_rscp_initial_partition,
+        ),
+    ),
+)
+def test_reverse_incremental_update_rscp_correctness(goal_graph, initial_partition):
+    initial_graph = nx.DiGraph()
+    initial_graph.add_nodes_from(goal_graph.nodes)
+    vertexes, qblocks = prepare_nx_graph(initial_graph, initial_partition)
+
+    edges = []
+    full_edges = list(goal_graph.edges)
+    full_edges.reverse()
+
+    for edge in full_edges:
+        edges.append(edge)
+
+        g = nx.DiGraph()
+        g.add_nodes_from(goal_graph.nodes)
+        g.add_edges_from(edges)
+
+        # compute its rscp
+        rscp = paige_tarjan(g, initial_partition, is_integer_graph=True)
+        rscp = ints_to_set(rscp)
+
+        # compute the rscp incrementally
+        qblocks = update_rscp(qblocks, edge, vertexes)
+        qblocks_as_int = [tuple(vx.label for vx in block.vertexes)
+            for block in qblocks]
+        qblocks_as_int = ints_to_set(qblocks_as_int)
+
+        assert qblocks_as_int == rscp
+
 
