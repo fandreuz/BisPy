@@ -234,14 +234,17 @@ def merge_condition(
 
 
 def recursive_merge(block1: _Block, block2: _Block):
+    vertexes1 = list(block1.vertexes)
+    vertexes2 = list(block2.vertexes)
+
     block1.merge(block2)
 
     # construct a list of couples of blocks which needs to be verified
     verified_couples = {}
 
-    for vx_couple in combinations(block1.vertexes, 2):
+    for vx1,vx2 in product(vertexes1, vertexes2):
         for counterimage_vx_couple in product(
-            vx_couple[0].counterimage, vx_couple[1].counterimage
+            vx1.counterimage, vx2.counterimage
         ):
             b1 = counterimage_vx_couple[0].source.qblock
             b2 = counterimage_vx_couple[1].source.qblock
