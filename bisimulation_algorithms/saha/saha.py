@@ -243,11 +243,11 @@ def recursive_merge(block1: _Block, block2: _Block):
     verified_couples = {}
 
     for vx1,vx2 in product(vertexes1, vertexes2):
-        for counterimage_vx_couple in product(
+        for edge1, edge2 in product(
             vx1.counterimage, vx2.counterimage
         ):
-            b1 = counterimage_vx_couple[0].source.qblock
-            b2 = counterimage_vx_couple[1].source.qblock
+            b1 = edge1.source.qblock
+            b2 = edge2.source.qblock
 
             if (
                 not (id(b1), id(b2)) in verified_couples
