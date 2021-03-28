@@ -585,6 +585,7 @@ def update_rscp(
                     destination_vertex,
                     finishing_time_list,
                 ):
+                    source_vertex.wf = False
                     # if you replace propagate_nwf with the right
                     # implementation you also need to update the rank of
                     # nodes in the new SCC, with the current implementation
