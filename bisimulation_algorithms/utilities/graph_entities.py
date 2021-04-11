@@ -274,7 +274,7 @@ class _QBlock:
     def __repr__(self):
         return "Q({})".format(
             ",".join([str(vertex) for vertex in self.vertexes])
-        )
+        ) + ("DET" if self.deteached else "")
 
     def fast_mitosis(self, extract_vertexes):
         new_block = _QBlock([], self.xblock)
