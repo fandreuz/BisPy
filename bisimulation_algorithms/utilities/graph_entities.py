@@ -51,15 +51,22 @@ class _Vertex:
 
         self.aux_count = None
 
-        self.rank = None
-        self.wf = True
-
         self.original_label = label
 
         self.initial_partition_block_id = None
 
         self.allow_visit = False
         self.old_qblock_id = None
+
+        self._scc = None
+
+    @property
+    def scc(self):
+        return self._scc
+
+    @scc.setter
+    def scc(self, value):
+        self._scc = value
 
     def scale_label(self, scaled_label: int):
         self.label = scaled_label
@@ -147,6 +154,22 @@ class _Vertex:
 
     def clear_second_splitter_flag(self):
         self.in_second_splitter = False
+
+    @property
+    def rank(self):
+        return self.scc.rank
+
+    @rank.setter
+    def rank(self, value):
+        self.scc._rank = value
+
+    @property
+    def wf(self):
+        return self.scc.wf
+
+    @wf.setter
+    def wf(self, value):
+        self.scc._wf = value
 
     def __repr__(self):
         return "V{}".format(self.label)
@@ -248,7 +271,7 @@ class _QBlock:
 
     @property
     def xblock(self):
-        if hasattr(self, '_xblock'):
+        if hasattr(self, "_xblock"):
             return self._xblock
         else:
             return None
@@ -344,3 +367,99 @@ class _Count:
 
     def __repr__(self):
         return "C{}:{}".format(self.vertex, self.value)
+
+
+class _SCC:
+    def __init__(self, label: int):
+        self._label = label
+        self._rank = float("-inf")
+
+        self._image = {}
+        self._counterimage = {}
+
+        self._vertexes = set()
+
+        self.visited = False
+
+    def add_vertex(self, vertex: _Vertex):
+        self._vertexes.add(vertex)
+        vertex.scc = self
+
+    @property
+    def wf(self):
+        if not hasattr(self, "_wf"):
+            if len(self._vertexes) > 1:
+                self._wf = False
+            else:
+                self._wf = True
+                for scc in self.image:
+                    if not scc.wf:
+                        self._wf = False
+                        break
+        return self._wf
+
+    @property
+    def rank(self):
+        return self._rank
+
+    def mark_leaf(self):
+        self._rank = 0
+
+    def mark_scc_leaf(self):
+        self._rank = float("-inf")
+
+    def compute_image(self):
+        self._image.clear()
+        for vx in self._vertexes:
+            for edge in vx.image:
+                # edge towards self
+                if edge.destination.scc == self:
+                    self._wf = False
+                else:
+                    # NO! there's no guarantee that the visit occurs
+                    # in the right order. we can't rely on the .wf
+                    # field of successors, since it may not be the truth
+                    # if not edge.destination.wf:
+                    #    self._wf = False
+                    self._image[
+                        edge.destination.scc.label
+                    ] = edge.destination.scc
+
+    def compute_counterimage(self):
+        self._counterimage.clear()
+        for vx in self._vertexes:
+            for edge in vx.counterimage:
+                # edge towards self, don't include
+                if edge.source.scc == self:
+                    continue
+                else:
+                    self._counterimage[edge.source.scc.label] = edge.source.scc
+
+    @property
+    def label(self):
+        return self._label
+
+    @property
+    def image(self):
+        return self._image.values()
+
+    @property
+    def counterimage(self):
+        return self._counterimage.values()
+
+    def destroy(self):
+        self._vertexes.clear()
+        self._image.clear()
+        self._counterimage.clear()
+
+    def join(self, other):
+        for vertex in other._vertexes:
+            self.add_vertex(vertex)
+        self._rank = None
+        self._wf = False
+        other.destroy()
+
+    def __repr__(self):
+        return "SCC({})".format(
+            ",".join([str(vertex) for vertex in self._vertexes])
+        )

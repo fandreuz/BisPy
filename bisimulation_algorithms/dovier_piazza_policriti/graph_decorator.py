@@ -1,7 +1,58 @@
 import networkx as nx
 from bisimulation_algorithms.utilities.graph_entities import _Edge, _Vertex
 from typing import List, Tuple
-from .rank_computation import compute_rank, compute_finishing_time_list
+from bisimulation_algorithms.utilities.rank_computation import (
+    compute_rank,
+)
+
+_BLACK = 10
+_GRAY = 11
+_WHITE = 12
+
+
+def counterimage_dfs(
+    current_vertex_idx: int,
+    vertexes: List[_Vertex],
+    finishing_list: List[_Vertex],
+    colors: List[int],
+):
+    # mark this vertex as "visiting"
+    colors[current_vertex_idx] = _GRAY
+    # visit the counterimage of the current vertex
+    for edge in vertexes[current_vertex_idx].counterimage:
+        counterimage_vertex = edge.source
+
+        # if the vertex isn't white, a visit is occurring, or has already
+        # occurred.
+        if colors[counterimage_vertex.label] == _WHITE:
+            counterimage_dfs(
+                current_vertex_idx=counterimage_vertex.label,
+                vertexes=vertexes,
+                finishing_list=finishing_list,
+                colors=colors,
+            )
+    # this vertex visit is over: add the vertex to the ordered list of
+    # finished vertexes
+    finishing_list.append(vertexes[current_vertex_idx])
+    # mark this vertex as "visited"
+    colors[current_vertex_idx] = _BLACK
+
+
+def compute_counterimage_finishing_time_list(
+    vertexes: List[_Vertex],
+) -> List[_Vertex]:
+    counterimage_dfs_colors = [_WHITE for _ in range(len(vertexes))]
+    counterimage_finishing_list = []
+    # perform counterimage DFS
+    for idx in range(len(vertexes)):
+        if counterimage_dfs_colors[idx] == _WHITE:
+            counterimage_dfs(
+                current_vertex_idx=idx,
+                vertexes=vertexes,
+                finishing_list=counterimage_finishing_list,
+                colors=counterimage_dfs_colors,
+            )
+    return counterimage_finishing_list
 
 
 def to_normal_graph(graph: nx.Graph) -> List[_Vertex]:
@@ -50,10 +101,10 @@ def prepare_graph(graph: nx.Graph) -> List[_Vertex]:
 
     vertexes = to_normal_graph(graph)
 
-    finishing_time_list = compute_finishing_time_list(vertexes)
+    finishing_time_list = compute_counterimage_finishing_time_list(vertexes)
     build_vertexes_image(finishing_time_list)
 
     # sets ranks
-    compute_rank(vertexes, finishing_time_list)
+    compute_rank(vertexes)
 
     return vertexes

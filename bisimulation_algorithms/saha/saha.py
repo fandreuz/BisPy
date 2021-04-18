@@ -5,14 +5,11 @@ from bisimulation_algorithms.utilities.graph_entities import (
     _Edge,
     _Count,
     _XBlock,
+    _SCC,
 )
-from typing import List, Tuple
+from typing import List, Tuple, Set, Dict
 from .ranked_pta import ranked_split
 from bisimulation_algorithms.paige_tarjan.pta import pta
-from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
-    compute_rank,
-    compute_finishing_time_list,
-)
 from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
     build_vertexes_image,
 )
@@ -20,6 +17,10 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     build_block_counterimage,
 )
 from itertools import product, chain, combinations
+from bisimulation_algorithms.utilities.kosaraju import kosaraju
+from bisimulation_algorithms.utilities.rank_computation import (
+    scc_finishing_time_list,
+)
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
@@ -242,10 +243,8 @@ def recursive_merge(block1: _Block, block2: _Block):
     # construct a list of couples of blocks which needs to be verified
     verified_couples = {}
 
-    for vx1,vx2 in product(vertexes1, vertexes2):
-        for edge1, edge2 in product(
-            vx1.counterimage, vx2.counterimage
-        ):
+    for vx1, vx2 in product(vertexes1, vertexes2):
+        for edge1, edge2 in product(vx1.counterimage, vx2.counterimage):
             b1 = edge1.source.qblock
             b2 = edge2.source.qblock
 
@@ -443,16 +442,42 @@ def merge_split_phase(qpartition, finishing_time_list):
     return new_qpartition
 
 
-def propagate_nwf(vertexes: List[_Vertex]):
-    # temporary: use the standard algorithm for rank computation
-    finishing_time_list = compute_finishing_time_list(vertexes)
+def propagate_nwf(scc: _SCC, scc_finishing_time: List[_SCC]):
+    if not scc.visited:
+        scc.visited = True
 
-    # sets ranks
-    compute_rank(vertexes, finishing_time_list)
+        scc.compute_image()
+        scc.compute_counterimage()
+
+        if len(scc._image) == 0:
+            if len(scc._vertexes) == 0:
+                scc.mark_leaf()
+            else:
+                scc.mark_scc_leaf()
+        else:
+            mx = float("-inf")
+            # at this point we can rely on the flag wf since the visit
+            # occurs in the right order
+            for image_scc in scc.image:
+                if image_scc.wf is False:
+                    scc._wf = False
+
+                r = image_scc.rank
+                mx = max(mx, r + 1 if image_scc.wf else r)
+            scc._rank = mx
+
+        # since we store rank and wf into SCCs, there's no need to propagate
+        # the new rank to members of the SCC
+
+        for sf in scc_finishing_time:
+            if sf.label in scc._counterimage:
+                propagate_nwf(sf, scc_finishing_time)
 
 
 def propagate_wf(
-    vertex: _Vertex, well_founded_topological: List[_Vertex], vertexes=None
+    vertex: _Vertex,
+    well_founded_topological: List[_Vertex],
+    scc_finishing_time: List[_SCC],
 ):
     """Recursively visit the well-founded counterimage of the given vertex and
     update the ranks. The visit is in increasing order of rank. It can be shown
@@ -476,8 +501,7 @@ def propagate_wf(
     for vx in well_founded_topological:
         for edge in vx.counterimage:
             if not edge.source.wf:
-                # propagate_nwf(edge.source)
-                propagate_nwf(vertexes)
+                propagate_nwf(edge.source.scc, scc_finishing_time)
 
 
 def build_well_founded_topological_list(old_rscp, source, max_rank):
@@ -551,6 +575,20 @@ def update_rscp(
         old_rscp, vertexes[new_edge[0]], max_rank
     )
 
+    sccs_dict = {}
+    for vx in vertexes:
+        sccs_dict[vx.scc.label] = vx.scc
+    sccs = list(sccs_dict.values())
+
+    for scc in sccs:
+        scc.compute_image()
+
+    scc_finishing_time = scc_finishing_time_list(sccs)
+
+    # update immediately the wf flag
+    if not destination_vertex.wf:
+        source_vertex.wf = False
+
     # if the new edge connects two blocks A,B such that A => B before the edge
     # is added we don't need to do anything
     if check_old_blocks_relation(source_vertex, destination_vertex):
@@ -568,7 +606,9 @@ def update_rscp(
             # if necessary, update the rank of u and propagate the changes
             if destination_vertex.rank + 1 > source_vertex.rank:
                 source_vertex.rank = destination_vertex.rank + 1
-                propagate_nwf(vertexes)
+
+                # source_vertex doesn't become nwf
+                propagate_nwf(source_vertex.scc, scc_finishing_time)
 
             merge_phase(source_vertex.qblock, destination_vertex.qblock)
             return filter_deteached(qpartition)
@@ -588,12 +628,14 @@ def update_rscp(
                     destination_vertex,
                     finishing_time_list,
                 ):
-                    source_vertex.wf = False
-                    # if you replace propagate_nwf with the right
-                    # implementation you also need to update the rank of
-                    # nodes in the new SCC, with the current implementation
-                    # they are update by propagate_nwf
-                    propagate_nwf(vertexes)
+                    sccs = kosaraju(source_vertex, return_sccs=True)
+                    for scc in sccs:
+                        scc.compute_image()
+                        scc.compute_counterimage()
+
+                    scc_finishing_time = scc_finishing_time_list(sccs)
+
+                    propagate_nwf(source_vertex.scc, scc_finishing_time)
                     return merge_split_phase(qpartition, finishing_time_list)
                 else:
                     if source_vertex.wf:
@@ -604,17 +646,24 @@ def update_rscp(
                             propagate_wf(
                                 source_vertex,
                                 well_founded_topological,
-                                vertexes=vertexes,
+                                scc_finishing_time,
                             )
                         # u becomes non-well-founded
                         else:
                             if source_vertex.rank < destination_vertex.rank:
                                 source_vertex.rank = destination_vertex.rank
-                                propagate_nwf(vertexes)
+
+                                propagate_nwf(
+                                    source_vertex.scc, scc_finishing_time
+                                )
                     else:
                         if source_vertex.rank < destination_vertex.rank:
                             source_vertex.rank = destination_vertex.rank
-                            propagate_nwf(vertexes)
+
+                            # we don't need to update the nwf list since
+                            # source_vertex was already nwf
+
+                            propagate_nwf(source_vertex, scc_finishing_time)
 
                     merge_phase(
                         source_vertex.qblock, destination_vertex.qblock

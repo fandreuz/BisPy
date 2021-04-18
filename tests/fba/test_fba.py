@@ -9,7 +9,7 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     rscp as fba_rscp,
     bisimulation_contraction as fba_contraction,
 )
-import tests.fba.algorithm.fba_test_cases as test_cases
+from .fba_test_cases import graphs, block_counterimaged_block, fba_correctness_graphs
 import networkx as nx
 from tests.pta.rscp_utilities import check_block_stability
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
@@ -28,13 +28,11 @@ from bisimulation_algorithms.utilities.graph_entities import (
 )
 def test_rank_to_partition_idx(rank, expected):
     assert rank_to_partition_idx(rank) == expected
-
-
 @pytest.mark.parametrize(
     "graph, counterimaged_block_indexes",
     zip(
-        test_cases.graphs,
-        test_cases.block_counterimaged_block,
+        graphs,
+        block_counterimaged_block,
     ),
 )
 def test_build_block_counterimage(graph, counterimaged_block_indexes):
@@ -62,7 +60,7 @@ def test_build_block_counterimage(graph, counterimaged_block_indexes):
 
 @pytest.mark.parametrize(
     "graph",
-    test_cases.graphs,
+    graphs,
 )
 def test_prepare_graph_vertexes(graph):
     vertexes = prepare_graph(graph)
@@ -85,7 +83,7 @@ def test_prepare_graph_vertexes(graph):
             assert idx in graph.adj[vx]
 
 
-@pytest.mark.parametrize("graph", test_cases.graphs)
+@pytest.mark.parametrize("graph", graphs)
 def test_create_initial_partition(graph):
     vertexes = prepare_graph(graph)
     partition = create_initial_partition(vertexes)
@@ -106,7 +104,7 @@ def test_create_initial_partition(graph):
         )
 
 
-@pytest.mark.parametrize("graph", test_cases.graphs)
+@pytest.mark.parametrize("graph", graphs)
 def test_split_upper_ranks(graph):
     vertexes = prepare_graph(graph)
     max_rank = max(vertex.rank for vertex in vertexes)
@@ -149,7 +147,7 @@ def test_fba_collapse_correctness(graph):
 # this is for particular cases which aren't covered in PTA tests
 @pytest.mark.parametrize(
     "graph",
-    test_cases.fba_correctness_graphs,
+    fba_correctness_graphs,
 )
 def test_fba_correctness2(graph):
     assert set(frozenset(block) for block in fba_rscp(graph)) == set(

@@ -1,7 +1,7 @@
 import networkx as nx
 import pytest
 
-from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
+from bisimulation_algorithms.utilities.rank_computation import (
     compute_rank,
 )
 

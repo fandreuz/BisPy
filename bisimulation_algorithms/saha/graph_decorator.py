@@ -6,12 +6,12 @@ from bisimulation_algorithms.utilities.graph_entities import (
     _QBlock,
 )
 from typing import List, Tuple
-from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
+from bisimulation_algorithms.utilities.rank_computation import (
     compute_rank,
-    compute_finishing_time_list,
 )
 from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
     build_vertexes_image,
+    compute_counterimage_finishing_time_list
 )
 
 
@@ -82,11 +82,11 @@ def prepare_nx_graph(
 
     vertexes, qblocks = to_normal_graph(graph, initial_partition)
 
-    finishing_time_list = compute_finishing_time_list(vertexes)
+    finishing_time_list = compute_counterimage_finishing_time_list(vertexes)
     build_vertexes_image(finishing_time_list)
 
     # sets ranks
-    compute_rank(vertexes, finishing_time_list)
+    compute_rank(vertexes)
 
     return (vertexes, qblocks)
 
@@ -114,8 +114,8 @@ def prepare_internal_graph(vertexes, initial_partition):
             edge.count = count
             edge.count.value += 1
 
-    finishing_time_list = compute_finishing_time_list(vertexes)
+    finishing_time_list = compute_counterimage_finishing_time_list(vertexes)
     build_vertexes_image(finishing_time_list)
 
     # sets ranks
-    compute_rank(vertexes, finishing_time_list)
+    compute_rank(vertexes)

@@ -12,6 +12,9 @@ from bisimulation_algorithms.dovier_piazza_policriti.fba import (
     create_initial_partition,
     build_block_counterimage,
 )
+from bisimulation_algorithms.utilities.rank_computation import (
+    scc_finishing_time_list,
+)
 from bisimulation_algorithms.saha.saha import (
     check_old_blocks_relation,
     find_vertexes,
@@ -28,11 +31,7 @@ from bisimulation_algorithms.saha.saha import (
     build_well_founded_topological_list,
     update_rscp,
 )
-from tests.fba.rank.rank_test_cases import graphs
-from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import (
-    compute_rank,
-    compute_finishing_time_list,
-)
+from tests.rank.rank_test_cases import graphs
 from .saha_test_cases import (
     new_scc_correct_value,
     new_scc_graphs,
@@ -53,6 +52,7 @@ from bisimulation_algorithms.utilities.graph_entities import _Edge, _XBlock
 from bisimulation_algorithms.saha.ranked_pta import pta as ranked_pta
 from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
 from itertools import chain, product
+from bisimulation_algorithms.utilities.kosaraju import kosaraju
 
 
 def test_check_old_blocks_relation():
@@ -115,7 +115,7 @@ def test_propagate_wf():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3)])
 
-    vertexes, qblocks = prepare_nx_graph(graph, [(0,), (1,), (2,), (3,4)])
+    vertexes, qblocks = prepare_nx_graph(graph, [(0,), (1,), (2,), (3, 4)])
     max_rank = max(map(lambda vx: vx.rank, vertexes))
 
     # be careful: for build_well_founded_topological vertexes in the same
@@ -128,30 +128,6 @@ def test_propagate_wf():
 
     for idx in range(5):
         assert vertexes[idx].rank == 4 - idx
-
-
-def test_compute_rank():
-    graph = nx.DiGraph()
-    graph.add_nodes_from(range(6))
-    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0), (4, 5)])
-
-    copy = nx.DiGraph()
-    copy.add_nodes_from(range(6))
-    copy.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0), (4, 5)])
-
-    vertexes, _ = prepare_nx_graph(graph)
-    vertexes_copy, _ = prepare_nx_graph(copy)
-
-    add_edge(vertexes[3], vertexes[4])
-    add_edge(vertexes_copy[3], vertexes_copy[4])
-
-    propagate_nwf(vertexes)
-
-    finishing_time_list = compute_finishing_time_list(vertexes_copy)
-    compute_rank(vertexes_copy, finishing_time_list)
-
-    for i in range(len(vertexes)):
-        assert vertexes[i].rank == vertexes_copy[i].rank
 
 
 @pytest.mark.parametrize(
@@ -370,10 +346,10 @@ def vertexes_dllist_to_label_list(vx_dllist):
 
 def test_recursive_merge():
     g = nx.DiGraph()
-    g.add_nodes_from(range(4))
+    g.add_nodes_from(range(5))
     g.add_edges_from([(0, 1), (2, 3)])
 
-    partition = [(0, 2), (1,), (3,)]
+    partition = [(0, 2), (1,), (3,), (4,)]
 
     vertexes, _ = prepare_nx_graph(g, partition)
 
@@ -384,6 +360,37 @@ def test_recursive_merge():
     assert vertexes[0].qblock == vertexes[2].qblock
     assert vertexes[1].qblock == vertexes[3].qblock
     assert vertexes[0].qblock != vertexes[1].qblock
+
+
+def test_update_rank():
+    g = nx.DiGraph()
+    g.add_nodes_from(range(5))
+    g.add_edges_from([(0, 1), (1, 0), (2, 3), (3, 1)])
+
+    vertexes, _ = prepare_nx_graph(g)
+
+    # now split
+    vertexes[2].qblock._mitosis([2], [3])
+
+    # and then add a new vertex
+    new_edge = _Edge(vertexes[3], vertexes[4])
+    vertexes[3].add_to_image(new_edge)
+    vertexes[4].add_to_counterimage(new_edge)
+
+    # update rank
+    vertexes[3].scc._rank = 1
+
+    sccs = kosaraju(vertexes[3], return_sccs=True)
+    for scc in sccs:
+        scc.compute_image()
+    scc_finishing_time = scc_finishing_time_list(sccs)
+    propagate_nwf(vertexes[3].scc, scc_finishing_time)
+
+    assert vertexes[0].rank == float("-inf")
+    assert vertexes[1].rank == float("-inf")
+    assert vertexes[2].rank == 1
+    assert vertexes[3].rank == 1
+    assert vertexes[4].rank == 0
 
 
 def test_merge_phase():
@@ -404,7 +411,8 @@ def test_merge_phase():
     vertexes[4].add_to_counterimage(new_edge)
 
     # update rank
-    propagate_nwf(vertexes)
+    vertexes[3].rank = 1
+    propagate_nwf(vertexes[3].scc, kosaraju(vertexes, return_sccs=True))
 
     merge_phase(vertexes[3].qblock, vertexes[4].qblock)
 
@@ -502,7 +510,9 @@ def test_well_founded_topological():
         block for ls in create_initial_partition(vertexes) for block in ls
     ]
 
-    topo = build_well_founded_topological_list(qpartition, vertexes[5], max_rank)
+    topo = build_well_founded_topological_list(
+        qpartition, vertexes[5], max_rank
+    )
 
     assert len(topo) == 6
 
@@ -527,6 +537,44 @@ def vertexes_to_set(qblocks):
             for block in qblocks
         ]
     )
+
+
+@pytest.mark.parametrize(
+    "graph, new_edge, initial_partition",
+    chain(
+        [
+            tp
+            for iterator in map(
+                lambda x: (all_possible_new_edges(x[0], x[1])),
+                graph_partition_rscp_tuples,
+            )
+            for tp in iterator
+        ],
+        zip(
+            update_rscp_graphs,
+            update_rscp_new_edge,
+            update_rscp_initial_partition,
+        ),
+    ),
+)
+def test_update_rank_procedures(graph, new_edge, initial_partition):
+    qblocks, vertexes = initialize(graph, initial_partition)
+    qblocks = pta(qblocks)
+
+    # compute incrementally
+    prepare_internal_graph(vertexes, initial_partition)
+    update_rscp(qblocks, new_edge, vertexes)
+
+    # compute from scratch
+    graph2 = nx.DiGraph()
+    graph2.add_nodes_from(graph.nodes)
+    graph2.add_edges_from(graph.edges)
+    graph2.add_edge(*new_edge)
+    new_qblocks, new_vertexes = initialize(graph2, initial_partition)
+    prepare_internal_graph(new_vertexes, initial_partition)
+
+    for i in range(len(vertexes)):
+        assert vertexes[i].rank == new_vertexes[i].rank
 
 
 def ints_to_set(blocks):
@@ -571,6 +619,7 @@ def test_update_rscp_correctness(graph, new_edge, initial_partition):
 
     assert update_result == new_rscp
 
+
 @pytest.mark.parametrize(
     "goal_graph, initial_partition",
     chain(
@@ -600,11 +649,13 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
 
         # compute the rscp incrementally
         qblocks = update_rscp(qblocks, edge, vertexes)
-        qblocks_as_int = [tuple(vx.label for vx in block.vertexes)
-            for block in qblocks]
+        qblocks_as_int = [
+            tuple(vx.label for vx in block.vertexes) for block in qblocks
+        ]
         qblocks_as_int = ints_to_set(qblocks_as_int)
 
         assert qblocks_as_int == rscp
+
 
 @pytest.mark.parametrize(
     "goal_graph, initial_partition",
@@ -616,7 +667,9 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
         ),
     ),
 )
-def test_reverse_incremental_update_rscp_correctness(goal_graph, initial_partition):
+def test_reverse_incremental_update_rscp_correctness(
+    goal_graph, initial_partition
+):
     initial_graph = nx.DiGraph()
     initial_graph.add_nodes_from(goal_graph.nodes)
     vertexes, qblocks = prepare_nx_graph(initial_graph, initial_partition)
@@ -638,10 +691,9 @@ def test_reverse_incremental_update_rscp_correctness(goal_graph, initial_partiti
 
         # compute the rscp incrementally
         qblocks = update_rscp(qblocks, edge, vertexes)
-        qblocks_as_int = [tuple(vx.label for vx in block.vertexes)
-            for block in qblocks]
+        qblocks_as_int = [
+            tuple(vx.label for vx in block.vertexes) for block in qblocks
+        ]
         qblocks_as_int = ints_to_set(qblocks_as_int)
 
         assert qblocks_as_int == rscp
-
-
