@@ -31,15 +31,20 @@ class _Vertex:
         # the QBlock which contains this vertex
         self._dllistnode = None
 
+        # a property shared by many algorithms, reset it to False after usage
         self.visited = False
-        self.in_second_splitter = False
 
-        self.counterimage = []
+        # a list of `_Edge` instances from `self` to the `_Vertex` instances in
+        # the image of this `_Vertex`.
         self.image = []
+        # a list of `_Edge` instances from `self` to the `_Vertex` instances in
+        # the counterimage of this `_Vertex`.
+        self.counterimage = []
 
         self.aux_count = None
+        self.in_second_splitter = False
 
-        self.original_label = label
+        self._original_label = label
 
         self.initial_partition_block_id = None
 
@@ -50,8 +55,15 @@ class _Vertex:
 
     @property
     def label(self):
-        """The label assigned to this :class:`_Vertex` instance."""
+        """The current label assigned to this :class:`_Vertex` instance. May
+        change if a method like :func:`scale_label` is called."""
         return self._label
+
+    @property
+    def original_label(self):
+        """The original label assigned to this :class:`_Vertex` instance. Is a
+        constant value."""
+        return self._original_label
 
     @property
     def qblock(self):
