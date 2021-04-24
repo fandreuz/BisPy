@@ -10,38 +10,26 @@ def compute_initial_partition_block_id(vertex_labels: Iterable[int]):
 
 
 class _Vertex:
-    """The internal representation of the vertex of a graph. This is used by
-    the algorithm to hold all the needed data structure, in order to access
-    them in O(1).
+    """BisPy representation of a vertex in a graph. Contains several data
+    structures which provide O(1) access to the adjacency list of the vertex,
+    as well as attributes to store temporary information used or shared among
+    different parts of the algorithm (make sure to reset them when they aren't
+    needed anymore).
 
-    Attributes:
-        label                   The unique identifier of this vertex.
-        qblock                  The QBlock instance this vertex belongs to.
-        visited                 A flag used in the algorithm to mark vertexes
-            which it has already visited.
-        counterimage            A list of _Edge instances such that
-            edge.destination = self. This shouldn't be touched manually.
-        image                   A list of _Edge instances such that
-            edge.source = self. This shouldn't be touched manually.
-        aux_count               An auxiliary _Count instance used to compute
-            |B cap E({self})|.
-        in_second_splitter      A flag used during the computation of the
-            counterimage of blocks to avoid duplicates.
-        dllistnode              A reference to the instance of dllistobject
-            representing this vertex in the QBlock it belongs to.
+    :param int label: A unique (in the graph) integer ID which identifies this
+        vertex. `label`s must be an interval (no holes) starting from zero,
+        otherwise the algorithm may not work properly.
     """
 
     def __init__(self, label):
-        """The constructor of the class Vertex.
-
-        Args:
-            label (int): A unique label which identifies this vertex among all
-            the others (usually its index in a list of vertexes).
+        """Constructor method
         """
+        self._label = label
+        self._qblock = None
 
-        self.label = label
-        self.qblock = None
-        self.dllistnode = None
+        # the dllistobject which refers to this vertex inside the dllist inside
+        # the QBlock which contains this vertex
+        self._dllistnode = None
 
         self.visited = False
         self.in_second_splitter = False
@@ -61,6 +49,17 @@ class _Vertex:
         self._scc = None
 
     @property
+    def label(self):
+        """The label assigned to this :class:`_Vertex` instance."""
+        return self._label
+
+    @property
+    def qblock(self):
+        """The :class:`_QBlock` instance that this :class:`_Vertex` belongs to
+        at the moment."""
+        return self._qblock
+
+    @property
     def scc(self):
         return self._scc
 
@@ -69,10 +68,10 @@ class _Vertex:
         self._scc = value
 
     def scale_label(self, scaled_label: int):
-        self.label = scaled_label
+        self._label = scaled_label
 
     def back_to_original_label(self):
-        self.label = self.original_label
+        self._label = self.original_label
 
     # creates a subgraph which contains only vertexes of the
     # same rank of this vertex.
@@ -211,21 +210,6 @@ class _Edge:
 
 
 class _QBlock:
-    """A block of Q in the Paige-Tarjan algorithm.
-
-    Attributes:
-        size                    The number of vertexes in this block. This is
-            updated automatically by append/remove_vertex.
-        vertexes                A dllist which contains the vertexes in this
-            block.
-        xblock                  The (unique) block S of X such that
-            S = A cup self, for some A.
-        split_helper_block      A reference for O(1) access to a new block
-            created from this block during the split phase.
-        dllistnode              A reference to the dllistobject which
-            represents this QBlock in xblock.
-    """
-
     def __init__(self, vertexes, xblock):
         self.vertexes = dllist([])
 
@@ -246,15 +230,15 @@ class _QBlock:
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper _Vertex, not a dllistnode
     def append_vertex(self, vertex: _Vertex):
-        vertex.dllistnode = self.vertexes.append(vertex)
+        vertex._dllistnode = self.vertexes.append(vertex)
         self.size = self.vertexes.size
-        vertex.qblock = self
+        vertex._qblock = self
 
     # throws an error if the vertex isn't inside this qblock
     def remove_vertex(self, vertex: _Vertex):
-        self.vertexes.remove(vertex.dllistnode)
+        self.vertexes.remove(vertex._dllistnode)
         self.size = self.vertexes.size
-        vertex.qblock = None
+        vertex._qblock = None
 
     def initialize_split_helper_block(self):
         self.split_helper_block = _QBlock([], self.xblock)
