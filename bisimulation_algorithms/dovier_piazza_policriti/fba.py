@@ -362,7 +362,11 @@ def bisimulation_contraction(
     for rank in collapsed_partition:
         for block in rank:
             if block.size > 0:
-                collapsed_graph_nodes.append(block.vertexes.first.value.label)
+                # we want to have a tuple to recall that each vertex represents
+                # a whole block
+                collapsed_graph_nodes.append(
+                    (block.vertexes.first.value.label,)
+                )
 
     if original_graph_is_integer:
         return collapsed_graph_nodes

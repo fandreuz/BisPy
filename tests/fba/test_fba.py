@@ -140,7 +140,7 @@ def test_fba_collapse_correctness(graph):
     contraction = fba_contraction(graph)
     rscp = paige_tarjan(graph)
     assert all(
-        any(vertex in block for block in rscp) for vertex in contraction
+        sum((vertex,) in contraction for vertex in block) == 1 for block in rscp
     )
 
 
