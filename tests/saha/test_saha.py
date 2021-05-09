@@ -50,7 +50,6 @@ import itertools
 from bisimulation_algorithms.paige_tarjan.pta import pta, rscp as paige_tarjan
 from bisimulation_algorithms.utilities.graph_entities import _Edge, _XBlock
 from bisimulation_algorithms.saha.ranked_pta import pta as ranked_pta
-from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
 from itertools import chain, product
 from bisimulation_algorithms.utilities.kosaraju import kosaraju
 
