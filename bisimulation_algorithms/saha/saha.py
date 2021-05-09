@@ -21,6 +21,7 @@ from bisimulation_algorithms.utilities.kosaraju import kosaraju
 from bisimulation_algorithms.utilities.rank_computation import (
     scc_finishing_time_list,
 )
+from operator import attrgetter
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
@@ -381,8 +382,6 @@ def merge_split_phase(qpartition, finishing_time_list):
         for vx in block.vertexes:
             # mark as reachable by PTA
             vx.allow_visit = True
-            # remember which qblock you were in
-            vx.old_qblock_id = id(vx.qblock)
 
             # scale label in order to use PTA
             vx.scale_label(len(scaled_to_nonscaled))
@@ -416,28 +415,15 @@ def merge_split_phase(qpartition, finishing_time_list):
             # restore original label
             vx.back_to_original_label()
 
-    # keep track of the blocks which are the result of a split
-    splitted_blocks = []
-    for block in X2:
-        for vx in block.vertexes:
-            # check if splitted
-            if not vx.qblock.visited and vx.old_qblock_id != id(vx.qblock):
-                new_qpartition = ranked_split(
-                    new_qpartition, vx.qblock, max_rank
-                )
-                splitted_blocks.append(vx.qblock)
-
-                # this is used as a flag to prevent splitting twice
-                vx.qblock.visited = True
-
-    # clear old_qblock_id
-    for block in new_qpartition:
-        for vertex in block.vertexes:
-            vertex.old_qblock_id = None
-
-    # clean block.visited
-    for block in splitted_blocks:
-        block.visited = False
+    # select the blocks which are the result of a split
+    # split, and clean block.visited
+    for block in filter(attrgetter('is_new_qblock'), X2):
+        # split
+        new_qpartition = ranked_split(
+            new_qpartition, block, max_rank
+        )
+        # clean
+        block.is_new_qblock = False
 
     return new_qpartition
 

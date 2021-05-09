@@ -41,9 +41,7 @@ def append_new_compound_xblocks(
     for new_compound_xblock in new_compound_xblocks:
         first_qblock = new_compound_xblock.qblocks.first.value
         rank_index = (
-            0
-            if first_qblock.rank == float("-inf")
-            else first_qblock.rank + 1
+            0 if first_qblock.rank == float("-inf") else first_qblock.rank + 1
         )
         compound_xblocks[rank_index].append(new_compound_xblock)
 
@@ -198,8 +196,10 @@ def refine(
     B_counterimage = build_block_counterimage(B_qblock)
 
     # step 4 (refine Q with respect to B)
-    new_qblocks_from_split1, new_compound_xblocks = split(B_counterimage)
-    new_qblocks.extend(new_qblocks_from_split1)
+    new_qblocks1, new_compound_xblocks, changed_qblocks1 = split(
+        B_counterimage
+    )
+    new_qblocks.extend(new_qblocks1)
     append_new_compound_xblocks(new_compound_xblocks, compound_xblocks)
 
     # step 5 (compute E^{-1}(B) - E^{-1}(S-B))
@@ -211,10 +211,10 @@ def refine(
     )
 
     # step 6
-    new_qblocks_from_split2, new_compound_xblocks = split(
+    new_qblocks2, new_compound_xblocks, changed_qblocks2 = split(
         second_splitter_counterimage
     )
-    new_qblocks.extend(new_qblocks_from_split2)
+    new_qblocks.extend(new_qblocks2)
 
     # step 7
     update_counts(B_qblock_vertexes)
@@ -260,9 +260,7 @@ def pta(
 
     while first_nonempty_compound_rankindex > 0:
         x_partition, new_qblocks, new_compound_xblocks = refine(
-            compound_xblocks=compound_xblocks,
-            xblocks=x_partition,
-            first_nonempty_compound_rankindex=first_nonempty_compound_rankindex
+            compound_xblocks, x_partition, first_nonempty_compound_rankindex
         )
         q_partition.extend(new_qblocks)
 
@@ -303,7 +301,7 @@ def ranked_split(
 
     #  perform Split(B,Q)
     B_counterimage = build_block_counterimage(B_qblock)
-    new_qblocks, new_compound_xblocks = split(B_counterimage)
+    new_qblocks, new_compound_xblocks, chaned_qblocks = split(B_counterimage)
 
     # reset aux_count
     for vx in B_counterimage:
@@ -311,7 +309,7 @@ def ranked_split(
 
     q_partition.extend(new_qblocks)
 
-    if max_rank == float('-inf'):
+    if max_rank == float("-inf"):
         max_rank = -1
 
     # note that only new compound xblock are compound xblocks

@@ -285,8 +285,8 @@ def test_split(graph, initial_partition):
     "graph, initial_partition", test_cases.graph_partition_tuples
 )
 def test_split_helper_block_right_xblock(graph, initial_partition):
-    (q_partition, vertexes) = initialize(graph, initial_partition)
-    (new_blocks, _) = split(vertexes[3:7])
+    q_partition, vertexes = initialize(graph, initial_partition)
+    new_blocks, _, _ = split(vertexes[3:7])
 
     for new_block in new_blocks:
         assert any(

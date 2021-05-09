@@ -468,7 +468,6 @@ def test_merge_split_resets_visited_allowvisit_oldqblockid():
 
     assert all([not vertex.visited for vertex in vertexes])
     assert all([not vertex.allow_visit for vertex in vertexes])
-    assert all([vertex.old_qblock_id == None for vertex in vertexes])
 
 
 def test_merge_split_resets_visited_triedmerge_qblocks():

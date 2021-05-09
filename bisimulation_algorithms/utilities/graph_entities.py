@@ -49,7 +49,6 @@ class _Vertex:
         self.initial_partition_block_id = None
 
         self.allow_visit = False
-        self.old_qblock_id = None
 
         self._scc = None
 
@@ -238,6 +237,8 @@ class _QBlock:
 
         self.deteached = False
         self.tried_merge = False
+
+        self.is_new_qblock = False
 
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper _Vertex, not a dllistnode

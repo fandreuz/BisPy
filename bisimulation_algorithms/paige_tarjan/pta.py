@@ -159,6 +159,9 @@ def split(B_counterimage: List[_Vertex]):
         # remove vertex from this qblock, and place it in the "parallel" qblock
         qblock.remove_vertex(vertex)
 
+        # qblock is a new qblock since we removed a _Vertex
+        qblock.is_new_qblock = True
+
         # if this is the first time a vertex is splitted from this qblock,
         # create the helper qblock
         if not qblock.split_helper_block:
@@ -173,6 +176,8 @@ def split(B_counterimage: List[_Vertex]):
     new_qblocks = []
     for qblock in changed_qblocks:
         helper_qblock = qblock.split_helper_block
+        helper_qblock.is_new_qblock = True
+
         qblock.reset_helper_block()
 
         new_qblocks.append(helper_qblock)
@@ -190,7 +195,7 @@ def split(B_counterimage: List[_Vertex]):
             if qblock.xblock.qblocks.size == 2:
                 new_compound_xblocks.append(qblock.xblock)
 
-    return (new_qblocks, new_compound_xblocks)
+    return (new_qblocks, new_compound_xblocks, changed_qblocks)
 
 
 # each edge a->b should point to |X(b) \cap E({a})| where X(b) is the _XBlock
@@ -263,7 +268,7 @@ def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
     B_counterimage = build_block_counterimage(B_qblock)
 
     # step 4 (refine Q with respect to B)
-    new_qblocks_from_split1, new_compound_xblocks = split(B_counterimage)
+    new_qblocks_from_split1, new_compound_xblocks, _ = split(B_counterimage)
     new_qblocks.extend(new_qblocks_from_split1)
     compound_xblocks.extend(new_compound_xblocks)
 
@@ -276,7 +281,7 @@ def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
     )
 
     # step 6
-    new_qblocks_from_split2, new_compound_xblocks = split(
+    new_qblocks_from_split2, new_compound_xblocks, _ = split(
         second_splitter_counterimage
     )
     new_qblocks.extend(new_qblocks_from_split2)
