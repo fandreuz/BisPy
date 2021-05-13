@@ -1,5 +1,5 @@
 import networkx as nx
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _Vertex,
     _QBlock as _Block,
     _Edge,
@@ -9,16 +9,16 @@ from bisimulation_algorithms.utilities.graph_entities import (
 )
 from typing import List, Tuple, Set, Dict
 from .ranked_pta import ranked_split
-from bisimulation_algorithms.paige_tarjan.pta import pta
-from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+from bispy.paige_tarjan.pta import pta
+from bispy.dovier_piazza_policriti.graph_decorator import (
     build_vertexes_image,
 )
-from bisimulation_algorithms.dovier_piazza_policriti.fba import (
+from bispy.dovier_piazza_policriti.fba import (
     build_block_counterimage,
 )
 from itertools import product, chain, combinations
-from bisimulation_algorithms.utilities.kosaraju import kosaraju
-from bisimulation_algorithms.utilities.rank_computation import (
+from bispy.utilities.kosaraju import kosaraju
+from bispy.utilities.rank_computation import (
     scc_finishing_time_list,
 )
 from operator import attrgetter

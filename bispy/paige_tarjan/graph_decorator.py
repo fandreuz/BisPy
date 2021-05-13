@@ -2,7 +2,7 @@ import itertools
 import networkx as nx
 from typing import List, Tuple
 
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _Vertex,
     _Edge,
     _XBlock,

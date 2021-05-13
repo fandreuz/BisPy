@@ -3,7 +3,7 @@ import networkx as nx
 from llist import dllist, dllistnode
 import tests.pta.pta_test_cases as test_cases
 import itertools
-from bisimulation_algorithms.utilities.graph_normalization import (
+from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
 )
@@ -14,14 +14,14 @@ from tests.pta.rscp_utilities import (
     is_stable_partition,
 )
 
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _Vertex,
     _Edge,
     _QBlock,
     _XBlock,
     compute_initial_partition_block_id,
 )
-from bisimulation_algorithms.paige_tarjan.pta import (
+from bispy.paige_tarjan.pta import (
     split,
     extract_splitter,
     build_block_counterimage,
@@ -30,7 +30,7 @@ from bisimulation_algorithms.paige_tarjan.pta import (
     pta,
     rscp as pta_rscp,
 )
-from bisimulation_algorithms.paige_tarjan.graph_decorator import (
+from bispy.paige_tarjan.graph_decorator import (
     initialize,
     prepare_graph_abstraction,
     preprocess_initial_partition,

@@ -1,7 +1,7 @@
-![Python package](https://github.com/fAndreuzzi/Bisimulation-Algorithms/workflows/Python%20package/badge.svg?branch=master) <a href='https://coveralls.io/github/fAndreuzzi/Bisimulation-Algorithms'><img src='https://coveralls.io/repos/github/fAndreuzzi/Bisimulation-Algorithms/badge.svg' alt='Coverage Status' /></a>
- [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE) <img src='https://img.shields.io/badge/code style-PEP8-informational' alt='Code style' />
+![Python package](https://github.com/fAndreuzzi/BisPy/workflows/Python%20package/badge.svg?branch=master) <a href='https://coveralls.io/github/fAndreuzzi/BisPy'><img src='https://coveralls.io/repos/github/fAndreuzzi/BisPy/badge.svg' alt='Coverage Status' /></a>
+ [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE) <img src='https://img.shields.io/badge/Code%20style-Black-%23000000'/>
 
-# Bisimulation-Algorithms
+# BisPy
 
 ## The problem
 Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation R on V which satisfies the following two properties:
@@ -33,8 +33,8 @@ This library contains the implementation in Python 3 of the following algorithms
 The package isn't published, therefore the following steps are needed:
 1. Open a terminal window;
 2. Navigate to a suitable directory;
-3. Clone the repository: `git clone https://github.com/fAndreuzzi/Bisimulation-Algorithms.git`;
-4. Open the new directory `cd Bisimulation-Algorithms`;
+3. Clone the repository: `git clone https://github.com/fAndreuzzi/BisPy.git`;
+4. Open the new directory `cd BisPy`;
 5. Install the package in development mode: `pip install -e ./` or `pip3 install -e ./`.
 
 ## Usage
@@ -53,7 +53,7 @@ intializes a graph which contains 5 nodes (from 0 to 4) and some edges. We assum
 
 We can obtain the RSCP with the Paige-Tarjan Algorithm as follows:
 ```python
-from bisimulation_algorithms import paige_tarjan
+from bispy import paige_tarjan
 
 rscp = paige_tarjan(graph)
 print(rscp)

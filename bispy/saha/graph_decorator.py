@@ -1,15 +1,15 @@
 import networkx as nx
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _Vertex,
     _Edge,
     _Count,
     _QBlock,
 )
 from typing import List, Tuple
-from bisimulation_algorithms.utilities.rank_computation import (
+from bispy.utilities.rank_computation import (
     compute_rank,
 )
-from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+from bispy.dovier_piazza_policriti.graph_decorator import (
     build_vertexes_image,
     compute_counterimage_finishing_time_list
 )

@@ -1,4 +1,4 @@
-from bisimulation_algorithms.utilities.graph_entities import _Vertex, _SCC
+from bispy.utilities.graph_entities import _Vertex, _SCC
 from typing import List, Set, Dict
 from .kosaraju import kosaraju
 

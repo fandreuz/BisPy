@@ -1,7 +1,7 @@
 import networkx as nx
-from bisimulation_algorithms.utilities.graph_entities import _Edge, _Vertex
+from bispy.utilities.graph_entities import _Edge, _Vertex
 from typing import List, Tuple
-from bisimulation_algorithms.utilities.rank_computation import (
+from bispy.utilities.rank_computation import (
     compute_rank,
 )
 

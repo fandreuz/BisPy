@@ -1,21 +1,21 @@
 import pytest
 import networkx as nx
-from bisimulation_algorithms.saha.graph_decorator import (
+from bispy.saha.graph_decorator import (
     prepare_nx_graph,
     prepare_internal_graph,
 )
-from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+from bispy.dovier_piazza_policriti.graph_decorator import (
     prepare_graph as prepare_graph_fba,
 )
-from bisimulation_algorithms.dovier_piazza_policriti.fba import fba
-from bisimulation_algorithms.dovier_piazza_policriti.fba import (
+from bispy.dovier_piazza_policriti.fba import fba
+from bispy.dovier_piazza_policriti.fba import (
     create_initial_partition,
     build_block_counterimage,
 )
-from bisimulation_algorithms.utilities.rank_computation import (
+from bispy.utilities.rank_computation import (
     scc_finishing_time_list,
 )
-from bisimulation_algorithms.saha.saha import (
+from bispy.saha.saha import (
     check_old_blocks_relation,
     find_vertexes,
     add_edge,
@@ -45,13 +45,13 @@ from .saha_test_cases import (
     update_rscp_new_edge,
 )
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
-from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
+from bispy.paige_tarjan.graph_decorator import initialize
 import itertools
-from bisimulation_algorithms.paige_tarjan.pta import pta, rscp as paige_tarjan
-from bisimulation_algorithms.utilities.graph_entities import _Edge, _XBlock
-from bisimulation_algorithms.saha.ranked_pta import pta as ranked_pta
+from bispy.paige_tarjan.pta import pta, rscp as paige_tarjan
+from bispy.utilities.graph_entities import _Edge, _XBlock
+from bispy.saha.ranked_pta import pta as ranked_pta
 from itertools import chain, product
-from bisimulation_algorithms.utilities.kosaraju import kosaraju
+from bispy.utilities.kosaraju import kosaraju
 
 
 def test_check_old_blocks_relation():

@@ -7,3 +7,4 @@ bisimulation_algorithms.egg-info/
 pyproject.toml
 Pipfile*
 .ipynb_checkpoints/
+*.m

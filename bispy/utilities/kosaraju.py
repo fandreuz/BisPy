@@ -1,4 +1,4 @@
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _Vertex,
     _Edge,
     _SCC,

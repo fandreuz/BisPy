@@ -1,7 +1,7 @@
 import pytest
 import networkx as nx
 
-from bisimulation_algorithms.utilities.graph_normalization import (
+from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
     back_to_original,

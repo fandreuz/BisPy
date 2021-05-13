@@ -2,20 +2,20 @@ from llist import dllist, dllistnode
 from typing import List, Dict, Any, Tuple, Iterable
 import networkx as nx
 
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _Vertex,
     _QBlock,
     _Count,
     _XBlock,
 )
-from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
-from bisimulation_algorithms.paige_tarjan.pta import (
+from bispy.paige_tarjan.graph_decorator import initialize
+from bispy.paige_tarjan.pta import (
     extract_splitter,
     split,
     update_counts,
 )
 
-from bisimulation_algorithms.utilities.graph_normalization import (
+from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
     back_to_original,

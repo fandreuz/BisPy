@@ -1,11 +1,11 @@
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _QBlock as _Block,
     _Vertex,
 )
-from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+from bispy.dovier_piazza_policriti.graph_decorator import (
     prepare_graph,
 )
-from bisimulation_algorithms.dovier_piazza_policriti.fba import (
+from bispy.dovier_piazza_policriti.fba import (
     create_initial_partition,
 )
 import networkx as nx

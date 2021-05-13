@@ -1,6 +1,6 @@
 import networkx as nx
-from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
-from bisimulation_algorithms.saha.graph_decorator import prepare_internal_graph
+from bispy.paige_tarjan.graph_decorator import initialize
+from bispy.saha.graph_decorator import prepare_internal_graph
 
 # new scc
 new_scc_graphs = []

@@ -1,17 +1,17 @@
 import pytest
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _QBlock,
     _Vertex,
     _Edge,
 )
 from typing import Set, Tuple, List
 import networkx as nx
-from bisimulation_algorithms.saha.ranked_pta import ranked_split
-from bisimulation_algorithms.paige_tarjan.pta import rscp
-from bisimulation_algorithms.saha.graph_decorator import (
+from bispy.saha.ranked_pta import ranked_split
+from bispy.paige_tarjan.pta import rscp
+from bispy.saha.graph_decorator import (
     prepare_nx_graph as prepare_graph,
 )
-from bisimulation_algorithms.saha.saha import add_edge
+from bispy.saha.saha import add_edge
 
 
 def partition_to_integer(partition: List[_QBlock]) -> Set[Set[int]]:

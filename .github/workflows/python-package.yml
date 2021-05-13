@@ -39,5 +39,5 @@ jobs:
         coveralls || true
     - name: PEP8
       run: |
-        pycodestyle bisimulation_algorithms/
+        pycodestyle bispy/
 

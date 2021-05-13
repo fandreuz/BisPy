@@ -14,7 +14,7 @@ __version__ = __release__ + "." + __subrelease__
 __maintainer__ = "Francesco Andreuzzi"
 __email__ = "andreuzzi.francesco@gmail.com"
 __status__ = "Development"
-__name__ = "bisimulation_algorithms"
+__name__ = "bispy"
 
 from .paige_tarjan.pta import rscp as paige_tarjan
 from .dovier_piazza_policriti.fba import (

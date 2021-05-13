@@ -1,7 +1,7 @@
 import itertools
 from typing import List, Iterable
 
-from bisimulation_algorithms.utilities.graph_entities import _Vertex, _QBlock
+from bispy.utilities.graph_entities import _Vertex, _QBlock
 
 # check if the given partition is stable with respect to the given block, or if
 # it's stable if the block isn't given

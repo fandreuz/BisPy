@@ -1,11 +1,11 @@
 import pytest
-from bisimulation_algorithms.utilities.graph_entities import (
+from bispy.utilities.graph_entities import (
     _Vertex,
     _Edge,
 )
 import networkx as nx
-from bisimulation_algorithms.utilities.kosaraju import kosaraju
-from bisimulation_algorithms.paige_tarjan.graph_decorator import (
+from bispy.utilities.kosaraju import kosaraju
+from bispy.paige_tarjan.graph_decorator import (
     prepare_graph_abstraction
 )
 

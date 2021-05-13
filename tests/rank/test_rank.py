@@ -1,10 +1,10 @@
 import pytest
 import networkx as nx
 
-from bisimulation_algorithms.utilities.rank_computation import (
+from bispy.utilities.rank_computation import (
     compute_rank,
 )
-from bisimulation_algorithms.dovier_piazza_policriti.graph_decorator import (
+from bispy.dovier_piazza_policriti.graph_decorator import (
     prepare_graph,
 )
 from .rank_test_cases import noderank_dicts, graphs

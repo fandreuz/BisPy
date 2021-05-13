@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-import bisimulation_algorithms as bs_alg
+import bispy as bs_alg
 
 setup(
     name=bs_alg.__name__,
