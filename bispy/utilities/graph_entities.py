@@ -10,20 +10,21 @@ def compute_initial_partition_block_id(vertex_labels: Iterable[int]):
 
 
 class _Vertex:
-    """BisPy representation of a vertex in a graph. Contains several data
-    structures which provide O(1) access to the adjacency list of the vertex,
-    as well as attributes to store temporary information used or shared among
-    different parts of the algorithm (make sure to reset them when they aren't
-    needed anymore).
+    """The internal representation of a vertex in a graph. Contains several
+    conveniente attributes/data structures to provide ~O(1) access from within
+    the bisimulation algorithms.
 
-    :param int label: A unique (in the graph) integer ID which identifies this
-        vertex. `label`s must be an interval (no holes) starting from zero,
-        otherwise the algorithm may not work properly.
+    .. note::
+
+       Make sure to reset temporary attributes like :attr:`visited`.
+
+    :param int label: A unique label used to reference the vertex. It's
+            preferable to use an interval of integers starting from zero
+            in order to allow algorithms to be run, otherwise `` BisPy `` will
+            enforce this kind of labeling beforehand.
     """
 
     def __init__(self, label):
-        """Constructor method
-        """
         self._label = label
         self._qblock = None
 
@@ -54,39 +55,76 @@ class _Vertex:
 
     @property
     def label(self):
-        """The current label assigned to this :class:`_Vertex` instance. May
-        change if a method like :func:`scale_label` is called."""
+        """The current label assigned to this instance. May change if a method
+        like :func:`scale_label` is called.
+
+        :type: int
+        """
         return self._label
 
     @property
     def original_label(self):
-        """The original label assigned to this :class:`_Vertex` instance. Is a
-        constant value."""
+        """The original label assigned to this instance. Is a constant through
+        the whole life of the instance.
+
+        :type: int
+        """
         return self._original_label
 
     @property
     def qblock(self):
-        """The :class:`_QBlock` instance that this :class:`_Vertex` belongs to
-        at the moment."""
+        """The :class:`._QBlock` instance that this vertex belongs to
+        at the moment. Used, for instance, in `` Paige-Tarjan `` .
+
+        :type: :class:`._QBlock`
+        """
         return self._qblock
 
     @property
     def scc(self):
+        """The :class:`._SCC` instance that this vertex belongs to at the
+        moment. When set, it doesn't change unless you call `` Saha `` to
+        add a new edge. It's usually set during the computation of the rank
+        (check :func:`~bispy.utilities.kosaraju.kosaraju`).
+
+        :getter: Return the SCC for this vertex.
+        :setter: Set the SCC for this vertex.
+        :type: :class:`._SCC`
+        """
         return self._scc
 
     @scc.setter
     def scc(self, value):
         self._scc = value
 
-    def scale_label(self, scaled_label: int):
+    def scale_label(self, scaled_label):
+        """Changes the value of the :func:`label`. Usually this is used to
+        obtain a subgraph of the current graph to apply `` Paige-Tarjan `` .
+
+        :param int scaled_label: The new label.
+        """
         self._label = scaled_label
 
     def back_to_original_label(self):
+        """Reset the label of this vertex to :func:`original_label`, usually
+        after the job which compelled us to call :func:`scale_label` is
+        completed.
+        """
         self._label = self.original_label
 
-    # creates a subgraph which contains only vertexes of the
-    # same rank of this vertex.
-    def restrict_to_subgraph(self):
+    def restrict_to_subgraph_of_same_rank(self):
+        """Modify the current graph to create a subgraph which contains only
+        vertexes at the same rank of this vertex. Removes all the edges
+        starting from this vertex towards nodes which don't respect this
+        condition. In order to finalize the creation of the new subgraph, you
+        need to call this method on all the vertexes at the interesting rank.
+
+        .. note::
+
+       This method destroys the graph, therefore it's not intended for an
+       ``incremental'' use.
+       """
+
         # this will be called just before calling PTA, therefore set the _Count
         # instance for each _Edge
 
@@ -111,6 +149,15 @@ class _Vertex:
                 self.add_to_counterimage(edge)
 
     def restrict_to_allowed_subraph(self):
+        """Modify the current graph to create a subgraph which contains only
+        ``allowed'' vertexes (the attribute :attr:`allow_visit` of the vertex
+        must be True). Removes all the edges starting from this vertex towards
+        nodes which don't respect this condition. In order to finalize the
+        creation of the new subgraph, you need to call this method (at least)
+        on all the allowed vertexes. You can recover the original graph calling
+        :func:`back_to_original_graph`.
+       """
+
         self._original_img = self.image
         self.image = []
 
@@ -137,6 +184,11 @@ class _Vertex:
                 self.add_to_counterimage(edge)
 
     def back_to_original_graph(self):
+        """
+        Invert the result of :func:`restrict_to_allowed_subraph` (you need to
+        call it on each :class:`._Vertex` instance on which
+        :func:`restrict_to_allowed_subraph` was called).
+        """
         self.image = self._original_img
         self.counterimage = self._original_counterimg
 
@@ -148,25 +200,33 @@ class _Vertex:
         self._original_img = None
 
     def add_to_counterimage(self, edge):
+        """
+        Add a new edge to the counterimage of this vertex.
+
+        :param edge: The new edge to be added.
+        :type edge: :class:`._Edge`
+        """
         self.counterimage.append(edge)
 
     def add_to_image(self, edge):
+        """
+        Add a new edge to the image of this vertex.
+
+        :param :class:`._Edge` edge: The new edge to be added.
+        """
         self.image.append(edge)
-
-    def visit(self):
-        self.visited = True
-
-    def release(self):
-        self.visited = False
-
-    def added_to_second_splitter(self):
-        self.in_second_splitter = True
-
-    def clear_second_splitter_flag(self):
-        self.in_second_splitter = False
 
     @property
     def rank(self):
+        """
+        The rank associated with this vertex (refers to the rank stored in the
+        subsequent :class:`._SCC` instance).
+
+        :setter: Set the rank for this vertex and the rank of the associated
+            :class:`._SCC` instance.
+        :getter: Get the rank for this vertex.
+        :type: int or float
+        """
         return self.scc.rank
 
     @rank.setter
@@ -175,6 +235,16 @@ class _Vertex:
 
     @property
     def wf(self):
+        """
+        A flag which tells whether this vertex is well founded or not (this is
+        in fact the well-foundedness of the subsequent strongly connected
+        component).
+
+        :setter: Set the well-founded flag for this vertex, and for the
+            associated :class:`._SCC` instance.
+        :getter: Get the well-founded flag for this vertex.
+        :type: bool
+        """
         return self.scc.wf
 
     @wf.setter
@@ -186,21 +256,41 @@ class _Vertex:
 
 
 class _Edge:
-    """Represents an edge between two _Vertex instances.
+    """An edge from a :class:`._Vertex` instance to a :class:`._Vertex`
+    instance.
 
-    Attributes:
-        source                  The source _Vertex of this edge.
-        destination             The destination _Vertex of this edge.
-        count                   A _Count instance which holds |E({source})
-            cap S|, where S is the block of X destination belongs to.
+    :param source: The source of this edge.
+    :type source: :class:`._Edge`
+    :param destination: The destination of this edge.
+    :type destination: :class:`._Edge`
     """
 
-    def __init__(self, source: _Vertex, destination: _Vertex):
-        self.source = source
-        self.destination = destination
+    def __init__(self, source, destination):
+        self._source = source
+        self._destination = destination
 
         # holds the value count(source,S) = |E({source}) \cap S|
         self.count = None
+
+    @property
+    def source(self):
+        """
+        The vertex from which this edge starts.
+
+        :type: :class:`._Vertex`
+        """
+
+        return self._source
+
+    @property
+    def destination(self):
+        """
+        The vertex where this edge ends.
+
+        :type: :class:`._Vertex`
+        """
+
+        return self._destination
 
     # this is only used for testing purposes
     def __hash__(self):
@@ -221,6 +311,15 @@ class _Edge:
 
 
 class _QBlock:
+    """A qblock from the `` Paige-Tarjan `` algorithm (used also in other
+    algorithms because it packs some useful methods).
+
+    :param vertexes: The vertexes that are initially in this qblock.
+    :type vertexes: list(:class:`._XBlock`)
+    :param xblock: The xblock that this qblock belongs to (if any).
+    :type xblock: :class:`._XBlock`
+    """
+
     def __init__(self, vertexes, xblock):
         self.vertexes = dllist([])
 
@@ -240,27 +339,61 @@ class _QBlock:
 
         self.is_new_qblock = False
 
-    # this doesn't check if the vertex is a duplicate.
-    # make sure that vertex is a proper _Vertex, not a dllistnode
-    def append_vertex(self, vertex: _Vertex):
+
+    def append_vertex(self, vertex):
+        """
+        Append a new vertex to this qblock. Doesn't check if there are
+        duplicates. Also sets the attribute :attr:`_Vertex._dllistnode` to
+        the value returned by `dllistnode.append`, and updates
+        :attr:`size`.
+
+        :param vertex: The vertex to be added.
+        :type vertex: :class:`._Vertex`
+        """
+
         vertex._dllistnode = self.vertexes.append(vertex)
         self.size = self.vertexes.size
         vertex._qblock = self
 
     # throws an error if the vertex isn't inside this qblock
-    def remove_vertex(self, vertex: _Vertex):
+    def remove_vertex(self, vertex):
+        """
+        Remove the given vertex from this qblock in O(1) using the attribute
+        :attr:`._Vertex._dllistnode` (should have been set in
+        :func:`append_vertex`). Also updates :attr:`size`, and sets to `None`
+        :attr:`._Vertex._dllistnode`.
+
+        :param vertex: The vertex to be removed.
+        :type vertex: :class:`._Vertex`
+        """
+
         self.vertexes.remove(vertex._dllistnode)
         self.size = self.vertexes.size
         vertex._qblock = None
 
     def initialize_split_helper_block(self):
+        """
+        Initializes an empty qblock to store the :class:`._Vertex` (s) extracted
+        from this qblock during a split phase.
+        """
+
         self.split_helper_block = _QBlock([], self.xblock)
 
     def reset_helper_block(self):
+        """
+        Resets the helper qblock (check :func:`initialize_split_helper_block`).
+        """
         self.split_helper_block = None
 
     @property
-    def rank(self) -> int:
+    def rank(self):
+        """
+        The rank of this qblock. Returns the rank of the first
+        :class:`._Vertex` in :attr:`vertexes`.
+
+        :type: int or float
+        """
+
         if self.vertexes.first is not None:
             return self.vertexes.first.value.rank
         else:
@@ -268,6 +401,12 @@ class _QBlock:
 
     @property
     def xblock(self):
+        """
+        The xblock that this qblock belongs to (or `None`).
+
+        :type: :class:`._XBlock`
+        """
+
         if hasattr(self, "_xblock"):
             return self._xblock
         else:
@@ -277,16 +416,30 @@ class _QBlock:
     def xblock(self, value):
         self._xblock = value
 
-    def initialize_split_helper_block(self):
-        self.split_helper_block = _QBlock([], self.xblock)
-
+    @property
     def initial_partition_block_id(self):
+        """
+        A unique ID which identifies the block of the initial partition which
+        contains this whole qblock. Uses
+        :attr:`_Vertex.initial_partition_block_id`.
+
+        :type: int
+        """
+
         if self.vertexes.size > 0:
             return self.vertexes.first.value.initial_partition_block_id
         else:
             return None
 
     def merge(self, block2):
+        """
+        Merge this qblock with another one, calling :func:`append_vertex` on
+        each :class:`._Vertex` of `block2`. Finally, deteach `block2` setting
+        :attr:`.deteached` to True.
+
+        :param block2: The qblock which is going to be merged into `self`.
+        :type block2: :class:`_QBlock`
+        """
         for vertex in block2.vertexes:
             self.append_vertex(vertex)
         block2.deteached = True
@@ -297,6 +450,15 @@ class _QBlock:
         ) + ("DET" if self.deteached else "")
 
     def fast_mitosis(self, extract_vertexes):
+        """
+        Extract a new qblock from this qblock, selecting vertexes from
+        `extract_vertexes`. Runs in linear time with respect to the cardinality
+        of `extract_vertexes`.
+
+        :param extract_vertexes: The vertexes to be extracted from self.
+        :type extract_vertexes: list(:class:`._Vertex`)
+        """
+
         new_block = _QBlock([], self.xblock)
         for vertex in extract_vertexes:
             self.remove_vertex(vertex)
@@ -317,25 +479,46 @@ class _QBlock:
 
 
 class _XBlock:
-    """A block of X in the Paige-Tarjan algorithm.
-
-    Attributes:
-        qblocks                     A dllist which contains the
-            blocks Q1,...,Qn such that the union of Q1,...,Qn is equal to self.
+    """
+    An X block from the `` Paige-Tarjan '' algorithm.
     """
 
     def __init__(self):
         self.qblocks = dllist([])
 
+    @property
     def size(self):
+        """
+        The number of :class:`._QBlock` (s) in self.
+
+        :type: int
+        """
         return self.qblocks.size
 
-    def append_qblock(self, qblock: _QBlock):
+    def append_qblock(self, qblock):
+        """
+        Append a new qblock to this xblock. Doesn't check if there are
+        duplicates. Also sets the attribute :attr:`_QBlock._dllistnode` to
+        the value returned by `dllistnode.append`.
+
+        :param qblock: The qblock to be added.
+        :type qblock: :class:`._QBlock`
+        """
+
         qblock.dllistnode = self.qblocks.append(qblock)
         qblock.xblock = self
         return self
 
-    def remove_qblock(self, qblock: _QBlock):
+    def remove_qblock(self, qblock):
+        """
+        Remove the given qblock from this xblock in O(1) using the attribute
+        :attr:`._QBlock._dllistnode` (should have been set in
+        :func:`append_vertex`). Sets to `None` :attr:`._QBlock._dllistnode`.
+
+        :param qblock: The qblock to be removed.
+        :type qblock: :class:`._QBlock`
+        """
+
         self.qblocks.remove(qblock.dllistnode)
         qblock.xblock = None
 
@@ -348,14 +531,6 @@ class _Count:
     """A class whcih represents a value. This is used to hold, share, and
     propagate changes in O(1) between all the interested entities (vertexes in
     the case of vertex.aux_count, edges in the case of edge.count).
-
-    Attributes:
-        vertex                    The vertex this instance is associated to,
-            namely the x such that self = count(x,A).
-        xblock                    The XBlock this isntance is associated to,
-            namely the S such that self = count(x,S).
-        value                     The current value of this instance (shared
-            between all the "users" of the reference).
     """
 
     def __init__(self, vertex: _Vertex):
@@ -367,6 +542,14 @@ class _Count:
 
 
 class _SCC:
+    """
+    Represents a Strongly Connected Component
+    (https://en.wikipedia.org/wiki/Strongly_connected_component), and holds
+    its image and counterimage (in the reduced set of SCCs of the graph).
+
+    :param int label: A unique label used to identify this SCC.
+    """
+
     def __init__(self, label: int):
         self._label = label
         self._rank = float("-inf")
@@ -378,14 +561,34 @@ class _SCC:
 
         self.visited = False
 
-    def add_vertex(self, vertex: _Vertex):
-        self._vertexes.add(vertex)
+    def add_vertex(self, vertex):
+        """
+        Add a new :class:`._Vertex` to this SCC.
+
+        :param vertex: The new vertex.
+        :type vertex: :class:`._Vertex`
+        """
+
+        self.vertexes.add(vertex)
         vertex.scc = self
 
     @property
     def wf(self):
-        if not hasattr(self, "_wf"):
-            if len(self._vertexes) > 1:
+        """
+        A flag which tells whether this SCC is well founded or not. To compute,
+        it visits the SCCs in :attr:`image` and checks whether or not there is
+        at least one non-well-founded SCC.
+
+        Note that this assumes that the attribute :attr:`wf` from all the SCCs
+        in :attr:`image` is updated when this property is evaluated.
+
+        :setter: Set the attribute :attr:`self.wf`.
+        :getter: Get the attribute :attr:`self.wf`.
+        :type: bool
+        """
+
+        if not hasattr(self, "_wf") or self._wf is None:
+            if len(self.vertexes) > 1:
                 self._wf = False
             else:
                 self._wf = True
@@ -395,23 +598,54 @@ class _SCC:
                         break
         return self._wf
 
+    @wf.setter
+    def wf(self, value):
+        self._wf = value
+
     @property
     def rank(self):
+        """
+        The rank associated with this SCC (note that rank doesn't change in
+        vertexes in the same SCC, due to its definition).
+
+        :type: int or float
+        """
+
         return self._rank
 
     def mark_leaf(self):
+        """
+        Notify that this SCC is a leaf, and change its rank accordingly.
+        """
+
         self._rank = 0
 
     def mark_scc_leaf(self):
+        """
+        Notify that this SCC is a leaf in the reduced graph of SCCs, and change
+        its rank accordingly.
+        """
+
         self._rank = float("-inf")
 
     def compute_image(self):
+        """
+        Build the dictionary :attr:`self.image` of this SCC visiting the
+        attribute :attr:`_Vertex.image` for each vertex in
+        :attr:`self.vertexes`. The unique label of each SCC is used as the key
+        in the dictionary.
+
+        Updates :attr:`self.wf` only if a self-loop in the reduced SCC graph
+        is detected (a vertex in :attr:`self.vertexes` is the source of an
+        edge towards a vertex in :attr:`self.vertexes`).
+        """
+
         self._image.clear()
-        for vx in self._vertexes:
+        for vx in self.vertexes:
             for edge in vx.image:
                 # edge towards self
                 if edge.destination.scc == self:
-                    self._wf = False
+                    self.wf = False
                 else:
                     # NO! there's no guarantee that the visit occurs
                     # in the right order. we can't rely on the .wf
@@ -423,8 +657,15 @@ class _SCC:
                     ] = edge.destination.scc
 
     def compute_counterimage(self):
+        """
+        Build the dictionary :attr:`._SCC.counterimage` of this SCC visiting
+        the attribute :attr:`_Vertex.counterimage` for each vertex in
+        :attr:`._SCC.vertexes`. The unique label of each SCC is used as the key
+        in the dictionary.
+        """
+
         self._counterimage.clear()
-        for vx in self._vertexes:
+        for vx in self.vertexes:
             for edge in vx.counterimage:
                 # edge towards self, don't include
                 if edge.source.scc == self:
@@ -434,29 +675,72 @@ class _SCC:
 
     @property
     def label(self):
+        """
+        A unique label which identifies this SCC (used as key in the
+        dictionaries :attr:`._SCC.image`, :attr:`._SCC.counterimage`).
+        """
+
         return self._label
 
     @property
+    def vertexes(self):
+        """
+        The vertexes in this SCC:
+
+        :type: set(:class:`._Vertex`)
+        """
+
+        return self._vertexes
+
+    @property
     def image(self):
+        """
+        The image (in the reduced SCC graph) of this SCC:
+
+        :type: dict(:class:`._SCC`)
+        """
+
         return self._image.values()
 
     @property
     def counterimage(self):
+        """
+        The counterimage (in the reduced SCC graph) of this SCC:
+
+        :type: dict(:class:`._SCC`)
+        """
+
         return self._counterimage.values()
 
     def destroy(self):
+        """
+        Destroy this instance (clears :attr:`self.vertexes`,
+        :attr:`self.counterimage`, :attr:`self.image`).
+        """
+
         self._vertexes.clear()
         self._image.clear()
         self._counterimage.clear()
 
     def join(self, other):
-        for vertex in other._vertexes:
+        """
+        Merge another SCC into this one by inserting its vertexes into
+        :attr:`self.vertexes`. Also calls :func:`other.destroy()`, and resets
+        :attr:`self.rank`, :attr:`self.wf` to communicate other SCCs that
+        we need to recompute these properties, therefore it's not recommended
+        to use them at the moment.
+
+        :param other: The SCC to be merged into `self`.
+        :type other: :class:`._SCC`
+        """
+
+        for vertex in other.vertexes:
             self.add_vertex(vertex)
-        self._rank = None
-        self._wf = False
+        self.rank = None
+        self.wf = False
         other.destroy()
 
     def __repr__(self):
         return "SCC({})".format(
-            ",".join([str(vertex) for vertex in self._vertexes])
+            ",".join([str(vertex) for vertex in self.vertexes])
         )

@@ -127,12 +127,12 @@ def build_block_counterimage(block: _Block) -> List[_Vertex]:
             if not counterimage_vertex.visited:
                 block_counterimage.append(counterimage_vertex)
                 # remember to release this vertex
-                counterimage_vertex.visit()
+                counterimage_vertex.visited = True
 
     for vertex in block_counterimage:
         # release this vertex so that it can be visited again in a next
         # splitting phase
-        vertex.release()
+        vertex.visited = False
 
     return block_counterimage
 
@@ -228,7 +228,7 @@ def fba(
                     # exclude nodes having the wrong rank from the image and
                     # counterimage of the vertex. from now they're gone
                     # forever.
-                    vertex.restrict_to_subgraph()
+                    vertex.restrict_to_subgraph_of_same_rank()
 
             # apply PTA to the subgraph at the current examined rank
             # CAREFUL: if you debug here, you'll see that there are some

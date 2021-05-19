@@ -81,7 +81,7 @@ def build_block_counterimage(B_qblock: _QBlock) -> List[_Vertex]:
             if not counterimage_vertex.visited:
                 qblock_counterimage.append(counterimage_vertex)
                 # remember to release this vertex
-                counterimage_vertex.visit()
+                counterimage_vertex.visited = True
 
             # if this is the first time we found a destination in qblock for
             # whom this node is a source, create a new instance of Count.
@@ -93,7 +93,7 @@ def build_block_counterimage(B_qblock: _QBlock) -> List[_Vertex]:
     for vertex in qblock_counterimage:
         # release this vertex so that it can be visited again in a next
         # splitting phase
-        vertex.release()
+        vertex.visited = False
 
     return qblock_counterimage
 
@@ -132,10 +132,10 @@ def build_exclusive_B_counterimage(
 
                 if count_B.value == count_S.value:
                     splitter_counterimage.append(edge.source)
-                    edge.source.added_to_second_splitter()
+                    edge.source.in_second_splitter = True
 
     for vertex in splitter_counterimage:
-        vertex.clear_second_splitter_flag()
+        vertex.in_second_splitter = False
 
     return splitter_counterimage
 

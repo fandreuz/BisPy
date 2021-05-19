@@ -219,8 +219,7 @@ def merge_condition(
     block1: _Block, block2: _Block, check_visited: bool = False
 ) -> bool:
     if (
-        block1.initial_partition_block_id()
-        != block2.initial_partition_block_id()
+        block1.initial_partition_block_id != block2.initial_partition_block_id
     ):
         return False
     elif block1 == block2:
@@ -282,7 +281,7 @@ def merge_step(vertex, X, visited_vertexes, cant_merge_dict):
 
     # try to merge this block
     if not vertex.qblock.tried_merge:
-        initial_partition_block_id = vertex.qblock.initial_partition_block_id()
+        initial_partition_block_id = vertex.qblock.initial_partition_block_id
         # if there are blocks which can't be merged with each other in the
         # dict, we try to merge this with one of them
         if initial_partition_block_id in cant_merge_dict:
