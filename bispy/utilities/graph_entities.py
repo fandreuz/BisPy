@@ -11,7 +11,7 @@ def compute_initial_partition_block_id(vertex_labels: Iterable[int]):
 
 class _Vertex:
     """The internal representation of a vertex in a graph. Contains several
-    conveniente attributes/data structures to provide ~O(1) access from within
+    convenient attributes/data structures to provide ~O(1) access from within
     the bisimulation algorithms.
 
     .. note::
