@@ -2,20 +2,19 @@ import networkx as nx
 from typing import Dict, Tuple, Any, List
 
 
-def convert_to_integer_graph(
-    graph: nx.Graph,
-) -> Tuple[nx.Graph, Dict[Any, int]]:
-    """Convert the given graph to an isomorphic graph whose nodes are integer
-    numbers. Moreover, creates a Dict which maps nodes of the original graph to
-     the corresponding node of the integer graph. Nodes in the graph have be
-     hashable objects.
+def convert_to_integer_graph(graph: nx.Graph):
+    """Convert the given graph to an isomorphic *integer graph*. Moreover,
+    creates a Dict which maps nodes of the original graph to the corresponding
+    node of the integer graph.
 
-    Args:
-        graph (nx.Graph): The input graph.
+    Since we use a `dict` to store the mappings, nodes in the original graph
+    must be hashable objects, moreover duplicates are not allowed.
 
-    Returns:
-        Tuple[nx.Graph, Dict[Any, int]]: A tuple containing the integer graph
-        and the mapping Dict.
+    :param graph: The input graph. `graph.nodes` must be hashable.
+    :type graph: `networkx.DiGraph`
+    :return: A tuple such that `tuple[0]` is the integer graph isomorphic to
+        the the parameter `graph`, and `tuple[1]` is a `dict` which maps nodes
+        from the old graph to nodes to the new graph.
     """
 
     integer_graph = nx.DiGraph()
@@ -34,15 +33,13 @@ def convert_to_integer_graph(
     return integer_graph, node_to_idx
 
 
-def check_normal_integer_graph(graph: nx.Graph) -> bool:
-    """Checks whether the nodes in the given graph form an integer interval
-    starting from zero without holes.
+def check_normal_integer_graph(graph):
+    """Checks whether the given graph is an *integer graph*.
 
-    Args:
-        graph (nx.Graph): The input graph.
-
-    Returns:
-        bool: True if the graph satisfies the "normal integrality" property.
+    :param graph: The graph to be checked.
+    :type graph: `networkx.DiGraph`
+    :return: `True` if `graph` is an *integer graph*, `False` otherwise.
+    :rtype: bool
     """
 
     return (
@@ -52,19 +49,19 @@ def check_normal_integer_graph(graph: nx.Graph) -> bool:
 
 
 def back_to_original(
-    partition: List[Tuple[int]], node_to_idx: Tuple[nx.Graph, Dict[Any, int]]
-) -> List[Tuple[Any]]:
-    """Convert the given integer partition to a partition made by the original
-    elements of the graph, using the mapping node_to_idx.
+    partition, node_to_idx:Dict[Any, int]
+):
+    """Convert the given integer partition to a partition made of the original
+    elements of the graph, using the given mapping `node_to_idx`.
 
-    Args:
-        partition (List[Tuple[int]]): The input partition.
-        node_to_idx (Tuple[nx.Graph, Dict[Any, int]]): The mapping node->idx
-        returned by convert_to_integer_graph.
-
-    Returns:
-        List[Tuple[Any]]: The given partition, represented with the symbols
-        (nodes) of the original graph.
+    :param partition: The input partition.
+    :type partition: list(tuple(int))
+    :param node_to_idx: The mapping (most likely given by
+        :func:`convert_to_integer_graph`).
+    :type node_to_idx: dict(Any,int)
+    :return: The given partition, with each integer replaced by the
+        corresponding node of the original graph.
+    :rtype: list(tuple(Any))
     """
 
     # create a mapping from idx to the original nodes

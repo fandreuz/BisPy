@@ -18,3 +18,4 @@ API
 
    graph_entities
    rank_computation
+   graph_normalization
