@@ -1,4 +1,4 @@
-.. Home
+.. graph_entities
 
 Graph entities
 =================================

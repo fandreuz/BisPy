@@ -17,3 +17,4 @@ API
 .. toctree::
 
    graph_entities
+   rank_computation

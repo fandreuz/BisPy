@@ -25,7 +25,23 @@ def scc_finishing_time_list(sccs: List[_SCC]):
     return scc_finishing_time_list
 
 
-def compute_rank(vertexes: List[_Vertex], sccs=None):
+def compute_rank(vertexes, sccs=None):
+    """
+    Compute rank and well-foundedness of the nodes of the graph represented by
+    `vertexes` (edges should be stored inside the attributes
+    :attr:`~bispy.utilities.graph_entities._Vertex.image`,
+    :attr:`~bispy.utilities.graph_entities._Vertex.counterimage`).
+
+    Data can be found afterwards in
+    :attr:`~bispy.utilities.graph_entities._Vertex.wf`,
+    :attr:`~bispy.utilities.graph_entities._Vertex.rank`.
+
+    :param vertexes: The representation of the graph, in *BisPy* format.
+    :type vertexes: list(:class:`~bispy.utilities.graph_entities._Vertex`)
+    :param sccs: Strongly connected components of the graph. If `None`, the
+        Kosaraju algorithm will be used.
+    :type sccs: list(:class:`~bispy.utilities.graph_entities._SCC`)
+    """
     if sccs is None:
         sccs = kosaraju(vertexes, return_sccs=True)
     for scc in sccs:
