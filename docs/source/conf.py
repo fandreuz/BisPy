@@ -58,3 +58,5 @@ html_static_path = ['../_static']
 master_doc = 'index'
 
 source_suffix = '.rst'
+
+add_module_names = False
