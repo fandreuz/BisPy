@@ -2,7 +2,7 @@
 
 Graph entities
 =================================
-This file contains classes used by **BisPy** to modelize a graph and store everything is needed
+This file contains classes used by `BisPy` to modelize a graph and store everything is needed
 for each step of the algorithms.
 
 |

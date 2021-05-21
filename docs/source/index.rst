@@ -1,7 +1,7 @@
 Welcome to `BisPy`'s documentation!
 =============================================
 
-**BisPy** is a simple Python package for the computation of the maximum bisimulation in directed graphs.
+`BisPy` is a simple Python package for the computation of the maximum bisimulation in directed graphs.
 At the moment it supports the following algorithms:
 
 - Paige-Tarjan
