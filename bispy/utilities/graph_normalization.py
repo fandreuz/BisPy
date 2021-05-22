@@ -2,7 +2,7 @@ import networkx as nx
 from typing import Dict, Tuple, Any, List
 
 
-def convert_to_integer_graph(graph: nx.Graph):
+def convert_to_integer_graph(graph):
     """Convert the given graph to an isomorphic *integer graph*. Moreover,
     creates a Dict which maps nodes of the original graph to the corresponding
     node of the integer graph.
@@ -48,9 +48,7 @@ def check_normal_integer_graph(graph):
     )
 
 
-def back_to_original(
-    partition, node_to_idx:Dict[Any, int]
-):
+def back_to_original(partition, node_to_idx):
     """Convert the given integer partition to a partition made of the original
     elements of the graph, using the given mapping `node_to_idx`.
 
