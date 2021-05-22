@@ -339,24 +339,32 @@ def rscp(
     graph: nx.Graph,
     initial_partition: Iterable[Iterable[int]] = None,
     is_integer_graph: bool = False,
-) -> List[Tuple]:
-    """Compute the RSCP of the given graph, with the given initial partition.
-    This function needs to work with an integer graph (nodes represented by an
-    integer), therefore it checks this property before starting the
-    Paige-Tarjan algorithm, and creates an integer graph if needed. Nodes in
-    the graph have to be hashable objects.
+):
+    """
+    Compute the *RSCP* (i.e. maximum bisimulation) of the given `graph` with
+    the given (optional) initial partition, using the *Paige-Tarjan* algorithm.
 
-    Args:
-        graph (nx.Graph): The input graph.
-        initial_partition (Iterable[Iterable[int]], optional): The initial
-        partition for the given graph. Defaults to None.
-        is_integer_graph (bool, optional): If True, the function assumes that
-        the graph is integer, and skips the integrality check (may be useful
-        when performance is important). Defaults to False.
+    If you're sure `graph` is an integer graph, you can set `is_integer_graph`
+    to `True` in order to skip the check/transformation phase (see also
+    :mod:`~bispy.utilities.rank_computation`) and save some time.
 
-    Returns:
-        List[Tuple]: The RSCP of the given (even non-integer) graph, with the
-        given initial partition.
+    If `graph` is non-integer, and `is_integer_graph` is `False`, we use
+    functions from :mod:`~bispy.utilities.rank_computation` to convert
+    the graph to an isomorphic integer graph. In this case the result is a
+    partition of objects from the *original* graph (not the integer version).
+
+    If `graph` is non-integer and `is_integer_graph` is `True`, you'll get most
+    likely an error (or even worse, a wrong result).
+
+    :param graph: The input (directed) graph, integer or non-integer. Defaults
+        to `None`.
+    :type graph: `networkx.DiGraph`
+    :param initial_partition: The initial partition of the graph, if `None`
+        we consider the trivial partition (only one block).
+    :param is_integer_graph: If `True`, the integrality-check (`O(|V|)`) is
+        skipped. Defaults to `False`.
+    :return: The *RSCP* of the given graph.
+    :rtype: list(tuple(Any))
     """
 
     if not isinstance(graph, nx.DiGraph):
