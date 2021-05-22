@@ -543,8 +543,8 @@ def filter_deteached(blocks: List[_Block]) -> List[_Block]:
 
 
 def update_rscp(
-    old_rscp: List[_Block],
     new_edge: Tuple,
+    old_rscp: List[_Block],
     vertexes: List[_Vertex],
 ):
     max_rank = max(map(lambda block: block.rank, old_rscp))

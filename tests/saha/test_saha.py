@@ -561,7 +561,7 @@ def test_update_rank_procedures(graph, new_edge, initial_partition):
 
     # compute incrementally
     prepare_internal_graph(vertexes, initial_partition)
-    update_rscp(qblocks, new_edge, vertexes)
+    update_rscp(new_edge, qblocks, vertexes)
 
     # compute from scratch
     graph2 = nx.DiGraph()
@@ -603,7 +603,7 @@ def test_update_rscp_correctness(graph, new_edge, initial_partition):
 
     # compute incrementally
     prepare_internal_graph(vertexes, initial_partition)
-    update_result = update_rscp(qblocks, new_edge, vertexes)
+    update_result = update_rscp(new_edge, qblocks, vertexes)
     update_result = vertexes_to_set(update_result)
 
     # compute from scratch
@@ -646,7 +646,7 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
         rscp = ints_to_set(rscp)
 
         # compute the rscp incrementally
-        qblocks = update_rscp(qblocks, edge, vertexes)
+        qblocks = update_rscp(edge, qblocks, vertexes)
         qblocks_as_int = [
             tuple(vx.label for vx in block.vertexes) for block in qblocks
         ]
@@ -688,7 +688,7 @@ def test_reverse_incremental_update_rscp_correctness(
         rscp = ints_to_set(rscp)
 
         # compute the rscp incrementally
-        qblocks = update_rscp(qblocks, edge, vertexes)
+        qblocks = update_rscp(edge, qblocks, vertexes)
         qblocks_as_int = [
             tuple(vx.label for vx in block.vertexes) for block in qblocks
         ]
