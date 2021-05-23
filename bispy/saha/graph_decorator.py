@@ -23,18 +23,16 @@ def to_normal_graph(
 
     # instantiate QBlocks and Vertexes, put Vertexes into QBlocks and set their
     # initial block id
-    vertexes = []
+    vertexes = [None for _ in graph.nodes]
     qblocks = []
     for idx, block in enumerate(initial_partition):
         qblock = _QBlock([], None)
         qblocks.append(qblock)
         for vx in block:
             new_vertex = _Vertex(label=vx)
-            vertexes.append(new_vertex)
+            vertexes[vx] = new_vertex
             qblock.append_vertex(new_vertex)
             new_vertex.initial_partition_block_id = idx
-
-    vertexes.sort(key=lambda vx: vx.label)
 
     # holds the references to Count objects to assign to the edges (this is OK
     # because we can consider |V| = O(|E|))
