@@ -188,8 +188,8 @@ def decorate_nx_graph(
     set_count=True,
     topological_sorted_images=True,
     compute_rank=True,
-    set_xblock=False,
-    preprocess=False,
+    set_xblock=True,
+    preprocess=True,
 ) -> Tuple[List[_Vertex], List[_QBlock]]:
     if initial_partition is None:
         initial_partition = [tuple(i for i in range(len(graph.nodes)))]
@@ -230,7 +230,7 @@ def decorate_bispy_graph(
     set_count=True,
     topological_sorted_images=True,
     compute_rank=True,
-    preprocess=False,
+    preprocess=True,
 ):
     # if initial_partition is False we do not loop over vertexes to set
     # the ID of initial partition (saves time)

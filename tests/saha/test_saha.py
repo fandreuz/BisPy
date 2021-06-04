@@ -272,7 +272,7 @@ def test_merge_condition():
     graph.add_edges_from([(0, 1), (1, 2), (3, 1), (4, 6), (0, 6), (5, 6)])
     ip = [(0, 1, 2, 3), (4, 5), (6,)]
 
-    vertexes, qblocks, _ = decorate_nx_graph(graph, ip, set_xblock=True, preprocess=True)
+    vertexes, qblocks, _ = decorate_nx_graph(graph, ip)
     rscp_qblocks = pta(qblocks)
 
     node_to_qblock = [None for _ in graph.nodes]
@@ -550,7 +550,7 @@ def vertexes_to_set(qblocks):
     ),
 )
 def test_update_rank_procedures(graph, new_edge, initial_partition):
-    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition, set_xblock=True, preprocess=True)
+    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition)
     qblocks = pta(qblocks)
 
     # compute incrementally
@@ -591,8 +591,7 @@ def ints_to_set(blocks):
     ),
 )
 def test_update_rscp_correctness(graph, new_edge, initial_partition):
-    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition,
-        set_xblock=True, preprocess=True)
+    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition)
     qblocks = pta(qblocks)
 
     # compute incrementally
@@ -605,8 +604,7 @@ def test_update_rscp_correctness(graph, new_edge, initial_partition):
     graph2.add_nodes_from(graph.nodes)
     graph2.add_edges_from(graph.edges)
     graph2.add_edge(*new_edge)
-    new_vertexes, new_qblocks, _ = decorate_nx_graph(graph2, initial_partition,
-        set_xblock=True, preprocess=True)
+    new_vertexes, new_qblocks, _ = decorate_nx_graph(graph2, initial_partition)
     new_rscp = pta(new_qblocks)
     new_rscp = vertexes_to_set(new_rscp)
 
