@@ -8,8 +8,10 @@ from bispy.utilities.graph_entities import (
     _QBlock,
     _Count,
 )
-from .graph_decorator import initialize
-
+from bispy.utilities.graph_decorator import (
+    decorate_nx_graph,
+    preprocess_initial_partition,
+)
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
@@ -312,7 +314,6 @@ def pta(q_partition: List[_QBlock]) -> List[_QBlock]:
         List[_Vertex]: The RSCP of the given initial partition as a list of
         Vertex instances.
     """
-
     # initially, there's only one block in the partition X, the one which
     # contains each block in Q
     x_partition = [q_partition[0].xblock]
@@ -386,7 +387,17 @@ def rscp(
         integer_initial_partition = initial_partition
 
     # compute the RSCP
-    (q_partition, _) = initialize(integer_graph, integer_initial_partition)
+    vertexes, q_partition, xblock = decorate_nx_graph(
+        integer_graph,
+        integer_initial_partition,
+        topological_sorted_images=False,
+        compute_rank=False,
+        set_xblock=True,
+    )
+    q_partition = preprocess_initial_partition(
+        vertexes, integer_initial_partition
+    )
+
     rscp = pta(q_partition)
 
     integer_rscp = [

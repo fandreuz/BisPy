@@ -1,13 +1,19 @@
 import networkx as nx
 import pytest
-
-
-from bispy.paige_tarjan.graph_decorator import initialize
-from tests.pta.rscp_utilities import is_stable_partition, is_stable_vertexes_partition, check_block_stability, check_vertexes_stability
+from tests.pta.rscp_utilities import (
+    is_stable_partition,
+    is_stable_vertexes_partition,
+    check_block_stability,
+    check_vertexes_stability,
+)
+from bispy.utilities.graph_decorator import decorate_nx_graph
 
 def build_test_partition(graph, partition, expected):
-    _, vertexes = initialize(graph, partition)
-    return ([[vertexes[idx] for idx in block] for block in partition], expected)
+    vertexes, _ = decorate_nx_graph(graph, partition)
+    return (
+        [[vertexes[idx] for idx in block] for block in partition],
+        expected,
+    )
 
 
 graphs_partition_expected = [
@@ -32,8 +38,11 @@ def test_check_is_stable_partition(partition, result):
 
 
 def build_test_blocks(graph, partition, expected):
-    _, vertexes = initialize(graph, partition)
-    return (*[[vertexes[idx] for idx in block] for block in partition][0:2], expected)
+    vertexes, _ = decorate_nx_graph(graph, partition)
+    return (
+        *[[vertexes[idx] for idx in block] for block in partition][0:2],
+        expected,
+    )
 
 
 graphs_partition_expected = [

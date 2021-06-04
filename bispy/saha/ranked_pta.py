@@ -1,20 +1,17 @@
 from llist import dllist, dllistnode
 from typing import List, Dict, Any, Tuple, Iterable
 import networkx as nx
-
 from bispy.utilities.graph_entities import (
     _Vertex,
     _QBlock,
     _Count,
     _XBlock,
 )
-from bispy.paige_tarjan.graph_decorator import initialize
 from bispy.paige_tarjan.pta import (
     extract_splitter,
     split,
     update_counts,
 )
-
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,

@@ -2,7 +2,6 @@ import pytest
 from bispy.dovier_piazza_policriti.fba import (
     rank_to_partition_idx,
     build_block_counterimage,
-    prepare_graph,
     create_initial_partition,
     split_upper_ranks,
     fba,
@@ -21,6 +20,7 @@ from functools import reduce
 from bispy.utilities.graph_entities import (
     _QBlock as _Block,
 )
+from bispy.utilities.graph_decorator import decorate_nx_graph
 
 
 @pytest.mark.parametrize(
@@ -36,7 +36,7 @@ def test_rank_to_partition_idx(rank, expected):
     ),
 )
 def test_build_block_counterimage(graph, counterimaged_block_indexes):
-    vertexes = prepare_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     counterimaged_block = _Block(
         map(lambda idx: vertexes[idx], counterimaged_block_indexes), None
     )
@@ -63,7 +63,7 @@ def test_build_block_counterimage(graph, counterimaged_block_indexes):
     graphs,
 )
 def test_prepare_graph_vertexes(graph):
-    vertexes = prepare_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
 
     # same length
     assert len(vertexes) == len(graph.nodes)
@@ -85,7 +85,7 @@ def test_prepare_graph_vertexes(graph):
 
 @pytest.mark.parametrize("graph", graphs)
 def test_create_initial_partition(graph):
-    vertexes = prepare_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     partition = create_initial_partition(vertexes)
 
     # at most one block per rank
@@ -106,7 +106,7 @@ def test_create_initial_partition(graph):
 
 @pytest.mark.parametrize("graph", graphs)
 def test_split_upper_ranks(graph):
-    vertexes = prepare_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     max_rank = max(vertex.rank for vertex in vertexes)
     partition_length = 0 if max_rank == float("-inf") else max_rank + 2
 

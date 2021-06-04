@@ -1,14 +1,6 @@
 from llist import dllist, dllistnode
 from typing import Iterable
 
-
-def compute_initial_partition_block_id(vertex_labels: Iterable[int]):
-    id = 0
-    for label in vertex_labels:
-        id += pow(2, label)
-    return id
-
-
 class _Vertex:
     """BisPy representation of a vertex in a graph. Contains several data
     structures which provide O(1) access to the adjacency list of the vertex,

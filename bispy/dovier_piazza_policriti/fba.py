@@ -7,9 +7,8 @@ from bispy.utilities.graph_entities import (
     _QBlock as _Block,
     _Vertex,
 )
-from .graph_decorator import to_normal_graph, prepare_graph
+from bispy.utilities.graph_decorator import decorate_nx_graph
 from bispy.paige_tarjan.pta import pta
-
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
@@ -193,8 +192,7 @@ def fba(
         List[List[_Vertex]] : A list which maps survivor nodes to the list of
             nodes collapsed to that survivor node.
     """
-
-    vertexes = prepare_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     partition = create_initial_partition(vertexes)
 
     # maps each survivor node to a list of nodes collapsed into it

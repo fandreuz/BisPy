@@ -1,11 +1,8 @@
 import pytest
 import networkx as nx
-from bispy.saha.graph_decorator import (
-    prepare_nx_graph,
-    prepare_internal_graph,
-)
-from bispy.dovier_piazza_policriti.graph_decorator import (
-    prepare_graph as prepare_graph_fba,
+from bispy.utilities.graph_decorator import (
+    decorate_nx_graph,
+    decorate_bispy_graph,
 )
 from bispy.dovier_piazza_policriti.fba import fba
 from bispy.dovier_piazza_policriti.fba import (
@@ -45,8 +42,6 @@ from .saha_test_cases import (
     update_rscp_new_edge,
 )
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
-from bispy.paige_tarjan.graph_decorator import initialize
-import itertools
 from bispy.paige_tarjan.pta import pta, rscp as paige_tarjan
 from bispy.utilities.graph_entities import _Edge, _XBlock
 from bispy.saha.ranked_pta import pta as ranked_pta
@@ -59,7 +54,7 @@ def test_check_old_blocks_relation():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
-    vertexes, _ = prepare_nx_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     create_initial_partition(vertexes)
 
     assert check_old_blocks_relation(vertexes[0], vertexes[1])
@@ -75,7 +70,7 @@ def test_find_vertex():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
-    vertexes, _ = prepare_nx_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     ranked_partition = create_initial_partition(vertexes)
     nonranked_partition = [
         qblock for rank in ranked_partition for qblock in rank
@@ -92,7 +87,7 @@ def test_add_edge():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
-    vertexes, _ = prepare_nx_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     ranked_partition = create_initial_partition(vertexes)
 
     partition = []
@@ -114,7 +109,7 @@ def test_propagate_wf():
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3)])
 
-    vertexes, qblocks = prepare_nx_graph(graph, [(0,), (1,), (2,), (3, 4)])
+    vertexes, qblocks = decorate_nx_graph(graph, [(0,), (1,), (2,), (3, 4)])
     max_rank = max(map(lambda vx: vx.rank, vertexes))
 
     # be careful: for build_well_founded_topological vertexes in the same
@@ -134,7 +129,7 @@ def test_propagate_wf():
     zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
 )
 def test_check_new_scc(graph, new_edge, value):
-    vertexes, _ = prepare_nx_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -150,7 +145,7 @@ def test_check_new_scc(graph, new_edge, value):
     zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
 )
 def test_check_new_scc_cleans(graph, new_edge, value):
-    vertexes, _ = prepare_nx_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -166,7 +161,7 @@ def test_check_new_scc_cleans(graph, new_edge, value):
     zip(new_scc_graphs, new_scc_new_edge, new_scc_correct_value),
 )
 def test_check_new_scc_qblocks_visited(graph, new_edge, value):
-    vertexes, _ = prepare_nx_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -195,7 +190,7 @@ def test_check_new_scc_computes_finishing_time(
     if correct_finishing_time is None:
         return
 
-    vertexes, _ = prepare_nx_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
     create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
@@ -277,8 +272,7 @@ def test_merge_condition():
     graph.add_edges_from([(0, 1), (1, 2), (3, 1), (4, 6), (0, 6), (5, 6)])
     ip = [(0, 1, 2, 3), (4, 5), (6,)]
 
-    qblocks, vertexes = initialize(graph, ip)
-    prepare_internal_graph(vertexes, ip)
+    vertexes, qblocks, _ = decorate_nx_graph(graph, ip, set_xblock=True, preprocess=True)
     rscp_qblocks = pta(qblocks)
 
     node_to_qblock = [None for _ in graph.nodes]
@@ -316,10 +310,10 @@ def test_merge_condition():
     map(lambda tp: (tp[0], tp[1]), graph_partition_rscp_tuples),
 )
 def test_merge_condition_with_initial_partition(graph, initial_partition):
-    qblocks, vertexes = initialize(graph, initial_partition)
-    prepare_internal_graph(vertexes, initial_partition)
+    vertexes, qblocks = decorate_nx_graph(graph, initial_partition)
+    decorate_bispy_graph(vertexes, initial_partition)
 
-    for tp in itertools.product(qblocks, qblocks):
+    for tp in product(qblocks, qblocks):
         assert not merge_condition(tp[0], tp[1])
 
 
@@ -350,7 +344,7 @@ def test_recursive_merge():
 
     partition = [(0, 2), (1,), (3,), (4,)]
 
-    vertexes, _ = prepare_nx_graph(g, partition)
+    vertexes, _ = decorate_nx_graph(g, partition)
 
     vertexes[0].qblock._mitosis([0], [2])
 
@@ -366,7 +360,7 @@ def test_update_rank():
     g.add_nodes_from(range(5))
     g.add_edges_from([(0, 1), (1, 0), (2, 3), (3, 1)])
 
-    vertexes, _ = prepare_nx_graph(g)
+    vertexes, _ = decorate_nx_graph(g)
 
     # now split
     vertexes[2].qblock._mitosis([2], [3])
@@ -399,7 +393,7 @@ def test_merge_phase():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes, _ = prepare_nx_graph(g, partition)
+    vertexes, _ = decorate_nx_graph(g, partition)
 
     # now split
     vertexes[2].qblock._mitosis([2], [3])
@@ -431,7 +425,7 @@ def test_initial_partition_block_idx_not_none():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes, _ = prepare_nx_graph(g, partition)
+    vertexes, _ = decorate_nx_graph(g, partition)
 
     for vx in vertexes:
         assert vx.initial_partition_block_id is not None
@@ -457,7 +451,7 @@ def test_merge_split_resets_visited_allowvisit_oldqblockid():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes, _ = prepare_nx_graph(g, partition)
+    vertexes, _ = decorate_nx_graph(g, partition)
     qblocks = [
         block for ls in create_initial_partition(vertexes) for block in ls
     ]
@@ -477,7 +471,7 @@ def test_merge_split_resets_visited_triedmerge_qblocks():
 
     partition = [(2, 3), (1, 0), (4,)]
 
-    vertexes, _ = prepare_nx_graph(g, partition)
+    vertexes, _ = decorate_nx_graph(g, partition)
     qblocks = [
         block for ls in create_initial_partition(vertexes) for block in ls
     ]
@@ -500,7 +494,7 @@ def test_well_founded_topological():
 
     partition = [(0, 3), (1, 4), (2, 5), (6, 7)]
 
-    vertexes, _ = prepare_nx_graph(g, partition)
+    vertexes, _ = decorate_nx_graph(g, partition)
 
     max_rank = max(map(lambda vx: vx.rank, vertexes))
 
@@ -556,11 +550,11 @@ def vertexes_to_set(qblocks):
     ),
 )
 def test_update_rank_procedures(graph, new_edge, initial_partition):
-    qblocks, vertexes = initialize(graph, initial_partition)
+    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition, set_xblock=True, preprocess=True)
     qblocks = pta(qblocks)
 
     # compute incrementally
-    prepare_internal_graph(vertexes, initial_partition)
+    decorate_bispy_graph(vertexes, initial_partition)
     update_rscp(qblocks, new_edge, vertexes)
 
     # compute from scratch
@@ -568,8 +562,7 @@ def test_update_rank_procedures(graph, new_edge, initial_partition):
     graph2.add_nodes_from(graph.nodes)
     graph2.add_edges_from(graph.edges)
     graph2.add_edge(*new_edge)
-    new_qblocks, new_vertexes = initialize(graph2, initial_partition)
-    prepare_internal_graph(new_vertexes, initial_partition)
+    new_vertexes, new_qblocks = decorate_nx_graph(graph2, initial_partition)
 
     for i in range(len(vertexes)):
         assert vertexes[i].rank == new_vertexes[i].rank
@@ -598,11 +591,12 @@ def ints_to_set(blocks):
     ),
 )
 def test_update_rscp_correctness(graph, new_edge, initial_partition):
-    qblocks, vertexes = initialize(graph, initial_partition)
+    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition,
+        set_xblock=True, preprocess=True)
     qblocks = pta(qblocks)
 
     # compute incrementally
-    prepare_internal_graph(vertexes, initial_partition)
+    decorate_bispy_graph(vertexes, initial_partition)
     update_result = update_rscp(qblocks, new_edge, vertexes)
     update_result = vertexes_to_set(update_result)
 
@@ -611,7 +605,8 @@ def test_update_rscp_correctness(graph, new_edge, initial_partition):
     graph2.add_nodes_from(graph.nodes)
     graph2.add_edges_from(graph.edges)
     graph2.add_edge(*new_edge)
-    new_qblocks, new_vertexes = initialize(graph2, initial_partition)
+    new_vertexes, new_qblocks, _ = decorate_nx_graph(graph2, initial_partition,
+        set_xblock=True, preprocess=True)
     new_rscp = pta(new_qblocks)
     new_rscp = vertexes_to_set(new_rscp)
 
@@ -631,7 +626,7 @@ def test_update_rscp_correctness(graph, new_edge, initial_partition):
 def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
     initial_graph = nx.DiGraph()
     initial_graph.add_nodes_from(goal_graph.nodes)
-    vertexes, qblocks = prepare_nx_graph(initial_graph, initial_partition)
+    vertexes, qblocks = decorate_nx_graph(initial_graph, initial_partition)
 
     edges = []
     for edge in goal_graph.edges:
@@ -670,7 +665,7 @@ def test_reverse_incremental_update_rscp_correctness(
 ):
     initial_graph = nx.DiGraph()
     initial_graph.add_nodes_from(goal_graph.nodes)
-    vertexes, qblocks = prepare_nx_graph(initial_graph, initial_partition)
+    vertexes, qblocks = decorate_nx_graph(initial_graph, initial_partition)
 
     edges = []
     full_edges = list(goal_graph.edges)

@@ -1,20 +1,15 @@
 import networkx as nx
 import pytest
-
+from bispy.utilities.graph_decorator import decorate_nx_graph
 from bispy.utilities.rank_computation import (
     compute_rank,
 )
-
-from bispy.dovier_piazza_policriti.graph_decorator import (
-    prepare_graph,
-)
-
 from .wf_test_cases import graphs_wf_nwf
 
 
 @pytest.mark.parametrize("graph, wf_nodes, nwf_nodes", graphs_wf_nwf)
 def test_mark_wf_nodes_correct(graph, wf_nodes, nwf_nodes):
-    vertexes = prepare_graph(graph)
+    vertexes, _ = decorate_nx_graph(graph)
 
     for i in range(len(graph.nodes)):
         assert (i in wf_nodes and vertexes[i].wf) or (

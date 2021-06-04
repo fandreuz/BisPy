@@ -10,9 +10,6 @@ from bispy.utilities.graph_entities import (
 from typing import List, Tuple, Set, Dict
 from .ranked_pta import ranked_split
 from bispy.paige_tarjan.pta import pta
-from bispy.dovier_piazza_policriti.graph_decorator import (
-    build_vertexes_image,
-)
 from bispy.dovier_piazza_policriti.fba import (
     build_block_counterimage,
 )
@@ -417,11 +414,9 @@ def merge_split_phase(qpartition, finishing_time_list):
 
     # select the blocks which are the result of a split
     # split, and clean block.visited
-    for block in filter(attrgetter('is_new_qblock'), X2):
+    for block in filter(attrgetter("is_new_qblock"), X2):
         # split
-        new_qpartition = ranked_split(
-            new_qpartition, block, max_rank
-        )
+        new_qpartition = ranked_split(new_qpartition, block, max_rank)
         # clean
         block.is_new_qblock = False
 
