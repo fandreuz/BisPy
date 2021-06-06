@@ -1,14 +1,13 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from networkx.drawing.nx_agraph import to_agraph
-from bisimulation_algorithms.paige_tarjan.pta import rscp as paige_tarjan
-from bisimulation_algorithms.paige_tarjan.graph_decorator import initialize
-from bisimulation_algorithms.dovier_piazza_policriti.rank_computation import compute_rank
 from PIL import Image as pilImage, ImageFont, ImageDraw
 import os
 from IPython.display import Image
 
 colors = ['#ffcdd2', '#607d8b', '#795548', '#ff5722', '#7986cb', '#ffe082', '#cddc39', '#9575cd', '#7cb342', '#80cbc4', '#b2ebf2', '#f44336']
+
+arial = ImageFont.truetype("files/ArialTh.ttf", 60)
 
 def draw(graph, partition, file_name, vx_to_color={}):
     colors_copy = colors.copy()
@@ -83,4 +82,9 @@ def append_caption(image_name, partition, font=None):
     editable_image.text(((width - w) / 2, height + 80), partition_string, fill='black', font=font)
     new_image.save(image_name)
 
-arial = ImageFont.truetype("files/ArialTh.ttf", 60)
+def visualize(graph, partition, vx_to_color=None):
+    vx_to_color = draw(graph, partition, 'file_random_name', vx_to_color={});
+    append_caption('file_random_name.png', partition, arial)
+    img = Image(filename='file_random_name.png', width = 400, height = 200)
+    os.remove('file_random_name.png')
+    return img, vx_to_color
