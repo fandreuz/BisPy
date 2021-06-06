@@ -386,17 +386,13 @@ def rscp(
         integer_graph = graph
         integer_initial_partition = initial_partition
 
-    # compute the RSCP
-    vertexes, q_partition, xblock = decorate_nx_graph(
+    vertexes, q_partition = decorate_nx_graph(
         integer_graph,
         integer_initial_partition,
         topological_sorted_images=False,
-        compute_rank=False,
-        set_xblock=True,
+        compute_rank=False
     )
-    q_partition = preprocess_initial_partition(
-        vertexes, integer_initial_partition
-    )
+    xblock = q_partition[0].xblock
 
     rscp = pta(q_partition)
 

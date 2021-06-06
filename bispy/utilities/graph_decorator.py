@@ -41,11 +41,14 @@ def preprocess_initial_partition(
         leafs = []
 
         for vertex_idx in ip_block:
+            if vertexes[vertex_idx].qblock != qblock:
+                raise ValueError('Given vertexes already preprocessed.')
+
             if len(vertexes[vertex_idx].image) == 0:
                 leafs.append(vertexes[vertex_idx])
 
         # if at least one is zero, this block is OK
-        if len(leafs) == 0:
+        if len(leafs) == 0 or len(leafs) == qblock.size:
             new_partition.append(qblock)
         else:
             new_partition.extend([qblock, qblock.fast_mitosis(leafs)])
@@ -149,10 +152,7 @@ def as_bispy_graph(
             my_edge.source.add_to_image(my_edge)
         my_edge.destination.add_to_counterimage(my_edge)
 
-    if set_xblock:
-        return (vertexes, qblocks, initial_x_block)
-    else:
-        return (vertexes, qblocks)
+    return (vertexes, qblocks)
 
 
 # this re-arranges the image of each vertex in a convenient order for further
@@ -215,10 +215,7 @@ def decorate_nx_graph(
     )
 
     if qpartition is not None:
-        if len(tp) == 3:
-            return (tp[0], qpartition, tp[2])
-        else:
-            return (tp[0], qpartition)
+        return (tp[0], qpartition)
     else:
         return tp
 

@@ -272,7 +272,7 @@ def test_merge_condition():
     graph.add_edges_from([(0, 1), (1, 2), (3, 1), (4, 6), (0, 6), (5, 6)])
     ip = [(0, 1, 2, 3), (4, 5), (6,)]
 
-    vertexes, qblocks, _ = decorate_nx_graph(graph, ip)
+    vertexes, qblocks = decorate_nx_graph(graph, ip)
     rscp_qblocks = pta(qblocks)
 
     node_to_qblock = [None for _ in graph.nodes]
@@ -311,7 +311,6 @@ def test_merge_condition():
 )
 def test_merge_condition_with_initial_partition(graph, initial_partition):
     vertexes, qblocks = decorate_nx_graph(graph, initial_partition)
-    decorate_bispy_graph(vertexes, initial_partition)
 
     for tp in product(qblocks, qblocks):
         assert not merge_condition(tp[0], tp[1])
@@ -550,11 +549,10 @@ def vertexes_to_set(qblocks):
     ),
 )
 def test_update_rank_procedures(graph, new_edge, initial_partition):
-    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition)
+    vertexes, qblocks  = decorate_nx_graph(graph, initial_partition)
     qblocks = pta(qblocks)
 
     # compute incrementally
-    decorate_bispy_graph(vertexes, initial_partition)
     update_rscp(qblocks, new_edge, vertexes)
 
     # compute from scratch
@@ -591,11 +589,10 @@ def ints_to_set(blocks):
     ),
 )
 def test_update_rscp_correctness(graph, new_edge, initial_partition):
-    vertexes, qblocks, _ = decorate_nx_graph(graph, initial_partition)
+    vertexes, qblocks = decorate_nx_graph(graph, initial_partition)
     qblocks = pta(qblocks)
 
     # compute incrementally
-    decorate_bispy_graph(vertexes, initial_partition)
     update_result = update_rscp(qblocks, new_edge, vertexes)
     update_result = vertexes_to_set(update_result)
 
@@ -604,7 +601,7 @@ def test_update_rscp_correctness(graph, new_edge, initial_partition):
     graph2.add_nodes_from(graph.nodes)
     graph2.add_edges_from(graph.edges)
     graph2.add_edge(*new_edge)
-    new_vertexes, new_qblocks, _ = decorate_nx_graph(graph2, initial_partition)
+    new_vertexes, new_qblocks = decorate_nx_graph(graph2, initial_partition)
     new_rscp = pta(new_qblocks)
     new_rscp = vertexes_to_set(new_rscp)
 
