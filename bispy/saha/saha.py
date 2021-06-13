@@ -540,8 +540,8 @@ def filter_deteached(blocks: List[_Block]) -> List[_Block]:
 
 def update_rscp(
     old_rscp: List[_Block],
-    new_edge: Tuple,
     vertexes: List[_Vertex],
+    new_edge: Tuple,
 ):
     max_rank = max(map(lambda block: block.rank, old_rscp))
 
@@ -644,7 +644,7 @@ def update_rscp(
                             # we don't need to update the nwf list since
                             # source_vertex was already nwf
 
-                            propagate_nwf(source_vertex, scc_finishing_time)
+                            propagate_nwf(source_vertex.scc, scc_finishing_time)
 
                     merge_phase(
                         source_vertex.qblock, destination_vertex.qblock
