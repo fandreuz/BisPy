@@ -186,28 +186,32 @@ def both_blocks_go_or_dont_go_to_block(
     return block1_goes == block2_goes
 
 
+def plausible_causal_splitters(block, the_other_block, check_visited):
+    s = set()
+    for current_block in block.image.values():
+        # if check_visited is true, we only want to consider
+        # qblock visited in the first DFS (flag visited is true)
+        if not (check_visited and current_block.visited):
+            # causal splitter HAVE TO be blocks such that we KNOW they
+            # are in the new rscp of G' (the updated graph)
+            if (
+                current_block.rank < block.rank
+                or current_block == the_other_block
+            ):
+                s.add(id(current_block))
+    return s
+
+
 def exists_causal_splitter(
     block1: _Block, block2: _Block, check_visited
 ) -> bool:
-    def plausible_causal_splitters(block, the_other_block):
-        s = set()
-        for v in block.vertexes:
-            for edge in v.image:
-                current_block = edge.destination.qblock
-                # if check_visited is true, we only want to consider
-                # qblock visited in the first DFS (flag visited is true)
-                if not (check_visited and current_block.visited):
-                    # causal splitter HAVE TO be blocks such that we KNOW they
-                    # are in the new rscp of G' (the updated graph)
-                    if (
-                        current_block.rank < block.rank
-                        or current_block == the_other_block
-                    ):
-                        s.add(id(edge.destination.qblock))
-        return s
+    if block1.image is None:
+        block1.compute_image()
+    if block2.image is None:
+        block2.compute_image()
 
-    block_image1 = plausible_causal_splitters(block1, block2)
-    block_image2 = plausible_causal_splitters(block2, block1)
+    block_image1 = plausible_causal_splitters(block1, block2, check_visited)
+    block_image2 = plausible_causal_splitters(block2, block1, check_visited)
 
     return block_image1 != block_image2
 
@@ -644,7 +648,9 @@ def update_rscp(
                             # we don't need to update the nwf list since
                             # source_vertex was already nwf
 
-                            propagate_nwf(source_vertex.scc, scc_finishing_time)
+                            propagate_nwf(
+                                source_vertex.scc, scc_finishing_time
+                            )
 
                     merge_phase(
                         source_vertex.qblock, destination_vertex.qblock

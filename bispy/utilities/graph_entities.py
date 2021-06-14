@@ -1,6 +1,7 @@
 from llist import dllist, dllistnode
 from typing import Iterable
 
+
 class _Vertex:
     """BisPy representation of a vertex in a graph. Contains several data
     structures which provide O(1) access to the adjacency list of the vertex,
@@ -14,8 +15,7 @@ class _Vertex:
     """
 
     def __init__(self, label):
-        """Constructor method
-        """
+        """Constructor method"""
         self._label = label
         self._qblock = None
 
@@ -232,18 +232,39 @@ class _QBlock:
 
         self.is_new_qblock = False
 
+        self._image = None
+
+    @property
+    def image(self):
+        return self._image
+
+    def compute_image(self):
+        self._image = {}
+
+        for vx in self.vertexes:
+            for edge in vx.image:
+                if id(edge.destination.qblock) not in self._image:
+                    self._image[
+                        id(edge.destination.qblock)
+                    ] = edge.destination.qblock
+
+    def clear_image(self):
+        self._image = None
+
     # this doesn't check if the vertex is a duplicate.
     # make sure that vertex is a proper _Vertex, not a dllistnode
     def append_vertex(self, vertex: _Vertex):
         vertex._dllistnode = self.vertexes.append(vertex)
         self.size = self.vertexes.size
         vertex._qblock = self
+        self.clear_image()
 
     # throws an error if the vertex isn't inside this qblock
     def remove_vertex(self, vertex: _Vertex):
         self.vertexes.remove(vertex._dllistnode)
         self.size = self.vertexes.size
         vertex._qblock = None
+        self.clear_image()
 
     def initialize_split_helper_block(self):
         self.split_helper_block = _QBlock([], self.xblock)
