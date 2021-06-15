@@ -230,10 +230,8 @@ def merge_condition(
         return False
     elif block1.deteached or block2.deteached:
         return False
-    elif exists_causal_splitter(block1, block2, check_visited):
-        return False
     else:
-        return True
+        return not exists_causal_splitter(block1, block2, check_visited)
 
 
 def recursive_merge(block1: _Block, block2: _Block):
