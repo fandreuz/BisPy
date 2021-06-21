@@ -644,7 +644,9 @@ def update_rscp(
                             # we don't need to update the nwf list since
                             # source_vertex was already nwf
 
-                            propagate_nwf(source_vertex.scc, scc_finishing_time)
+                            propagate_nwf(
+                                source_vertex.scc, scc_finishing_time
+                            )
 
                     merge_phase(
                         source_vertex.qblock, destination_vertex.qblock

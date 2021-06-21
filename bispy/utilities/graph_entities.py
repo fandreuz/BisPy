@@ -1,6 +1,7 @@
 from llist import dllist, dllistnode
 from typing import Iterable
 
+
 class _Vertex:
     """BisPy representation of a vertex in a graph. Contains several data
     structures which provide O(1) access to the adjacency list of the vertex,
@@ -14,8 +15,7 @@ class _Vertex:
     """
 
     def __init__(self, label):
-        """Constructor method
-        """
+        """Constructor method"""
         self._label = label
         self._qblock = None
 

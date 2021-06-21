@@ -13,6 +13,7 @@ _BLACK = 10
 _GRAY = 11
 _WHITE = 12
 
+
 # this is a FUNDAMENTAL part of the PTA algorithm: we need a stable initial
 # partition with respect to the set V, but a partition where leafs and
 # non-leafs are in the same block can't be stable
@@ -42,7 +43,7 @@ def preprocess_initial_partition(
 
         for vertex_idx in ip_block:
             if vertexes[vertex_idx].qblock != qblock:
-                raise ValueError('Given vertexes already preprocessed.')
+                raise ValueError("Given vertexes already preprocessed.")
 
             if len(vertexes[vertex_idx].image) == 0:
                 leafs.append(vertexes[vertex_idx])
