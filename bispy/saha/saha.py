@@ -18,6 +18,7 @@ from bispy.utilities.kosaraju import kosaraju
 from bispy.utilities.rank_computation import (
     scc_finishing_time_list,
 )
+import sys
 from operator import attrgetter
 
 
@@ -186,7 +187,8 @@ def both_blocks_go_or_dont_go_to_block(
     return block1_goes == block2_goes
 
 
-def plausible_causal_splitters(block, the_other_block, check_visited):
+def plausible_causal_splitters(block, the_other_block, check_visited,
+        stop_at=sys.maxsize):
     s = set()
     for current_block in block.image.values():
         # if check_visited is true, we only want to consider
@@ -199,6 +201,8 @@ def plausible_causal_splitters(block, the_other_block, check_visited):
                 or current_block == the_other_block
             ):
                 s.add(id(current_block))
+                if len(s) > stop_at:
+                    return s
     return s
 
 
@@ -210,10 +214,19 @@ def exists_causal_splitter(
     if block2.image is None:
         block2.compute_image()
 
-    block_image1 = plausible_causal_splitters(block1, block2, check_visited)
-    block_image2 = plausible_causal_splitters(block2, block1, check_visited)
+    if len(block1.image) < len(block2.image):
+        smallest_image_block = block1
+        biggest_image_block = block2
+    else:
+        smallest_image_block = block2
+        biggest_image_block = block1
 
-    return block_image1 != block_image2
+    small_pcspl = plausible_causal_splitters(smallest_image_block,
+        biggest_image_block, check_visited)
+    big_pcspl = plausible_causal_splitters(biggest_image_block,
+        smallest_image_block, check_visited, len(small_pcspl))
+
+    return len(small_pcspl) != len(big_pcspl) or small_pcspl != big_pcspl
 
 
 def merge_condition(
