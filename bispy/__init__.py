@@ -21,3 +21,4 @@ from .dovier_piazza_policriti.fba import (
     bisimulation_contraction as dovier_piazza_policriti,
     rscp as dovier_piazza_policriti_rscp
 )
+from .saha.saha import update_rscp as saha
