@@ -543,14 +543,19 @@ def update_rscp(
     vertexes: List[_Vertex],
     new_edge: Tuple,
 ):
-    max_rank = max(map(lambda block: block.rank, old_rscp))
-
     if isinstance(new_edge[0], int) and isinstance(new_edge[1], int):
         source_vertex, destination_vertex = find_vertexes(old_rscp, *new_edge)
     elif isinstance(new_edge[0], _Vertex) and isinstance(new_edge[1], _Vertex):
         source_vertex, destination_vertex = new_edge
     else:
         raise ValueError("You must pass integers or Vertex instances!")
+
+    # if the new edge connects two blocks A,B such that A => B before the edge
+    # is added we don't need to do anything
+    if check_old_blocks_relation(source_vertex, destination_vertex):
+        return old_rscp
+
+    max_rank = max(map(lambda block: block.rank, old_rscp))
 
     well_founded_topological = build_well_founded_topological_list(
         old_rscp, vertexes[new_edge[0]], max_rank
@@ -570,85 +575,80 @@ def update_rscp(
     if not destination_vertex.wf:
         source_vertex.wf = False
 
-    # if the new edge connects two blocks A,B such that A => B before the edge
-    # is added we don't need to do anything
-    if check_old_blocks_relation(source_vertex, destination_vertex):
-        return old_rscp
+    # update the graph representation
+    add_edge(source_vertex, destination_vertex)
+
+    qpartition = ranked_split(
+        old_rscp, destination_vertex.qblock, max_rank
+    )
+
+    # u isn't well founded, v is well founded
+    if not source_vertex.wf and destination_vertex.wf:
+        # if necessary, update the rank of u and propagate the changes
+        if destination_vertex.rank + 1 > source_vertex.rank:
+            source_vertex.rank = destination_vertex.rank + 1
+
+            # source_vertex doesn't become nwf
+            propagate_nwf(source_vertex.scc, scc_finishing_time)
+
+        merge_phase(source_vertex.qblock, destination_vertex.qblock)
+        return filter_deteached(qpartition)
     else:
-        # update the graph representation
-        add_edge(source_vertex, destination_vertex)
-
-        qpartition = ranked_split(
-            old_rscp, destination_vertex.qblock, max_rank
-        )
-
-        # u isn't well founded, v is well founded
-        if not source_vertex.wf and destination_vertex.wf:
-            # if necessary, update the rank of u and propagate the changes
-            if destination_vertex.rank + 1 > source_vertex.rank:
-                source_vertex.rank = destination_vertex.rank + 1
-
-                # source_vertex doesn't become nwf
-                propagate_nwf(source_vertex.scc, scc_finishing_time)
-
+        # in this case we don't need to update the rank
+        if source_vertex.rank > destination_vertex.rank:
             merge_phase(source_vertex.qblock, destination_vertex.qblock)
             return filter_deteached(qpartition)
         else:
-            # in this case we don't need to update the rank
-            if source_vertex.rank > destination_vertex.rank:
-                merge_phase(source_vertex.qblock, destination_vertex.qblock)
-                return filter_deteached(qpartition)
+            # we want to save the finishing time list
+            finishing_time_list = []
+
+            # in this case u is part of the new SCC (which contains also
+            # v), therefore it isn't well founded
+            if check_new_scc(
+                source_vertex,
+                destination_vertex,
+                finishing_time_list,
+            ):
+                sccs = kosaraju(source_vertex, return_sccs=True)
+                for scc in sccs:
+                    scc.compute_image()
+                    scc.compute_counterimage()
+
+                scc_finishing_time = scc_finishing_time_list(sccs)
+
+                propagate_nwf(source_vertex.scc, scc_finishing_time)
+                return merge_split_phase(qpartition, finishing_time_list)
             else:
-                # we want to save the finishing time list
-                finishing_time_list = []
-
-                # in this case u is part of the new SCC (which contains also
-                # v), therefore it isn't well founded
-                if check_new_scc(
-                    source_vertex,
-                    destination_vertex,
-                    finishing_time_list,
-                ):
-                    sccs = kosaraju(source_vertex, return_sccs=True)
-                    for scc in sccs:
-                        scc.compute_image()
-                        scc.compute_counterimage()
-
-                    scc_finishing_time = scc_finishing_time_list(sccs)
-
-                    propagate_nwf(source_vertex.scc, scc_finishing_time)
-                    return merge_split_phase(qpartition, finishing_time_list)
-                else:
-                    if source_vertex.wf:
-                        if destination_vertex.wf:
-                            # we already know that u.rank <= v.rank
-                            source_vertex.rank = destination_vertex.rank + 1
-                            topological_sorted_wf = None
-                            propagate_wf(
-                                source_vertex,
-                                well_founded_topological,
-                                scc_finishing_time,
-                            )
-                        # u becomes non-well-founded
-                        else:
-                            if source_vertex.rank < destination_vertex.rank:
-                                source_vertex.rank = destination_vertex.rank
-
-                                propagate_nwf(
-                                    source_vertex.scc, scc_finishing_time
-                                )
+                if source_vertex.wf:
+                    if destination_vertex.wf:
+                        # we already know that u.rank <= v.rank
+                        source_vertex.rank = destination_vertex.rank + 1
+                        topological_sorted_wf = None
+                        propagate_wf(
+                            source_vertex,
+                            well_founded_topological,
+                            scc_finishing_time,
+                        )
+                    # u becomes non-well-founded
                     else:
                         if source_vertex.rank < destination_vertex.rank:
                             source_vertex.rank = destination_vertex.rank
 
-                            # we don't need to update the nwf list since
-                            # source_vertex was already nwf
-
                             propagate_nwf(
                                 source_vertex.scc, scc_finishing_time
                             )
+                else:
+                    if source_vertex.rank < destination_vertex.rank:
+                        source_vertex.rank = destination_vertex.rank
 
-                    merge_phase(
-                        source_vertex.qblock, destination_vertex.qblock
-                    )
-                    return filter_deteached(qpartition)
+                        # we don't need to update the nwf list since
+                        # source_vertex was already nwf
+
+                        propagate_nwf(
+                            source_vertex.scc, scc_finishing_time
+                        )
+
+                merge_phase(
+                    source_vertex.qblock, destination_vertex.qblock
+                )
+                return filter_deteached(qpartition)
