@@ -10,4 +10,5 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   modules/index.rst
+   algorithms/index.rst
+   utilities/index.rst

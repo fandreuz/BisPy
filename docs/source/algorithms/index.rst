@@ -1,7 +1,7 @@
 .. _module-docs:
 
-BisPy Modules Reference
-=======================
+Algorithms
+==========
 
 .. module:: bispy
 
