@@ -5,10 +5,8 @@ from bispy.utilities.graph_decorator import (
     decorate_bispy_graph,
 )
 from bispy.dovier_piazza_policriti.fba import fba
-from bispy.dovier_piazza_policriti.fba import (
-    create_initial_partition,
-    build_block_counterimage,
-)
+from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
+from bispy.dovier_piazza_policriti.fba import build_block_counterimage
 from bispy.utilities.rank_computation import (
     scc_finishing_time_list,
 )
@@ -55,7 +53,7 @@ def test_check_old_blocks_relation():
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
     vertexes, _ = decorate_nx_graph(graph)
-    create_initial_partition(vertexes)
+    RankedPartition(vertexes)
 
     assert check_old_blocks_relation(vertexes[0], vertexes[1])
     assert not check_old_blocks_relation(vertexes[1], vertexes[0])
@@ -71,7 +69,7 @@ def test_find_vertex():
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
     vertexes, _ = decorate_nx_graph(graph)
-    ranked_partition = create_initial_partition(vertexes)
+    ranked_partition = RankedPartition(vertexes)
     nonranked_partition = [
         qblock for rank in ranked_partition for qblock in rank
     ]
@@ -88,7 +86,7 @@ def test_add_edge():
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
 
     vertexes, _ = decorate_nx_graph(graph)
-    ranked_partition = create_initial_partition(vertexes)
+    ranked_partition = RankedPartition(vertexes)
 
     partition = []
     for rank in ranked_partition:
@@ -130,7 +128,6 @@ def test_propagate_wf():
 )
 def test_check_new_scc(graph, new_edge, value):
     vertexes, _ = decorate_nx_graph(graph)
-    create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
@@ -146,7 +143,6 @@ def test_check_new_scc(graph, new_edge, value):
 )
 def test_check_new_scc_cleans(graph, new_edge, value):
     vertexes, _ = decorate_nx_graph(graph)
-    create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
@@ -162,7 +158,6 @@ def test_check_new_scc_cleans(graph, new_edge, value):
 )
 def test_check_new_scc_qblocks_visited(graph, new_edge, value):
     vertexes, _ = decorate_nx_graph(graph)
-    create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
@@ -191,7 +186,6 @@ def test_check_new_scc_computes_finishing_time(
         return
 
     vertexes, _ = decorate_nx_graph(graph)
-    create_initial_partition(vertexes)
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
@@ -452,7 +446,7 @@ def test_merge_split_resets_visited_allowvisit_oldqblockid():
 
     vertexes, _ = decorate_nx_graph(g, partition)
     qblocks = [
-        block for ls in create_initial_partition(vertexes) for block in ls
+        block for ls in RankedPartition(vertexes) for block in ls
     ]
 
     finishing_time_list = [vertexes[2], vertexes[1], vertexes[0]]
@@ -472,7 +466,7 @@ def test_merge_split_resets_visited_triedmerge_qblocks():
 
     vertexes, _ = decorate_nx_graph(g, partition)
     qblocks = [
-        block for ls in create_initial_partition(vertexes) for block in ls
+        block for ls in RankedPartition(vertexes) for block in ls
     ]
 
     qblocks[0].visited = True
@@ -498,7 +492,7 @@ def test_well_founded_topological():
     max_rank = max(map(lambda vx: vx.rank, vertexes))
 
     qpartition = [
-        block for ls in create_initial_partition(vertexes) for block in ls
+        block for ls in RankedPartition(vertexes) for block in ls
     ]
 
     topo = build_well_founded_topological_list(
@@ -549,7 +543,7 @@ def vertexes_to_set(qblocks):
     ),
 )
 def test_update_rank_procedures(graph, new_edge, initial_partition):
-    vertexes, qblocks  = decorate_nx_graph(graph, initial_partition)
+    vertexes, qblocks = decorate_nx_graph(graph, initial_partition)
     qblocks = pta(qblocks)
 
     # compute incrementally

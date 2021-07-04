@@ -2,9 +2,6 @@ from bispy.utilities.graph_entities import (
     _QBlock as _Block,
     _Vertex,
 )
-from bispy.dovier_piazza_policriti.fba import (
-    create_initial_partition,
-)
 import networkx as nx
 
 # 1

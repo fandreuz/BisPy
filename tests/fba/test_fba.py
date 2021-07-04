@@ -1,8 +1,7 @@
 import pytest
+from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
 from bispy.dovier_piazza_policriti.fba import (
-    rank_to_partition_idx,
     build_block_counterimage,
-    create_initial_partition,
     split_upper_ranks,
     fba,
     rscp as fba_rscp,
@@ -23,11 +22,6 @@ from bispy.utilities.graph_entities import (
 from bispy.utilities.graph_decorator import decorate_nx_graph
 
 
-@pytest.mark.parametrize(
-    "rank, expected", zip([float("-inf"), *(range(5))], range(6))
-)
-def test_rank_to_partition_idx(rank, expected):
-    assert rank_to_partition_idx(rank) == expected
 @pytest.mark.parametrize(
     "graph, counterimaged_block_indexes",
     zip(
@@ -84,34 +78,13 @@ def test_prepare_graph_vertexes(graph):
 
 
 @pytest.mark.parametrize("graph", graphs)
-def test_create_initial_partition(graph):
-    vertexes, _ = decorate_nx_graph(graph)
-    partition = create_initial_partition(vertexes)
-
-    # at most one block per rank
-    assert all(len(partition[idx]) for idx in range(len(partition)))
-
-    # right vertexes in the right place
-    for idx in range(len(partition)):
-        rank = float("-inf") if idx == 0 else idx - 1
-        # right number of vertexes
-        assert partition[idx][0].vertexes.size == [
-            vertex.rank == rank for vertex in vertexes
-        ].count(True)
-        # only right vertexes
-        assert all(
-            vertex.rank == rank for vertex in partition[idx][0].vertexes
-        )
-
-
-@pytest.mark.parametrize("graph", graphs)
 def test_split_upper_ranks(graph):
     vertexes, _ = decorate_nx_graph(graph)
     max_rank = max(vertex.rank for vertex in vertexes)
     partition_length = 0 if max_rank == float("-inf") else max_rank + 2
 
     for idx in range(partition_length):
-        partition = create_initial_partition(vertexes)
+        partition = RankedPartition(vertexes)
         split_upper_ranks(partition, partition[idx][0])
         assert all(
             check_block_stability(

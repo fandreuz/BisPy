@@ -1,11 +1,11 @@
 import networkx as nx
-from typing import Iterable, List, Tuple, Dict
+from typing import Iterable, List, Tuple, Dict, Union
 from itertools import islice
 from llist import dllist
-
 from bispy.utilities.graph_entities import (
     _QBlock as _Block,
     _Vertex,
+    _XBlock
 )
 from bispy.utilities.graph_decorator import decorate_nx_graph
 from bispy.paige_tarjan.pta import pta
@@ -14,68 +14,19 @@ from bispy.utilities.graph_normalization import (
     convert_to_integer_graph,
     back_to_original,
 )
-
 from bispy.utilities.graph_entities import _XBlock
-
-
-def create_initial_partition(vertexes: List[_Vertex]) -> List[List[_Block]]:
-    """Create a partition where vertexes are in different blocks if their rank
-    is not equal.
-
-    Args:
-        vertexes (List[_Vertex]): The list of vertexes.
-
-    Returns:
-        List[List[_Block]]: The initial partition.
-    """
-
-    max_rank = max(vertex.rank for vertex in vertexes)
-
-    # initialize the initial partition. the first index is for -infty
-    # partition contains is a list of lists, each sub-list contains the
-    # sub-blocks of nodes at the i-th rank. there's an XBlock for each rank.
-    if max_rank != float("-inf"):
-        partition = [[_Block([], _XBlock())] for i in range(max_rank + 2)]
-    else:
-        # there's a single possible rank, -infty
-        partition = [[_Block([], _XBlock())]]
-
-    # populate the blocks of the partition according to the ranks
-    for vertex in vertexes:
-        # put this node in the (only) list at partition_idx in partition
-        # (there's only one block for each rank at the moment in the partition)
-        partition[rank_to_partition_idx(vertex.rank)][0].append_vertex(vertex)
-
-    return partition
-
-
-def rank_to_partition_idx(rank: int) -> int:
-    """Convert the rank of a block/vertex to its index in the list
-    which represents a partition.
-
-    Args:
-        rank (int): The input rank (int or float('-inf'))
-
-    Returns:
-        int: The index in the partition.
-    """
-
-    if rank == float("-inf"):
-        return 0
-    else:
-        return rank + 1
+from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
 
 
 def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
-    """Collapse the given block in a single vertex chosen randomly from the
+    """Collapse the given block to a single vertex chosen randomly from the
     vertexes of the block.
 
-    Args:
-        block (_Block):    The block to collapse.
+    :param block: The block to collapse.
 
     Returns:
-        _Vertex      : The vertex which survived to the collapse.
-        List[_Vertex]: The list of collapsed vertexes.
+        A tuple whose first element is the single vertex which survived the
+        collapse, and the second is the list of collapsed vertexes.
     """
 
     if block.vertexes.size > 0:
@@ -105,14 +56,10 @@ def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
 
 
 def build_block_counterimage(block: _Block) -> List[_Vertex]:
-    """Given a block B, construct the counterimage of the block.
+    """Given a block B, construct its counterimage with respect to the binary
+    relation :math:`E` (edges of the graph).
 
-    Args:
-        block (_Block): A block.
-
-    Returns:
-        list[_Vertex]: A list of vertexes x such that x->y and y is in the
-        given block.
+    :param block: The block for which we intend to build the counterimage.
     """
 
     block_counterimage = []
@@ -136,13 +83,12 @@ def build_block_counterimage(block: _Block) -> List[_Vertex]:
     return block_counterimage
 
 
-def split_upper_ranks(partition: List[List[_Block]], block: _Block):
-    """Update the blocks whose rank is greater than block.rank, in order to
-    make the partition stable with respect to the block.
+def split_upper_ranks(partition: RankedPartition, block: _Block):
+    """Split the blocks whose `rank` is **greater** than `block.rank` using
+    `block` as *splitter*.
 
-    Args:
-        partition (List[List[_Block]]): The current partition.
-        block (_Block): The splitter block.
+    :param partition: The current partition.
+    :param block: The splitter block.
     """
 
     block_counterimage = build_block_counterimage(block)
@@ -173,27 +119,27 @@ def split_upper_ranks(partition: List[List[_Block]], block: _Block):
     # modified block.
     for mod_block in modified_blocks:
         # we use the rank of aux block because we're sure it's not None
-        partition[
-            rank_to_partition_idx(mod_block.split_helper_block.rank)
-        ].append(mod_block.split_helper_block)
+        partition.append_at_rank(block=mod_block.split_helper_block,
+            rank=mod_block.split_helper_block.rank)
         mod_block.split_helper_block = None
 
 
 def fba(
     graph: nx.Graph,
-) -> Tuple[List[List[_Block]], List[List[_Vertex]]]:
+) -> Tuple[RankedPartition, List[List[_Vertex]]]:
     """Apply the FBA algorithm on the given integer directed graph.
 
-    Args:
-        graph (nx.Graph): An integer directed graph.
+    :param graph: An integer directed graph, such that the labels of its nodes
+        form an integer interval starting from zero, without holes.
 
     Returns:
-        List[List[_Block]   : The partition at the end of the algorithm.
-        List[List[_Vertex]] : A list which maps survivor nodes to the list of
-            nodes collapsed to that survivor node.
+        A tuple such that the first item is the partition at the end of the
+        algorithm, and the second is a list which maps a survivor nodes (which
+        are the only nodes left after the collapse of a block) to the
+        list of nodes collapsed to that survivor node.
     """
     vertexes, _ = decorate_nx_graph(graph)
-    partition = create_initial_partition(vertexes)
+    partition = RankedPartition(vertexes)
 
     # maps each survivor node to a list of nodes collapsed into it
     collapse_map = [None for _ in range(len(graph.nodes))]
@@ -236,7 +182,7 @@ def fba(
             rscp = pta(partition[partition_idx])
 
             # clear the partition at the current rank
-            partition[partition_idx] = []
+            partition.clear_index(partition_idx)
 
             # insert the new blocks in the partition at the current rank, and
             # collapse each block.
@@ -256,7 +202,7 @@ def fba(
                     # update the collapsed nodes map
                     collapse_map[survivor_vertex.label] = collapsed_vertexes
                     # add the new block to the partition
-                    partition[partition_idx].append(internal_block)
+                    partition.append_at_index(internal_block, partition_idx)
                     # update the upper ranks with respect to this block
                     split_upper_ranks(partition, internal_block)
         else:
