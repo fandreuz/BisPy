@@ -2,11 +2,7 @@ import networkx as nx
 from typing import Iterable, List, Tuple, Dict, Union
 from itertools import islice
 from llist import dllist
-from bispy.utilities.graph_entities import (
-    _QBlock as _Block,
-    _Vertex,
-    _XBlock
-)
+from bispy.utilities.graph_entities import _QBlock as _Block, _Vertex, _XBlock
 from bispy.utilities.graph_decorator import decorate_nx_graph
 from bispy.paige_tarjan.paige_tarjan import pta
 from bispy.utilities.graph_normalization import (
@@ -117,8 +113,10 @@ def split_upper_ranks(partition: RankedPartition, block: _Block):
     # modified block.
     for mod_block in modified_blocks:
         # we use the rank of aux block because we're sure it's not None
-        partition.append_at_rank(block=mod_block.split_helper_block,
-            rank=mod_block.split_helper_block.rank)
+        partition.append_at_rank(
+            block=mod_block.split_helper_block,
+            rank=mod_block.split_helper_block.rank,
+        )
         mod_block.split_helper_block = None
 
 

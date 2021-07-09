@@ -1,9 +1,6 @@
 from typing import Iterable, List, Tuple, Dict, Union
-from bispy.utilities.graph_entities import (
-    _QBlock as _Block,
-    _Vertex,
-    _XBlock
-)
+from bispy.utilities.graph_entities import _QBlock as _Block, _Vertex, _XBlock
+
 
 class RankedPartition:
     def __init__(self, vertexes: List[_Vertex]):
@@ -26,8 +23,9 @@ class RankedPartition:
         # sub-blocks of nodes at the i-th rank. there's an XBlock for each
         # rank.
         if max_rank != float("-inf"):
-            self._partition = [[_Block([], _XBlock())]
-                for i in range(max_rank + 2)]
+            self._partition = [
+                [_Block([], _XBlock())] for i in range(max_rank + 2)
+            ]
         else:
             # there's a single possible rank, -infty
             self._partition = [[_Block([], _XBlock())]]
@@ -38,7 +36,8 @@ class RankedPartition:
             # (there's only one block for each rank at the moment in the
             # partition)
             block = self._partition[
-                RankedPartition.rank_to_partition_idx(vertex.rank)][0]
+                RankedPartition.rank_to_partition_idx(vertex.rank)
+            ][0]
             block.append_vertex(vertex)
 
     @staticmethod
@@ -57,15 +56,16 @@ class RankedPartition:
     def __getitem__(self, key):
         return self._partition[key]
 
-    def append_at_rank(self, block: _Block, rank: Union[int,float]):
+    def append_at_rank(self, block: _Block, rank: Union[int, float]):
         """Append a new block in the class corresponding to the given rank.
 
         :param block: The new block.
         :param rank: The input rank.
         """
 
-        self.append_at_index(block, RankedPartition
-            .rank_to_partition_idx(rank))
+        self.append_at_index(
+            block, RankedPartition.rank_to_partition_idx(rank)
+        )
 
     def append_at_index(self, block, index: int):
         """Append a new block in the `index`-th class.
@@ -79,7 +79,7 @@ class RankedPartition:
     def __len__(self):
         return len(self._partition)
 
-    def clear_rank(self, rank: Union[int,float]):
+    def clear_rank(self, rank: Union[int, float]):
         """Clear the list of blocks in the class corresponding to `rank`.
 
         :param block: The new block.

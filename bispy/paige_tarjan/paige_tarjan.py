@@ -121,8 +121,9 @@ def build_exclusive_B_counterimage(
 
 
 # perform a Split with respect to B_qblock
-def split(vertexes: List[_Vertex]) -> Tuple[List[_QBlock], List[_XBlock],
-    List[_QBlock]]:
+def split(
+    vertexes: List[_Vertex],
+) -> Tuple[List[_QBlock], List[_XBlock], List[_QBlock]]:
     """Given a list of vertexes, use them as *splitter* set for the current
     partition :math:`Q`. This function doesn't modify the partition.
 
@@ -213,8 +214,9 @@ def update_counts(B_block_vertexes: List[_Vertex]):
             edge.count = edge.source.aux_count
 
 
-def refine(compound_xblocks: List[_XBlock],
-    xblocks: List[_XBlock]) -> Tuple[List[_XBlock], List[_QBlock]]:
+def refine(
+    compound_xblocks: List[_XBlock], xblocks: List[_XBlock]
+) -> Tuple[List[_XBlock], List[_QBlock]]:
     """Perform a refinement step of the *Paige-Tarjan* algorithm.
 
     :param compound_xblocks: List of compound blocks of the partition
@@ -385,7 +387,7 @@ def rscp(
         integer_graph,
         integer_initial_partition,
         topological_sorted_images=False,
-        compute_rank=False
+        compute_rank=False,
     )
     xblock = q_partition[0].xblock
 
