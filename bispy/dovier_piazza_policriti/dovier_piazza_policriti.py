@@ -212,14 +212,32 @@ def rscp(
     graph: nx.Graph,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
-    """Find the RSCP/maximum bisimulation of the given graph using
+    """Compute the RSCP/maximum bisimulation of the given graph using
     *Dovier-Piazza-Policriti*'s algorithm.
+
+    Example:
+        >>> graph = networkx.balanced_tree(2,3)
+        >>> rscp(graph)
+        [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
+
+    This function works with integral graph (nodes are integers starting from
+    0 and form an interval without holes). If the given graph is non-integral
+    it is converted to an isomorphic integral graph automatically (unless
+    `is_integer_graph` is `True`) and then re-converted to its original form
+    after the end of the computation. For this reason nodes of `graph` **must**
+    be hashable objects.
+
+    .. warning::
+        Using a non integral graph and setting `is_integer_graph` to `True`
+        will probably make the function fail with an exception, or, even worse,
+        return a wrong output.
 
     :param graph: The input graph.
     :param is_integer_graph: If `True`, the check for graph integrality is
         skipped (saves time). If `is_integer_graph` is `True` but the graph
         is not integral the output may be wrong. Defaults to False.
-    :returns: The RSCP/maximum bisimulation of the graph as a list of tuples.
+    :returns: The RSCP/maximum bisimulation of the given labeling set as a
+        list of tuples, each of which contains bisimilar nodes.
     """
 
     if not isinstance(graph, nx.DiGraph):

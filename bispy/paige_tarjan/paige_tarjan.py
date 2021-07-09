@@ -324,14 +324,13 @@ def rscp(
     initial_partition: Iterable[Iterable[int]] = None,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
-    """Apply the *Paige-Tarjan* algorithm to the given graph, with the given
-    initial partition (or *labeling set*, two vertexes in different
-    blocks of the initial partition cannot be bisimilar), and return the
-    RSCP/maximum bisimulation as a list of tuples, each of which contains
-    the labels of a class of bisimilar nodes.
+    """Compute the RSCP/maximum bisimulation of the given graph using
+    *Paige-Tarjan*'s algorithm, with the given initial partition
+    (or *labeling set*, two vertexes in different blocks of the initial
+    partition cannot be bisimilar).
 
         >>> graph = networkx.balanced_tree(2,3)
-        >>> paige_tarjan(graph)
+        >>> rscp(graph)
         [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 
     This function works with integral graph (nodes are integers starting from
