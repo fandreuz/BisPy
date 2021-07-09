@@ -1,5 +1,3 @@
-.. _module-docs:
-
 Algorithms
 ==========
 
@@ -8,8 +6,6 @@ Algorithms
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-
    paige_tarjan.rst
    dovier_piazza_policriti.rst
-   saha/index.rst
+   saha.rst

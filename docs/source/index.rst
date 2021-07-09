@@ -8,7 +8,5 @@ Welcome to BisPy's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-
    algorithms/index.rst
    utilities/index.rst

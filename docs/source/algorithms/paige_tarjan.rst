@@ -2,7 +2,7 @@
 Paige-Tarjan
 ============
 
-.. module:: bispy.paige_tarjan.pta
+.. module:: bispy.paige_tarjan.paige_tarjan
 
 .. autofunction:: extract_splitter
 .. autofunction:: build_block_counterimage
