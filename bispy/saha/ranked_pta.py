@@ -7,7 +7,7 @@ from bispy.utilities.graph_entities import (
     _Count,
     _XBlock,
 )
-from bispy.paige_tarjan.pta import (
+from bispy.paige_tarjan.paige_tarjan import (
     extract_splitter,
     split,
     update_counts,

@@ -8,7 +8,7 @@ from bispy.utilities.graph_entities import (
     _XBlock
 )
 from bispy.utilities.graph_decorator import decorate_nx_graph
-from bispy.paige_tarjan.pta import pta
+from bispy.paige_tarjan.paige_tarjan import pta
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,

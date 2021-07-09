@@ -7,7 +7,7 @@ from bispy.utilities.graph_entities import (
 from typing import Set, Tuple, List
 import networkx as nx
 from bispy.saha.ranked_pta import ranked_split
-from bispy.paige_tarjan.pta import rscp
+from bispy.paige_tarjan.paige_tarjan import rscp
 from bispy.saha.saha import add_edge
 from bispy.utilities.graph_decorator import decorate_nx_graph
 

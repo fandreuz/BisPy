@@ -9,8 +9,8 @@ from bispy.utilities.graph_entities import (
 )
 from typing import List, Tuple, Set, Dict
 from .ranked_pta import ranked_split
-from bispy.paige_tarjan.pta import pta
-from bispy.dovier_piazza_policriti.fba import (
+from bispy.paige_tarjan.paige_tarjan import pta
+from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     build_block_counterimage,
 )
 from itertools import product, chain, combinations

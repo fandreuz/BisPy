@@ -16,6 +16,6 @@ __email__ = "andreuzzi.francesco@gmail.com"
 __status__ = "Development"
 __name__ = "bispy"
 
-from .paige_tarjan.pta import rscp as paige_tarjan
-from .dovier_piazza_policriti.fba import rscp as dovier_piazza_policriti
+from .paige_tarjan.paige_tarjan import rscp as paige_tarjan
+from .dovier_piazza_policriti.dovier_piazza_policriti import rscp as dovier_piazza_policriti
 from .saha.saha import update_rscp as saha

@@ -1,6 +1,6 @@
 import pytest
 from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
-from bispy.dovier_piazza_policriti.fba import (
+from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     build_block_counterimage,
     split_upper_ranks,
     fba,
@@ -10,7 +10,7 @@ from .fba_test_cases import graphs, block_counterimaged_block, fba_correctness_g
 import networkx as nx
 from tests.pta.rscp_utilities import check_block_stability
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
-from bispy.paige_tarjan.pta import (
+from bispy.paige_tarjan.paige_tarjan import (
     rscp as paige_tarjan,
 )
 from operator import attrgetter, or_

@@ -20,7 +20,7 @@ from bispy.utilities.graph_entities import (
     _QBlock,
     _XBlock,
 )
-from bispy.paige_tarjan.pta import (
+from bispy.paige_tarjan.paige_tarjan import (
     split,
     extract_splitter,
     build_block_counterimage,

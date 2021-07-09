@@ -4,9 +4,8 @@ from bispy.utilities.graph_decorator import (
     decorate_nx_graph,
     decorate_bispy_graph,
 )
-from bispy.dovier_piazza_policriti.fba import fba
 from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
-from bispy.dovier_piazza_policriti.fba import build_block_counterimage
+from bispy.dovier_piazza_policriti.dovier_piazza_policriti import build_block_counterimage, fba
 from bispy.utilities.rank_computation import (
     scc_finishing_time_list,
 )
@@ -40,7 +39,7 @@ from .saha_test_cases import (
     update_rscp_new_edge,
 )
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
-from bispy.paige_tarjan.pta import pta, rscp as paige_tarjan
+from bispy.paige_tarjan.paige_tarjan import pta, rscp as paige_tarjan
 from bispy.utilities.graph_entities import _Edge, _XBlock
 from bispy.saha.ranked_pta import pta as ranked_pta
 from itertools import chain, product
