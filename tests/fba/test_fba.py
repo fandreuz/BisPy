@@ -4,8 +4,7 @@ from bispy.dovier_piazza_policriti.fba import (
     build_block_counterimage,
     split_upper_ranks,
     fba,
-    rscp as fba_rscp,
-    bisimulation_contraction as fba_contraction,
+    rscp as fba_rscp
 )
 from .fba_test_cases import graphs, block_counterimaged_block, fba_correctness_graphs
 import networkx as nx
@@ -103,19 +102,6 @@ def test_fba_rscp_correctness(graph):
     assert set(frozenset(block) for block in fba_rscp(graph)) == set(
         frozenset(block) for block in paige_tarjan(graph)
     )
-
-
-@pytest.mark.parametrize(
-    "graph",
-    map(lambda tp: tp[0], graph_partition_rscp_tuples),
-)
-def test_fba_collapse_correctness(graph):
-    contraction = fba_contraction(graph)
-    rscp = paige_tarjan(graph)
-    assert all(
-        sum((vertex,) in contraction for vertex in block) == 1 for block in rscp
-    )
-
 
 # this is for particular cases which aren't covered in PTA tests
 @pytest.mark.parametrize(

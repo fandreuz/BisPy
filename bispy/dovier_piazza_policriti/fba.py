@@ -23,10 +23,8 @@ def collapse(block: _Block) -> Tuple[_Vertex, List[_Vertex]]:
     vertexes of the block.
 
     :param block: The block to collapse.
-
-    Returns:
-        A tuple whose first element is the single vertex which survived the
-        collapse, and the second is the list of collapsed vertexes.
+    :returns: A tuple whose first element is the single vertex which survived
+        the collapse, and the second is the list of collapsed vertexes.
     """
 
     if block.vertexes.size > 0:
@@ -131,12 +129,11 @@ def fba(
 
     :param graph: An integer directed graph, such that the labels of its nodes
         form an integer interval starting from zero, without holes.
-
-    Returns:
-        A tuple such that the first item is the partition at the end of the
-        algorithm, and the second is a list which maps a survivor nodes (which
-        are the only nodes left after the collapse of a block) to the
-        list of nodes collapsed to that survivor node.
+    :returns: A tuple such that the first item is the partition at the end of
+        the algorithm (which at this point is made of blocks of size 1
+        containing only the vertexes which survived the collapse), and the
+        second is a list which maps a survivor nodes to the list of nodes
+        collapsed to that survivor node.
     """
     vertexes, _ = decorate_nx_graph(graph)
     partition = RankedPartition(vertexes)
@@ -217,15 +214,14 @@ def rscp(
     graph: nx.Graph,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
-    """Obtain the RSCP of the given graph with the FBA algorithm.
+    """Find the RSCP/maximum bisimulation of the given graph using
+    *Dovier-Piazza-Policriti*'s algorithm.
 
-    Args:
-        graph (nx.Graph): The input graph.
-        is_integer_graph (bool, optional): If True, the graph is already
-            integer (needed for the algorithm). Defaults to False.
-
-    Returns:
-        List[Tuple]: The RSCP of the graph as a list of tuples.
+    :param graph: The input graph.
+    :param is_integer_graph: If `True`, the check for graph integrality is
+        skipped (saves time). If `is_integer_graph` is `True` but the graph
+        is not integral the output may be wrong. Defaults to False.
+    :returns: The RSCP/maximum bisimulation of the graph as a list of tuples.
     """
 
     if not isinstance(graph, nx.DiGraph):
@@ -267,52 +263,3 @@ def rscp(
         return rscp
     else:
         return back_to_original(rscp, node_to_idx)
-
-
-def bisimulation_contraction(
-    graph: nx.Graph,
-    is_integer_graph: bool = False,
-) -> List:
-    """Compute the bisimulation contraction of the graph with the FBA
-    algorithm.
-
-    Args:
-        graph (nx.Graph): The input graph.
-        is_integer_graph (bool, optional): If True, the graph is already
-            integer (needed for the algorithm). Defaults to False.
-
-    Returns:
-        List: The bisimulation contraction as a list of survivor nodes.
-    """
-
-    if not isinstance(graph, nx.DiGraph):
-        raise Exception("graph should be a directed graph (nx.DiGraph)")
-
-    # if True, the input graph is already an integer graph
-    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
-        graph
-    )
-
-    if not original_graph_is_integer:
-        # convert the graph to an "integer" graph
-        integer_graph, node_to_idx = convert_to_integer_graph(graph)
-    else:
-        integer_graph = graph
-
-    collapsed_partition, _ = fba(integer_graph)
-
-    # convert to external representation (List[int])
-    collapsed_graph_nodes = []
-    for rank in collapsed_partition:
-        for block in rank:
-            if block.size > 0:
-                # we want to have a tuple to recall that each vertex represents
-                # a whole block
-                collapsed_graph_nodes.append(
-                    (block.vertexes.first.value.label,)
-                )
-
-    if original_graph_is_integer:
-        return collapsed_graph_nodes
-    else:
-        return back_to_original(collapsed_graph_nodes, node_to_idx)

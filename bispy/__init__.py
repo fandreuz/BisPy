@@ -17,8 +17,5 @@ __status__ = "Development"
 __name__ = "bispy"
 
 from .paige_tarjan.pta import rscp as paige_tarjan
-from .dovier_piazza_policriti.fba import (
-    bisimulation_contraction as dovier_piazza_policriti,
-    rscp as dovier_piazza_policriti_rscp
-)
+from .dovier_piazza_policriti.fba import rscp as dovier_piazza_policriti
 from .saha.saha import update_rscp as saha
