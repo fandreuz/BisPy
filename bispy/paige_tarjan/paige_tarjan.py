@@ -21,15 +21,12 @@ from bispy.utilities.graph_normalization import (
 
 # choose the smallest qblock of the first two
 def extract_splitter(compound_block: _XBlock) -> _QBlock:
-    """Given a compound block of the X partition, extract one of the blocks of
-    the partition Q inside (the smaller among the first two). The chosen block
-    is removed from the compound block.
+    """Given a compound block in the `X` partition, extract one of the blocks
+    of the partition `Q` inside (the smallest among the first two blocks in
+    the list). The chosen block is removed from the compound block and
+    returned.
 
-    Args:
-        compound_block (_XBlock): A compound block of the partition X.
-
-    Returns:
-        _QBlock: A block of the partition Q from the given compound_block.
+    compound_block: A compound block in the partition `X`.
     """
 
     first_qblock = compound_block.qblocks.first
@@ -48,17 +45,12 @@ def extract_splitter(compound_block: _XBlock) -> _QBlock:
 # going to become a new xblock).
 # remember to reset the value of aux_count after the refinement
 def build_block_counterimage(B_qblock: _QBlock) -> List[_Vertex]:
-    """Given a block B of Q, construct a list of vertexes x such that x->y and
-    y is in B. This function also sets vertex.aux_count and increases it by one
-    for each visited vertex in order to find the value |B cap E({vertex})| for
-    each vertex, where A is the relation '->' of the graph.
+    """Given a block :math:`B  \\in Q`, construct the :math:`E^{-1}(B)`.
+    This function also sets `vertex.aux_count` and increases it by one for each
+    visited vertex in order to find the value :math:`|B \\cap E({vertex})|`,
+    where :math:`E` is the edge relation (:math:`\\to`) of the graph.
 
-    Args:
-        B_qblock (_QBlock): A block of B.
-
-    Returns:
-        list[_Vertex]: A list of vertexes x such that x->y and y is in B (the
-        order doesn't matter).
+    :param B_qblock: A block of :math:`Q`.
     """
 
     qblock_counterimage = []
@@ -96,18 +88,15 @@ def build_block_counterimage(B_qblock: _QBlock) -> List[_Vertex]:
 def build_exclusive_B_counterimage(
     B_qblock_vertexes: List[_Vertex],
 ) -> List[_Vertex]:
-    """Given a block B of Q which has just been extracted from a compound
-    block S of x, generate the exclusive counterimage of B, namely
-    E^{-1}(B) - E^{-1}(S-B), where E is the relation '->' of the graph. It's
-    fundamental that this function is called after build_block_counterimage,
-    since it uses the aux_count values set by that function.
+    """Given a block :math:`B \\in Q`, generate the "exclusive counterimage" of
+    :math:`B`, namely the set :math:`E^{-1}(B) - E^{-1}(S-B)`, where :math:`E`
+    is the edge relation (:math:`\\to`) of the graph. It's fundamental that
+    this function is called after :func:`build_block_counterimage`,
+    since it uses the field `aux_count` set by that function in instances of
+    :class:`bispy.utilities.graph_entities._Vertex`.
 
-    Args:
-        B_qblock_vertexes (list[_Vertex]): A block B extracted from a block S
-        of X.
-
-    Returns:
-        list[_Vertex]: The vertexes in E^{-1}(B) - E^{-1}(S-B).
+    :param B_qblock_vertexes: A block of :math:`Q` represented by the list of
+        its vertexes.
     """
 
     splitter_counterimage = []
@@ -132,19 +121,17 @@ def build_exclusive_B_counterimage(
 
 
 # perform a Split with respect to B_qblock
-def split(B_counterimage: List[_Vertex]):
-    """Given a list of vertexes, use them to split the blocks of the current
-    partition Q. The information about the current partition is contained
-    inside the vertex instances. This function doesn't modify the partition,
-    you have to do it using the output.
+def split(vertexes: List[_Vertex]) -> Tuple[List[_QBlock], List[_XBlock],
+    List[_QBlock]]:
+    """Given a list of vertexes, use them as *splitter* set for the current
+    partition :math:`Q`. This function doesn't modify the partition.
 
-    Args:
-        B_counterimage (list[_Vertex]): A list of vertexes which are the
-        counterimage for a block of Q (there's no check though).
+    :param vertexes: A list of vertexes.
+    :returns: A tuple whose items are:
 
-    Returns:
-        tuple: A tuple containing the new blocks of Q generated during the
-        split, and the new compound blocks of X.
+        0. The new blocks of :math:`Q`;
+        1. The new compound blocks of :math:`X`;
+        2. The modified (but not new) blocks of :math:`Q`.
     """
 
     # keep track of the qblocks modified during step 4
@@ -154,7 +141,7 @@ def split(B_counterimage: List[_Vertex]):
     # already compound though.
     new_compound_xblocks = []
 
-    for vertex in B_counterimage:
+    for vertex in vertexes:
         # determine the qblock to which vertex belongs to
         qblock = vertex.qblock
 
@@ -205,13 +192,13 @@ def split(B_counterimage: List[_Vertex]):
 # decrement the count for the edge because B isn't in S anymore (S was replaced
 # with B, S-B indeed).
 def update_counts(B_block_vertexes: List[_Vertex]):
-    """After a block B of Q has become a block of X on its own (it was removed
-    from a compound block S) we need to decrease by one count(x,S) (which is
-    now count(x,S-B)) for each vertex in E^{-1}(B).
+    """After a block :math:`B \\in Q` has become a (non-compound) block of
+    :math:`X` on its own (it was removed from a compound block of :math:`X`) we
+    need to decrease by one the quantity `count(x`, :math:`S`) (which is now
+    `count(x`, :math:`S-B`)) for each vertex in :math:`E^{-1}(B)`.
 
-    Args:
-        B_block_vertexes (list[_Vertex]): A block of Q which is now a block of
-        S.
+    :param B_block_vertexes: A block of :math:`Q` which is also a block of
+        :math:`S`, represented by its vertexes.
     """
 
     for vertex in B_block_vertexes:
@@ -226,19 +213,17 @@ def update_counts(B_block_vertexes: List[_Vertex]):
             edge.count = edge.source.aux_count
 
 
-def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
-    """Perform a refinement step, given the current X partition and the
-    compound blocks of X.
+def refine(compound_xblocks: List[_XBlock],
+    xblocks: List[_XBlock]) -> Tuple[List[_XBlock], List[_QBlock]]:
+    """Perform a refinement step of the *Paige-Tarjan* algorithm.
 
-    Args:
-        compound_xblocks (list[_XBlock]): A list of compound blocks of X,
-        namely those that contain more than one block of Q.
-        xblocks (list[_XBlock]): The current X partition
+    :param compound_xblocks: List of compound blocks of the partition
+        :math:`X`.
+    :param xblocks: The partition :math`X`.
+    :returns: A tuple whose items are:
 
-    Returns:
-        tuple: A tuple containing the new X partition (resulting from the
-        replacement of a block S with B, S-B) and the new blocks of Q which
-        have been generated from the two split phases.
+        0. The new partition :math:`X`;
+        1. The new blocks of :math:`Q` generated by the two *split* phases;
     """
 
     # refinement step (following the steps at page 10 of "Three partition
@@ -303,16 +288,12 @@ def refine(compound_xblocks: List[_XBlock], xblocks: List[_XBlock]):
 
 # returns a list of labels splitted in partitions
 def pta(q_partition: List[_QBlock]) -> List[_QBlock]:
-    """Apply the Paige-Tarjan algorithm to an initial partition Q which
-    contains the whole "internal" representation of a graph.
+    """Apply the *Paige-Tarjan* algorithm to the partition :math:`Q`, which
+        is considered a labeling set (namely two vertexes in different
+        blocks of the initial partition cannot be bisimilar).
 
-    Args:
-        q_partition (list[_QBlock]): The initial partition represented as the Q
-        partition (namely with instances of QBlock).
-
-    Returns:
-        List[_Vertex]: The RSCP of the given initial partition as a list of
-        Vertex instances.
+    :param q_partition: The initial partition (labeling set).
+    :returns: The RSCP/maximum bisimulation of the given labeling set.
     """
     # initially, there's only one block in the partition X, the one which
     # contains each block in Q
@@ -341,23 +322,37 @@ def rscp(
     initial_partition: Iterable[Iterable[int]] = None,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
-    """Compute the RSCP of the given graph, with the given initial partition.
-    This function needs to work with an integer graph (nodes represented by an
-    integer), therefore it checks this property before starting the
-    Paige-Tarjan algorithm, and creates an integer graph if needed. Nodes in
-    the graph have to be hashable objects.
+    """Apply the *Paige-Tarjan* algorithm to the given graph, with the given
+    initial partition (or *labeling set*, two vertexes in different
+    blocks of the initial partition cannot be bisimilar), and return the
+    RSCP/maximum bisimulation as a list of tuples, each of which contains
+    the labels of a class of bisimilar nodes.
 
-    Args:
-        graph (nx.Graph): The input graph.
-        initial_partition (Iterable[Iterable[int]], optional): The initial
-        partition for the given graph. Defaults to None.
-        is_integer_graph (bool, optional): If True, the function assumes that
-        the graph is integer, and skips the integrality check (may be useful
-        when performance is important). Defaults to False.
+        >>> graph = networkx.balanced_tree(2,3)
+        >>> paige_tarjan(graph)
+        [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 
-    Returns:
-        List[Tuple]: The RSCP of the given (even non-integer) graph, with the
-        given initial partition.
+    This function works with integral graph (nodes are integers starting from
+    0 and form an interval without holes). If the given graph is non-integral
+    it is converted to an isomorphic integral graph automatically (unless
+    `is_integer_graph` is `True`) and then re-converted to its original form
+    after the end of the computation. For this reason nodes of `graph` **must**
+    be hashable objects.
+
+    .. warning::
+        Using a non integral graph and setting `is_integer_graph` to `True`
+        will probably make the function fail with an exception, or, even worse,
+        return a wrong output.
+
+    :param graph: The input graph.
+    :param initial_partition: The initial partition (or labeling set). Defaults
+        to `None`, in which case the trivial labeling set (one block which
+        contains all the nodes) is used.
+    :param is_integer_graph: If `True`, the function assumes that
+        the graph is integer, and skips the integrality check (may slightly
+        improve performance). Defaults to `False`.
+    :returns: The RSCP/maximum bisimulation of the given labeling set as a
+        list of tuples, each of which contains bisimilar nodes.
     """
 
     if not isinstance(graph, nx.DiGraph):
