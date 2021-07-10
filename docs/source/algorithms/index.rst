@@ -3,7 +3,7 @@ Algorithms
 
 .. module:: bispy
 
-Contents:
+**Contents**:
 
 .. toctree::
    paige_tarjan.rst

@@ -5,7 +5,7 @@ Utilities
 
 .. module:: bispy.utilities
 
-Contents:
+**Contents**:
 
 .. toctree::
    graph_decorator.rst
