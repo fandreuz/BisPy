@@ -1,21 +1,16 @@
 import networkx as nx
 from typing import Dict, Tuple, Any, List
 
-
 def convert_to_integer_graph(
     graph: nx.Graph,
 ) -> Tuple[nx.Graph, Dict[Any, int]]:
-    """Convert the given graph to an isomorphic graph whose nodes are integer
-    numbers. Moreover, creates a Dict which maps nodes of the original graph to
-     the corresponding node of the integer graph. Nodes in the graph have be
-     hashable objects.
+    """Convert the given graph to an isomorphic integral graph.
 
-    Args:
-        graph (nx.Graph): The input graph.
+    :param graph: The input graph.
+    :returns: A tuple whose items are:
 
-    Returns:
-        Tuple[nx.Graph, Dict[Any, int]]: A tuple containing the integer graph
-        and the mapping Dict.
+        0. The integral ismorphic graph;
+        1. A `dict` which may be used to recover the original graph.
     """
 
     integer_graph = nx.DiGraph()
@@ -35,14 +30,9 @@ def convert_to_integer_graph(
 
 
 def check_normal_integer_graph(graph: nx.Graph) -> bool:
-    """Checks whether the nodes in the given graph form an integer interval
-    starting from zero without holes.
+    """Check whether the given graph is integral.
 
-    Args:
-        graph (nx.Graph): The input graph.
-
-    Returns:
-        bool: True if the graph satisfies the "normal integrality" property.
+    :param graph: The input graph.
     """
 
     return (
@@ -54,17 +44,13 @@ def check_normal_integer_graph(graph: nx.Graph) -> bool:
 def back_to_original(
     partition: List[Tuple[int]], node_to_idx: Tuple[nx.Graph, Dict[Any, int]]
 ) -> List[Tuple[Any]]:
-    """Convert the given integer partition to a partition made by the original
-    elements of the graph, using the mapping node_to_idx.
+    """Convert the given partition of the nodes of an integral graph to the
+    representation which uses nodes from the original graph using the mapping
+    returned by :func:`convert_to_integer_graph`.
 
-    Args:
-        partition (List[Tuple[int]]): The input partition.
-        node_to_idx (Tuple[nx.Graph, Dict[Any, int]]): The mapping node->idx
-        returned by convert_to_integer_graph.
-
-    Returns:
-        List[Tuple[Any]]: The given partition, represented with the symbols
-        (nodes) of the original graph.
+    :param partition: The partition of the set of nodes of an integral graph.
+    :param node_to_idx: The mapping returned by
+        :func:`convert_to_integer_graph`.
     """
 
     # create a mapping from idx to the original nodes
