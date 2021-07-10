@@ -7,7 +7,7 @@ from bispy.utilities.graph_entities import (
     _XBlock,
     _SCC,
 )
-from typing import List, Tuple, Set, Dict
+from typing import List, Tuple, Set, Dict, Union
 from .ranked_pta import ranked_split
 from bispy.paige_tarjan.paige_tarjan import pta
 from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
@@ -22,12 +22,25 @@ from operator import attrgetter
 
 
 def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
+    """Add a new edge to the graph (this is the internal *BisPy*
+    representation, therefore the original graph is left untouched).
+
+    This function also sets the `count` attribute for the new edge, creating
+    a new instance of :class:`bispy.utilities.graph_entities._Count` if the
+    source of the edge was a sink previously, and getting the instance
+    from the first edge in the image otherwise.
+
+    :param source: The source of the new edge.
+    :param destination: The source of the new edge.
+    """
+
     edge = _Edge(source, destination)
     if len(source.image) > 0:
         # there's already a _Count instance for the image of this Vertex,
         # therefore we HAVE to use it.
         edge.count = source.image[0].count
     else:
+        # the source was a sink previously
         edge.count = _Count(source)
 
     edge.count.value += 1
@@ -38,47 +51,7 @@ def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
     return edge
 
 
-def find_vertexes(
-    partition: List[_Block], label1: int, label2: int
-) -> Tuple[_Vertex, _Vertex]:
-    source_vertex = None
-    destination_vertex = None
-
-    for block in partition:
-        for node in block.vertexes:
-            if node.label == label1:
-                source_vertex = node
-            if node.label == label2:
-                destination_vertex = node
-
-    if source_vertex is None:
-        raise Exception(
-            """It wasn't possible to determine the source vertex the new
-            edge"""
-        )
-    if destination_vertex is None:
-        raise Exception(
-            """It wasn't possible to determine the destination vertex of the
-            new edge"""
-        )
-
-    return (source_vertex, destination_vertex)
-
-
 def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
-    """If in the old RSCP [u] => [v], the addition of the new edge doesn't
-    change the RSCP.
-
-    Args:
-        old_rscp (List[Tuple[int]]): The RSCP before the addition of the edge
-            (each index of the outer-most list is linked to the rank of the
-            blocks in the inner-most lists).
-        new_edge (Tuple[_Vertex]): A tuple representing the new edge.
-
-    Returns:
-        bool: True if [u] => [v], False otherwise
-    """
-
     # check if v is already in u's image
     for edge in source_vertex.image:
         if edge.destination.label == destination_vertex.label:
@@ -101,25 +74,94 @@ def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
     return False
 
 
+def is_in_image(ublock: _Block, vblock: _Block) -> bool:
+    """Check if `vblock` is in the image of `ublock`. This is used **before**
+    adding a new edge, because if the destination vertex is already in the
+    image of the source vertex we do not need to change the partition to
+    reach the maximum bisimulation.
+
+    .. warning::
+        `ublock` and `vblock` **must** be members of a **stable** partition,
+        otherwise this function returns a wrong output.
+
+    :param ublock: The block for which we check the image.
+    :param vblock: The block that we look for in the image of `ublock`.
+
+    :return: `True` if `vblock` belongs to the image of `ublock`, `False`
+        otherwise.
+    """
+
+    # since we assume that the given blocks are members of an RSCP, we only
+    # need to verify if a single vertex of ublock has an edge towards vblock
+    vertex = ublock.vertexes.first.value
+
+    for edge in vertex.image:
+        if edge.destination.qblock == destination_vertex.qblock:
+            return True
+
+    # we didn't find an edge ([u] contains only u)
+    return False
+
+
 def check_new_scc(
     current_source: _Vertex,
     destination: _Vertex,
-    finishing_time_list,
-    min_rank: int = None,
-    max_rank: int = None,
-    visited_vertexes: List[_Vertex] = [],
+    finishing_time_list: List[_Vertex] = None,
+    # min_rank: int = None,
+    # max_rank: int = None,
+    visited_vertexes: List[_Vertex] = None,
     root_call=True,
 ) -> bool:
+    """Check if a new *strongly connected component* has been created after
+    the addition of a new edge. This is meant to be a *recursive* method,
+    therefore the new edge is not always :math:`\\langle`
+    `current_source, destination` :math:`\\rangle`.
+
+    This method visits :math:`G^{-1}` recursively (with a DFS strategy)
+    starting from `current_source` until it finds the `destination` vertex, in
+    which case a new SCC is recognized.
+
+    Meanwhile it also sets the flag `visited` for each visited vertex to
+    prevent visiting the same node twice. At the end of the execution the
+    root call **cleans** the flag `visited` for each vertex by exploring each
+    vertex in the list `visited_vertexes`, which is passed automatically from
+    the root call to all its children.
+
+    It also sets the flag `visited` for each visited
+    :class:`bispy.utilities.graph_entities._QBlock`. This information is used
+    in other parts of the algorithm.
+
+    :param current_source: The current starting point for the DFS of
+        :math:`G^{-1}`.
+    :param destination: The destination vertex of the new edge.
+    :param finishing_time_list: An empty list which will be filled with
+        the vertexes ordered by finishing time (first are those for which the
+        exploaration of the image ended earlier). This feature is disabled if
+        this argument is `None`.
+    :param visited_vertexes: An empty list which will be filled with
+        the vertexes visited during the execution. You do not need to pass a
+        non-`None` value since the root call takes care of the necessary
+        cleanup which occurs after the execution of the function.
+    :param root_call: `True` if this instance of the function is the root call.
+        Passing any value other than `True` (from a user perspective) is going
+        to end with an exception.
+
+    :return: `True` if a new *strongly connected component* has been created,
+        `False` otherwise.
+    """
+    # TODO: check
     # this is a consequence of the context where this function is used, keep
     # in mind when testing!
-    if min_rank is None:
-        min_rank = current_source.rank
-    if max_rank is None:
-        max_rank = destination.rank
+    # if min_rank is None:
+    #    min_rank = current_source.rank
+    # if max_rank is None:
+    #    max_rank = destination.rank
 
     if root_call:
         current_source.visited = True
         current_source.qblock.visited = True
+
+        visited_vertexes = []
         visited_vertexes.append(current_source)
 
     flag_scc_found = False
@@ -147,15 +189,16 @@ def check_new_scc(
                     edge.source,
                     destination,
                     finishing_time_list,
-                    min_rank,
-                    max_rank,
+                    # min_rank,
+                    # max_rank,
                     visited_vertexes,
                     root_call=False,
                 )
                 or flag_scc_found
             )
 
-    finishing_time_list.append(current_source)
+    if finishing_time_list is not None:
+        finishing_time_list.append(current_source)
 
     # we have to clean the flag "visited" for each visited vertex
     if root_call:
@@ -168,6 +211,23 @@ def check_new_scc(
 def both_blocks_go_or_dont_go_to_block(
     block1: _Block, block2: _Block, block_counterimage: List[_Vertex]
 ) -> bool:
+    """Check if both `block1` and `block2` have a non-empty intersection with
+    the set of vertexes `block_counterimage`.
+
+    Usually the parameter
+    `block_counterimage` contains the counterimage of a block, therefore this
+    method may be stated like "find if both `block1` and `block2` go to
+    the third block, or if both blocks do not go to that block".
+
+    :param block1: A block.
+    :param block2: A block.
+    :param block_counterimage: A set of vertexes.
+    :return: `True` if
+        :math:`\\delta(|\\textit{block1} \\cap \\textit{block_counterimage}|)`
+        is equal to
+        :math:`\\delta(|\\textit{block2} \\cap \\textit{block_counterimage}|)`.
+    """
+
     block1_goes = False
     block2_goes = False
 
@@ -189,6 +249,29 @@ def both_blocks_go_or_dont_go_to_block(
 def exists_causal_splitter(
     block1: _Block, block2: _Block, check_visited
 ) -> bool:
+    """Check if there is a *causal splitter* for blocks `block1` and `block2`.
+    A causal splitter is a block :math:`C` such that
+
+    .. math::
+
+        \\textit{block1} \\cap E^{-1}(C) \\neq \\emptyset \\land
+        \\textit{block2} \\cap E^{-1}(C) = \\emptyset
+
+    or viceversa.
+
+    The existence of a *causal splitter* prevents two blocks from being
+    joined.
+
+    :param block1: A block.
+    :param block2: A block.
+    :param check_visited: If `True`, we only consider vertexes in blocks
+        which have been visited during the first DFS (namely that which
+        was performed to search for a new SCC). If `False`, each block is
+        a plausible *causal splitter*.
+    :return: `True` if there is a *causal splitter* for the two blocks,
+        `False` otherwise.
+    """
+
     def plausible_causal_splitters(block, the_other_block):
         s = set()
         for v in block.vertexes:
@@ -215,6 +298,25 @@ def exists_causal_splitter(
 def merge_condition(
     block1: _Block, block2: _Block, check_visited: bool = False
 ) -> bool:
+    """Check all the condition which may prevent the union of two blocks,
+    returns `True` if the blocks can be joined. Some conditions are redundant,
+    we check first those which are almost instantaneous to verify since this
+    method is going to be called frequently.
+
+    The conditions:
+
+    1. Same labeling set/initial partition;
+    2. The two blocks are not the same block;
+    3. Same rank;
+    4. One of the blocks was deteached from the partition previously (therefore
+        it is most likely empty at this points);
+    5. There is not a *causal splitter* for the two blocks.
+
+    :param block1: A block.
+    :param block2: A block.
+    :param check_visited: See the documentation of
+        :func:`exists_causal_splitter`.
+    """
     if (
         block1.initial_partition_block_id()
         != block2.initial_partition_block_id()
@@ -233,6 +335,25 @@ def merge_condition(
 
 
 def recursive_merge(block1: _Block, block2: _Block):
+    """Merge `block1`, `block2` (put the vertexes of `block2` into
+    `block1`), deteach `block2` from the partition, and check recursively if
+    we can also merge some couples of predecessors of `block1` and `block2`
+    (namely couple of blocks :math:`C,D` such that
+
+    .. math::
+
+        C \\implies \\textit{block1} \\land D \\implies \\textit{block2}
+
+    where the relation ":math:`\\implies`" means that there is at least one
+    vertex of the rightmost block which is a child of the leftmost block).
+
+    If such at couple exists, the method recursively merges those two blocks,
+    for each couple for which :func:`merge_condition` is `True`.
+
+    :param block1: A block.
+    :param block2: A block.
+    """
+
     vertexes1 = list(block1.vertexes)
     vertexes2 = list(block2.vertexes)
 
@@ -259,12 +380,17 @@ def merge_phase(
     ublock: _Block,
     vblock: _Block,
 ):
-    """If U1 => V && merge_condition(U,U1) then merge (U1,U). Then proceed
-    recursively.
+    """We check if there is a block :math:`U1` such that before the addition
+    of the new edge :math:`\\langle u,v \\rangle` there was a
+    *causal splitter* for the couple :math:`([u],U1)`, and for which
+    :func:`merge_condition` now returns `True` on that couple.
 
-    Args:
-        ublock (_Block):
-        vblock (_Block):
+    In that case we merge the two blocks using :func:`recursive_merge`.
+
+    :param ublock: The block of the partition in which resides the source
+        of the new edge.
+    :param vblock: The block of the partition in which resides the destination
+        of the new edge.
     """
     for vertex in vblock.vertexes:
         for edge in vertex.counterimage:
@@ -315,6 +441,12 @@ def merge_step(vertex, X, visited_vertexes, cant_merge_dict):
 
 
 def preprocess_initial_partition(qblocks: List[_Block]):
+    """
+    Preprocess the given partition to split blocks which contain leafs and
+    non-leafs.
+
+    :param qblocks: A partition.
+    """
     for block in qblocks:
         leafs = []
         non_leafs = []
@@ -330,7 +462,18 @@ def preprocess_initial_partition(qblocks: List[_Block]):
             qblocks.append(block.fast_mitosis(leafs))
 
 
-def merge_split_phase(qpartition, finishing_time_list):
+def merge_split_phase(
+    qpartition: List[_Block], finishing_time_list: List[_Vertex]
+) -> List[_Block]:
+    """
+    The function `MergeAndSplitPhase` from the paper.
+
+    :param qpartition: The current partition.
+    :param finishing_time_list: List of vertexes in the graph ordered by
+        finishing time.
+    :returns: The updated partition.
+    """
+
     max_rank = float("-inf")
     for block in qpartition:
         max_rank = max(max_rank, block.rank)
@@ -424,6 +567,16 @@ def merge_split_phase(qpartition, finishing_time_list):
 
 
 def propagate_nwf(scc: _SCC, scc_finishing_time: List[_SCC]):
+    """Compute the updated *rank* of the given SCC, and propagate the change to
+    its counterimage in the order given by the finishing time of a visit
+    on the graph of strongly connected components of :math:`G`.
+
+    :param scc: The SCC for which we want to update the rank.
+    :param scc_finishing_time: A list of SCCs ordered by finishing time
+        of a DFS on the graph of strongly connected components of :math:`G`.
+    """
+    # TODO: è una DFS sul grafico delle SCC, o sul suo inverso?
+
     if not scc.visited:
         scc.visited = True
 
@@ -461,14 +614,14 @@ def propagate_wf(
     scc_finishing_time: List[_SCC],
 ):
     """Recursively visit the well-founded counterimage of the given vertex and
-    update the ranks. The visit is in increasing order of rank. It can be shown
-    easily that this is the only way to get correct results.
+    update the *rank*. The visit is in increasing order of rank (this is needed
+    in order to obtain the correct result).
 
-    Args:
-        vertex (_Vertex): The updated vertex (source of the new edge). The rank
-        must already be updated.
-        well_founded_topological (List[_Vertex]): List of WF vertexes of the
-        graph in topological order.
+    :param vertex: The vertex to whose counterimage we intend to propagate the
+        change of the *rank*. The *rank* of this argument must already be
+        updated, since it is left untouched after the execution.
+    :param well_founded_topological: List of well founded vertexes of the
+        **whole** graph in topological order.
     """
 
     for vx in well_founded_topological:
@@ -485,7 +638,24 @@ def propagate_wf(
                 propagate_nwf(edge.source.scc, scc_finishing_time)
 
 
-def build_well_founded_topological_list(old_rscp, source, max_rank):
+def build_well_founded_topological_list(
+    partition: List[_Block], source: _Vertex, max_rank: int
+) -> List[_Vertex]:
+    """
+    Build a list of all the vertexes in the graph sorted in increasing order
+    of *rank*.
+
+    We ignore all the nodes which do not have *rank* = :math:`-\\infty` and
+    have rank lower that the rank of the source vertex of the new edge.
+
+    :param partition: A partition of the graph from which we obtain the
+        instances of :class:`bispy.utilities.graph_entities._Vertex`. All the
+        nodes in the same block **must** have the same *rank*.
+    :param source: The source vertex of the new edge.
+    :param max_rank: The maximum rank of a vertex in this graph, used to create
+        a list of the appropriate size.
+    """
+
     if source.rank == float("-inf"):
         source_position = 0
     else:
@@ -496,7 +666,7 @@ def build_well_founded_topological_list(old_rscp, source, max_rank):
     else:
         buckets = [None for _ in range(max_rank + 2 - source_position)]
 
-    for block in old_rscp:
+    for block in partition:
         if block.rank == float("-inf"):
             idx = 0
         elif block.rank >= source.rank:
@@ -535,16 +705,43 @@ def build_well_founded_topological_list(old_rscp, source, max_rank):
 
 
 def filter_deteached(blocks: List[_Block]) -> List[_Block]:
+    """
+    Remove deteached blocks (blocks such that the attribute
+    `deteached` is `True`) from the given list.
+
+    :param blocks: A list of blocks.
+    """
     return list(filter(lambda block: not block.deteached, blocks))
 
 
 def update_rscp(
     old_rscp: List[_Block],
     vertexes: List[_Vertex],
-    new_edge: Tuple,
-):
+    new_edge: Union[Tuple[_Vertex, _Vertex], Tuple[int, int]],
+) -> List[_Block]:
+    """
+    Update the given RSCP/maximum bisimulation after the addition of the given
+    **new** edge using Saha's incremental algorithm.
+
+    The edge must not be already in the *BisPy* representation
+    of the graph (namely in the image/counterimage of the instances
+    of :class:`bispy.utilities.graph_entities._Vertex` in blocks of
+    `old_rscp`).
+
+    :param old_rscp: The old RSCP/maximum bisimulation which we wish to update.
+    :param vertexes: List of vertexes in the graph.
+    :new_edge: The new edge to be added to the graph (as a tuple of two
+        :class:`bispy.utilities.graph_entities._Vertex` instances, or two
+        ints which represent the indexes of the nodes which characterize the
+        edge). The first item represents the **source** of the edge, the second
+        represents the **destination**.
+    :returns: The updated RSCP/maximum bisimulation. Also *rank* is updated for
+        each vertex.
+    """
+
     if isinstance(new_edge[0], int) and isinstance(new_edge[1], int):
-        source_vertex, destination_vertex = find_vertexes(old_rscp, *new_edge)
+        source_vertex = vertexes[new_edge[0]]
+        destination_vertex = vertexes[new_edge[1]]
     elif isinstance(new_edge[0], _Vertex) and isinstance(new_edge[1], _Vertex):
         source_vertex, destination_vertex = new_edge
     else:
@@ -578,9 +775,7 @@ def update_rscp(
     # update the graph representation
     add_edge(source_vertex, destination_vertex)
 
-    qpartition = ranked_split(
-        old_rscp, destination_vertex.qblock, max_rank
-    )
+    qpartition = ranked_split(old_rscp, destination_vertex.qblock, max_rank)
 
     # u isn't well founded, v is well founded
     if not source_vertex.wf and destination_vertex.wf:
@@ -644,11 +839,7 @@ def update_rscp(
                         # we don't need to update the nwf list since
                         # source_vertex was already nwf
 
-                        propagate_nwf(
-                            source_vertex.scc, scc_finishing_time
-                        )
+                        propagate_nwf(source_vertex.scc, scc_finishing_time)
 
-                merge_phase(
-                    source_vertex.qblock, destination_vertex.qblock
-                )
+                merge_phase(source_vertex.qblock, destination_vertex.qblock)
                 return filter_deteached(qpartition)

@@ -10,8 +10,8 @@ from bispy.utilities.rank_computation import (
     scc_finishing_time_list,
 )
 from bispy.saha.saha import (
+    #is_in_image,
     check_old_blocks_relation,
-    find_vertexes,
     add_edge,
     propagate_wf,
     propagate_nwf,
@@ -46,6 +46,20 @@ from itertools import chain, product
 from bispy.utilities.kosaraju import kosaraju
 
 
+""" def test_is_in_image():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(range(5))
+    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
+
+    vertexes, _ = decorate_nx_graph(graph)
+    RankedPartition(vertexes)
+
+    assert is_in_image(vertexes[0].qblock, vertexes[1].qblock)
+    assert not is_in_image(vertexes[1].qblock, vertexes[0].qblock)
+    assert is_in_image(vertexes[1].qblock, vertexes[2].qblock)
+    assert is_in_image(vertexes[2].qblock, vertexes[3].qblock)
+    assert not is_in_image(vertexes[0].qblock, vertexes[4].qblock)
+    assert not is_in_image(vertexes[4].qblock, vertexes[0].qblock) """
 def test_check_old_blocks_relation():
     graph = nx.DiGraph()
     graph.add_nodes_from(range(5))
@@ -60,23 +74,6 @@ def test_check_old_blocks_relation():
     assert check_old_blocks_relation(vertexes[2], vertexes[3])
     assert not check_old_blocks_relation(vertexes[0], vertexes[4])
     assert not check_old_blocks_relation(vertexes[4], vertexes[0])
-
-
-def test_find_vertex():
-    graph = nx.DiGraph()
-    graph.add_nodes_from(range(5))
-    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
-
-    vertexes, _ = decorate_nx_graph(graph)
-    ranked_partition = RankedPartition(vertexes)
-    nonranked_partition = [
-        qblock for rank in ranked_partition for qblock in rank
-    ]
-
-    assert find_vertexes(nonranked_partition, 0, 1) == (
-        vertexes[0],
-        vertexes[1],
-    )
 
 
 def test_add_edge():
