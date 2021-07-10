@@ -1,6 +1,5 @@
-============
-Paige-Tarjan
-============
+Paige^Tarjan
+^^^^^^^^^^^^
 
 .. module:: bispy.paige_tarjan.paige_tarjan
 

@@ -1,6 +1,5 @@
-===================
 Ranked Paige-Tarjan
-===================
+^^^^^^^^^^^^^^^^^^^
 
 .. module:: bispy.saha.ranked_pta
 

@@ -1,6 +1,5 @@
-===================
 Graph normalization
-===================
+^^^^^^^^^^^^^^^^^^^
 
 An *integral* graph is a graph :math:`G = (V,E)` such that
 :math:`V \subseteq \mathbb{N}`, :math:`\min(V) = 0`, :math:`\max(V) = |V| - 1`,

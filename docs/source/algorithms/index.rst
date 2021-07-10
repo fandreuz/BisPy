@@ -1,5 +1,5 @@
 Algorithms
-==========
+----------
 
 .. module:: bispy
 

@@ -1,7 +1,7 @@
 .. _module-docs:
 
 Utilities
-=========
+---------
 
 .. module:: bispy.utilities
 
