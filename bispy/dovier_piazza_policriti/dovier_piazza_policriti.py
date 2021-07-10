@@ -167,7 +167,9 @@ def fba(
                     # exclude nodes having the wrong rank from the image and
                     # counterimage of the vertex. from now they're gone
                     # forever.
-                    vertex.restrict_to_subgraph()
+                    vertex.restrict_to_subgraph(
+                        validation=lambda vx: vx.rank == vertex.rank
+                    )
 
             # apply PTA to the subgraph at the current examined rank
             # CAREFUL: if you debug here, you'll see that there are some

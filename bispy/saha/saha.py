@@ -539,7 +539,7 @@ def merge_split_phase(
 
     for block in X:
         for vx in block.vertexes:
-            vx.restrict_to_allowed_subraph()
+            vx.restrict_to_subgraph(validation=lambda v: v.allow_visit)
 
     # apply PTA and append the blocks to the new partition
     preprocess_initial_partition(X)
