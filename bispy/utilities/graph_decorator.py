@@ -6,7 +6,7 @@ from bispy.utilities.graph_entities import (
     _QBlock,
     _XBlock,
 )
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from bispy.utilities.rank_computation import compute_rank as func_compute_rank
 
 _BLACK = 10
@@ -18,21 +18,20 @@ _WHITE = 12
 # partition with respect to the set V, but a partition where leafs and
 # non-leafs are in the same block can't be stable
 def preprocess_initial_partition(
-    vertexes: List[_Vertex], initial_partition: List[tuple]
-) -> List[tuple]:
-    """Splits each block A of the initial Q partition in the intersection of A
-    and E^{-1}(V) and A - E^{-1}(V). The result is a partition where each block
-    contains zero or all leafs. This procedure is fundamental for obtaining a
-    partition stable with respect to V, which is an hypothesis that the
-    algorithms needs in order to work.
+    vertexes: List[_Vertex], initial_partition: List[Tuple[int]]
+) -> List[_QBlock]:
+    """
+    Preprocess the given partition to split blocks which contain both leafs and
+    non-leafs. This is a fundamental hypothesis in order to make
+    *Paige-Tarjan*'s algorithm work.
 
-    Args:
-        vertexes (list[_Vertex]): The list of Vertexes which represents the
-            graph.
-        initial_partition (list[tuple]): The partition to be processed.
+    The attribute `qblock` of each vertex must already have been initialized.
 
-    Returns:
-        list[tuple]: A partition where each block contains zero or only leafs.
+    :param vertexes: Vertexes in the graph.
+    :param initial_partition: The initial partition, as a list of
+        vertexes index.
+    :returns: The preprocessed partition, as a list of
+        :class:`bispy.utilities.graph_entities_QBlock`.
     """
 
     new_partition = []
@@ -63,6 +62,23 @@ def counterimage_dfs(
     finishing_list: List[_Vertex],
     colors: List[int],
 ):
+    """
+    Recursively visit :math:`G^{-1}` starting from the vertex in the position
+    `current_vertex_idx` of the list `vertexes`. Meanwhile fill
+    `finishing_list` everytime time the counterimage of a vertex is completely
+    visited.
+
+    :param current_vertex_idx: The current vertex to be visited.
+    :param vertexes: List of vertexes in the graph.
+    :param finishing_list: List of vertexes in order of increasing finishing
+        time. Must be passed (as an empty list) upon the first call of the
+        function. The list will be filled when the function returns.
+    :param colors: List of color (one for each vertex) maintained by the
+        algorithm to prevent visiting the same vertex more than once. Must be
+        passed by the user (all values **must** be `_WHITE`) upon the
+        first call of the function.
+    """
+
     # mark this vertex as "visiting"
     colors[current_vertex_idx] = _GRAY
     # visit the counterimage of the current vertex
@@ -88,6 +104,13 @@ def counterimage_dfs(
 def compute_counterimage_finishing_time_list(
     vertexes: List[_Vertex],
 ) -> List[_Vertex]:
+    """
+    Compute the finishing time of each vertex of :math:`G` for a DFS
+    of :math:`G^{-1}`.
+
+    :param vertexes: Vertexes of :math:`G`.
+    """
+
     counterimage_dfs_colors = [_WHITE for _ in range(len(vertexes))]
     counterimage_finishing_list = []
     # perform counterimage DFS
@@ -108,7 +131,31 @@ def as_bispy_graph(
     build_image,
     set_count,
     set_xblock,
-) -> Tuple[List[_Vertex], List[_QBlock], _XBlock]:
+) -> Tuple[List[_Vertex], List[_QBlock]]:
+    """
+    Create the *BisPy* representation of the given graph. There are several
+    options to enable/disable depending on which algorithm in *BisPy* you
+    plan to use.
+
+    :param graph: The graph.
+    :param initial_partition: The initial partition (or labeling set) imposed
+        on vertexes of the graph. Used to divide nodes in blocks.
+    :param build_image: If `True`, we compute the image of each vertex.
+    :param set_count: If `True`, we set the attribute `count` of each vertex
+        to an appropriate instance of
+        :class:`bispy.utilities.graph_entities._Count`.
+    :param set_xblock: If `True` we set the attribute `xblock` of each block
+        of the partition to an instance of
+        :class:`bispy.utilities.graph_entities._XBlock` (the same for each
+        block). If `False`, we set the attribute to `None`.
+    :returns: A tuple whose items are:
+
+        0. List of vertexes in the graph;
+        1. List of blocks in the initial partition.
+
+        Both the items are in *BisPy* representation.
+    """
+
     # instantiate QBlocks and Vertexes, put Vertexes into QBlocks and set their
     # initial block id
     vertexes = [None for _ in graph.nodes]
@@ -159,6 +206,16 @@ def as_bispy_graph(
 # this re-arranges the image of each vertex in a convenient order for further
 # visits
 def build_vertexes_image(finishing_time_list: List[_Vertex]):
+    """
+    Build the image of each vertex in the graph in a convenient order to
+    facilitate further computations (like the *rank*). Vertexes in the
+    constructed image are arranged in inverse order of finishing time for a DFS
+    on :math:`G^{-1}`.
+
+    :param finishing_time_list: Vertexes of :math:`G` in order of increasing
+        finishing time for a DFS on :math:`G^{-1}`.
+    """
+
     # use the standard vertex ordering
     vertex_count = [None for _ in range(len(finishing_time_list))]
 
@@ -186,12 +243,47 @@ def build_vertexes_image(finishing_time_list: List[_Vertex]):
 def decorate_nx_graph(
     graph: nx.Graph,
     initial_partition: List[Tuple[int]] = None,
-    set_count=True,
-    topological_sorted_images=True,
-    compute_rank=True,
-    set_xblock=True,
-    preprocess=True,
+    set_count: bool = True,
+    topological_sorted_images: bool = True,
+    compute_rank: bool = True,
+    set_xblock: bool = True,
+    preprocess: bool = True,
 ) -> Tuple[List[_Vertex], List[_QBlock]]:
+    """
+    Create the *BisPy* representation of the given graph.
+
+    :param graph: The graph, in *NetworkX* representation.
+    :param initial_partition: The initial partition, or labeling set, imposed
+        on the nodes of the graph. Defaults to `None`, in which case the
+        trivial labeling set is considered (one block which contains all the
+        nodes).
+    :param set_count: If `True`, we set the attribute `count` of each vertex
+        to an appropriate instance of
+        :class:`bispy.utilities.graph_entities._Count`. If `False`, the
+        attribute is set to `None`. Defaults to `True`.
+    :param topological_sorted_images: If `True`, the image of each vertex
+        is computed using the function :func:`build_vertexes_image`. If
+        `False`, the image is computed without any particular precautions.
+        Defaults to `True`.
+    :param compute_rank: If `True`, the function computes the *rank* of each
+        vertex. May be useless for some algorithms, like *Paige-Tarjan*'s,
+        in which case performance can be slightly improved by setting this
+        parameter to `False`. Defaults to `True`.
+    :param set_xblock: If `True` we set the attribute `xblock` of each block
+        of the partition to an instance of
+        :class:`bispy.utilities.graph_entities._XBlock` (the same for each
+        block). If `False`, we set the attribute to `None`. Defaults to `True`.
+    :param preprocess: Preprocess the initial partition to split blocks which
+        contain both leafs and non-leafs. Fundamental for *Paige-Tarjan*'s
+        algorithm, may be disabled for other algorithms.
+    :returns: A tuple whose items are:
+
+        0. List of vertexes of the graph;
+        1. List of blocks of the initial partition.
+
+        Both items are in *BisPy* representation.
+    """
+
     if initial_partition is None:
         initial_partition = [tuple(i for i in range(len(graph.nodes)))]
 
@@ -222,14 +314,50 @@ def decorate_nx_graph(
 
 
 def decorate_bispy_graph(
-    vertexes,
-    initial_partition=None,
-    set_initial_partition_data=False,
-    set_count=True,
-    topological_sorted_images=True,
-    compute_rank=True,
-    preprocess=True,
-):
+    vertexes: List[_Vertex],
+    initial_partition: List[Tuple[int]] = None,
+    set_initial_partition_data: bool = False,
+    set_count: bool = True,
+    topological_sorted_images: bool = True,
+    compute_rank: bool = True,
+    preprocess: bool = True,
+) -> Union[None, Tuple[List[_Vertex], List[_QBlock]]]:
+    """
+    Update the *BisPy* representation of the given graph with more information.
+
+    :param vertexes: The vertexes of the graph, in *BisPy* representation.
+    :param initial_partition: The initial partition, or labeling set, imposed
+        on the nodes of the graph. Defaults to `None`, in which case the
+        trivial labeling set is considered (one block which contains all the
+        nodes).
+    :param set_initial_partition_data: If `True`, for each vertex we set the
+        attribute `initial_partition_block_id` to remember the block of the
+        initial partition to which that vertex belongs. May be used by some
+        algorithms (like *Saha*, in :func:`bispy.saha.saha.merge_condition`).
+    :param set_count: If `True`, we set the attribute `count` of each vertex
+        to an appropriate instance of
+        :class:`bispy.utilities.graph_entities._Count`. If `False`, the
+        attribute is set to `None`. Defaults to `True`.
+    :param topological_sorted_images: If `True`, the image of each vertex
+        is computed using the function :func:`build_vertexes_image`. If
+        `False`, the image is computed without any particular precautions.
+        Defaults to `True`.
+    :param compute_rank: If `True`, the function computes the *rank* of each
+        vertex. May be useless for some algorithms, like *Paige-Tarjan*'s,
+        in which case performance can be slightly improved by setting this
+        parameter to `False`. Defaults to `True`.
+    :param preprocess: Preprocess the initial partition to split blocks which
+        contain both leafs and non-leafs. Fundamental for *Paige-Tarjan*'s
+        algorithm, may be disabled for other algorithms.
+    :returns: `None` if `preprocess` is `False`; otherwise a tuple whose items
+        are:
+
+        0. List of vertexes of the graph;
+        1. List of blocks of the initial partition.
+
+        Both items are in *BisPy* representation.
+    """
+
     # if initial_partition is False we do not loop over vertexes to set
     # the ID of initial partition (saves time)
     if set_initial_partition_data:
