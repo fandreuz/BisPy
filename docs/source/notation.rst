@@ -22,14 +22,16 @@ Graphs
 
 For a reference on graphs check [1]_.
 
-Paige-Tarjan's algorithm
-------------------------
+Paige-Tarjan's notation
+-----------------------
 
 * The symbol ":math:`Q`" usually refers to a partition of the set :math:`V` (nodes of a graph :math:`G`);
 * The symbol ":math:`X`" usually refers to a partition of the blocks of the partition ":math:`Q`" (namely ":math:`X`" contains blocks of blocks).
 
-Dovier-Piazza-Policriti's algorithm
------------------------------------
+.. _Rank definition:
+
+Dovier-Piazza-Policriti's notation
+----------------------------------
 
 The *rank* of a node is defined as follows:
 
@@ -39,8 +41,8 @@ where we used the following sets to simplify the defintion:
 
 .. image:: _static/N_rank_definition.png
 
-Saha's algorithm
-----------------
+Saha's notation
+---------------
 
 A *causal splitter* for two blocks :math:`A,B` is a block :math:`C` such that:
 

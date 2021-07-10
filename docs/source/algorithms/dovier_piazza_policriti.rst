@@ -1,3 +1,5 @@
+.. _DovierPiazzaPolicriti:
+
 Dovier-Piazza-Policriti
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -11,12 +13,15 @@ in the following paper::
     International Conference on Computer Aided Verification.
     Springer, Berlin, Heidelberg, 2001.
 
-The most significant improvement is due to the usage of the notion of *rank*,
-motivated by the following observation:
+The most significant improvement with respect to
+:mod:`bispy.paige_tarjan.paige_tarjan` is due to the usage of the notion of
+*rank*, motivated by the following observation:
 
 .. math::
 
     a \equiv b \implies \texttt{rank}(a) = \texttt{rank}(b)
+
+.. seealso:: :ref:`Rank definition`
 
 Therefore we may be able to obtain the equivalence classes of the maximum
 bisimulation in a smaller number of steps when the relation "same rank"
