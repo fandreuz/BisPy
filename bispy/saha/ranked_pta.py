@@ -88,4 +88,4 @@ def ranked_split(
         new_compound_xblocks, max_rank
     )
 
-    return pta(x_partition, compound_xblocks, q_partition)
+    return pta(x_partition, q_partition, compound_xblocks)
