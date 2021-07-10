@@ -8,6 +8,9 @@ from bispy.utilities.graph_entities import (
     _QBlock,
     _Count,
 )
+from bispy.paige_tarjan.compound_xblocks_container import (
+    CompoundXBlocksContainer,
+)
 from bispy.utilities.graph_decorator import (
     decorate_nx_graph,
     preprocess_initial_partition,
@@ -17,7 +20,6 @@ from bispy.utilities.graph_normalization import (
     convert_to_integer_graph,
     back_to_original,
 )
-
 
 # choose the smallest qblock of the first two
 def extract_splitter(compound_block: _XBlock) -> _QBlock:
@@ -215,7 +217,7 @@ def update_counts(B_block_vertexes: List[_Vertex]):
 
 
 def refine(
-    compound_xblocks: List[_XBlock], xblocks: List[_XBlock]
+    compound_xblocks: CompoundXBlocksContainer, xblocks: List[_XBlock]
 ) -> Tuple[List[_XBlock], List[_QBlock]]:
     """Perform a refinement step of the *Paige-Tarjan* algorithm.
 
@@ -303,9 +305,9 @@ def pta(q_partition: List[_QBlock]) -> List[_QBlock]:
     # if there's more than one block of Q in the (single) block in X, we can
     # add it to compound_blocks
     if len(x_partition[0].qblocks) > 1:
-        compound_xblocks = [x_partition[0]]
+        compound_xblocks = CompoundXBlocksContainer([x_partition[0]])
     else:
-        compound_xblocks = []
+        compound_xblocks = CompoundXBlocksContainer([])
 
     while len(compound_xblocks) > 0:
         x_partition, new_qblocks = refine(
