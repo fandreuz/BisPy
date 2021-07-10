@@ -15,4 +15,4 @@ Contents:
    graph_normalization.rst
    rank_computation.rst
    ranked_partition.rst
-   ranked_split.rst
+   ranked_paige_tarjan.rst

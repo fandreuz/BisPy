@@ -28,23 +28,16 @@ from bispy.utilities.graph_normalization import (
 # returns a list of labels splitted in partitions
 def pta(
     x_partition: List[_XBlock],
-    compound_xblocks: RankedCompoundXBlocksContainer,
     q_partition: List[_QBlock],
-) -> List[Tuple]:
-    """Apply the Paige-Tarjan algorithm to an initial partition Q which
-    contains the whole "internal" representation of a graph.
+    compound_xblocks: RankedCompoundXBlocksContainer,
+) -> List[Tuple[_Vertex]]:
+    """Apply the Ranked *Paige-Tarjan*'s algorithm to obtain the RSCP/maximum
+    bisimulation of the given `q_partition`.
 
-    Args:
-        x_partition: a list of XBlocks
-        compound_xblocks (List[List[_XBlock]]): A list of list of compound
-        blocks of X, namely those that contain more than one block of Q,
-        sorted by increasing rank.
-        q_partition (list[_QBlock]): The initial partition represented as the Q
-        partition (namely with instances of QBlock).
-
-    Returns:
-        list[_Vertex]: The RSCP of the given initial partition as a list of
-        Vertex instances.
+    :param x_partition: The partition :math:`X`.
+    :param q_partition: The partition :math:`Q`.
+    :param compound_xblocks: List of compound blocks of :math:`X` (namely
+        blocks that contain more than one block of the partition  :math:`Q`).
     """
 
     while compound_xblocks._first_nonempty_index > 0:
@@ -56,7 +49,18 @@ def pta(
 
 def ranked_split(
     current_partition: List[_QBlock], B_qblock: _QBlock, max_rank: int
-):
+) -> List[Tuple[_Vertex]]:
+    """Split the given partition using the block `B_qblock` as *splitter*, then
+    use Ranked *Paige-Tarjan*'s algorithm on the resulting partition.
+
+    :param current_partition: The current partition as a list of
+        :class:`bispy.utilities.graph_entities._QBlock`.
+    :param B_qblock: The block to be used as *splitter*.
+    :param max_rank: The maximum rank which may be found in the graph.
+    :returns: The output of Ranked *Paige-Tarjan*'s algorithm as a list of
+        tuples of vertexes.
+    """
+
     # initialize x_partition and q_partition
     x_partition = [
         # this also overwrites any information about parent xblocks for qblock
