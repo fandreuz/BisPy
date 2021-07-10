@@ -21,6 +21,7 @@ from bispy.utilities.graph_normalization import (
     back_to_original,
 )
 
+
 # choose the smallest qblock of the first two
 def extract_splitter(compound_block: _XBlock) -> _QBlock:
     """Given a compound block in the `X` partition, extract one of the blocks

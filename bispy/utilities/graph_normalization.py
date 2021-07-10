@@ -1,6 +1,7 @@
 import networkx as nx
 from typing import Dict, Tuple, Any, List
 
+
 def convert_to_integer_graph(
     graph: nx.Graph,
 ) -> Tuple[nx.Graph, Dict[Any, int]]:

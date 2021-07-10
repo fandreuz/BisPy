@@ -2,6 +2,7 @@ from bispy.paige_tarjan.paige_tarjan import CompoundXBlocksContainer
 from bispy.utilities.graph_entities import _XBlock
 import sys
 
+
 class RankedCompoundXBlocksContainer(CompoundXBlocksContainer):
     def __init__(self, compound_xblocks, max_rank):
         self._xblocks = [[] for _ in range(max_rank + 2)]
@@ -25,7 +26,9 @@ class RankedCompoundXBlocksContainer(CompoundXBlocksContainer):
     def update_first_nonempty_index(self):
         # we start checking from the last known value of _first_nonempty_index
         for idx, rank_list in enumerate(
-            self._xblocks[self._first_nonempty_index + 1 :]
+            # fmt: off
+            self._xblocks[self._first_nonempty_index + 1:]
+            # fmt: on
         ):
             if len(rank_list) > 0:
                 self._first_nonempty_index = (

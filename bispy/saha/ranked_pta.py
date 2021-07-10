@@ -25,6 +25,7 @@ from bispy.utilities.graph_normalization import (
     back_to_original,
 )
 
+
 # returns a list of labels splitted in partitions
 def pta(
     x_partition: List[_XBlock],
