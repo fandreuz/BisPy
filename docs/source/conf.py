@@ -60,3 +60,4 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 add_module_names = False
+autodoc_member_order = 'bysource'
