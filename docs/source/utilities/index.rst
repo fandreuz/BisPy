@@ -8,8 +8,6 @@ Utilities
 Contents:
 
 .. toctree::
-   :glob:
-
    graph_decorator.rst
    graph_entities.rst
    graph_normalization.rst
