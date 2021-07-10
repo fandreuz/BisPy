@@ -10,3 +10,5 @@ Contents:
 .. toctree::
    algorithms/index.rst
    utilities/index.rst
+   notation.rst
+
