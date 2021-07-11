@@ -9,7 +9,7 @@ from bispy.utilities.graph_entities import (
 )
 from typing import List, Tuple, Set, Dict, Union
 from .ranked_pta import ranked_split
-from bispy.paige_tarjan.paige_tarjan import pta
+from bispy.paige_tarjan.paige_tarjan import rscp_qblocks as pt_rscp_qblocks
 from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     build_block_counterimage,
 )
@@ -519,7 +519,7 @@ def merge_split_phase(
 
     # apply PTA and append the blocks to the new partition
     preprocess_initial_partition(X)
-    X2 = pta(X)
+    X2 = pt_rscp_qblocks(X)
     new_qpartition.extend(X2)
 
     for block in X2:

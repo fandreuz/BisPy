@@ -3,7 +3,6 @@ from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
 from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     build_block_counterimage,
     split_upper_ranks,
-    fba,
     rscp as fba_rscp
 )
 from .fba_test_cases import graphs, block_counterimaged_block, fba_correctness_graphs

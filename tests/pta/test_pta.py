@@ -26,8 +26,8 @@ from bispy.paige_tarjan.paige_tarjan import (
     build_block_counterimage,
     build_exclusive_B_counterimage,
     refine,
-    pta,
-    rscp as pta_rscp,
+    rscp_qblocks,
+    rscp,
     preprocess_initial_partition,
 )
 from bispy.utilities.graph_decorator import decorate_nx_graph
@@ -472,8 +472,8 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
 )
 def test_pta_result_is_stable_partition(graph, initial_partition):
     vertexes, q_partition = decorate_nx_graph(graph, initial_partition)
-    rscp = pta(q_partition)
-    assert is_stable_partition(rscp)
+    s = rscp_qblocks(q_partition)
+    assert is_stable_partition(s)
 
 
 @pytest.mark.parametrize(
@@ -481,15 +481,15 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
     test_cases.graph_partition_rscp_tuples,
 )
 def test_pta_correctness(graph, initial_partition, expected_q_partition):
-    rscp = pta_rscp(graph, initial_partition)
-    assert set(frozenset(tp) for tp in rscp) == set(
+    s = rscp(graph, initial_partition)
+    assert set(frozenset(tp) for tp in s) == set(
         frozenset(tp) for tp in expected_q_partition
     )
 
 
 def test_pta_no_initial_partition():
     graph = test_cases.build_full_graphs(10)
-    rscp = pta_rscp(graph)
+    rscp(graph)
     assert True
 
 
@@ -497,14 +497,14 @@ def test_pta_no_integer_nodes():
     graph = nx.DiGraph()
     graph.add_nodes_from(["a", 0, 1, 2, 3, frozenset("x")])
     graph.add_edges_from([("a", 0), (0, 1), (1, 2), (2, 3)])
-    rscp = pta_rscp(graph, [["a", 0, 1, 2], [3, frozenset("x")]])
-    assert set(rscp) == set([("a",), (0,), (1,), (2,), (3, frozenset("x"))])
+    s = rscp(graph, [["a", 0, 1, 2], [3, frozenset("x")]])
+    assert set(s) == set([("a",), (0,), (1,), (2,), (3, frozenset("x"))])
 
 
 def test_no_compound_xblocks():
     G = nx.DiGraph()
     G.add_edges_from([[0, 1], [1, 2], [2, 1]])
-    assert len(pta_rscp(G)) == 1
+    assert len(rscp(G)) == 1
 
 
 def graph_to_integer_graph(graph, initial_partition):
@@ -540,14 +540,14 @@ def graph_to_integer_graph(graph, initial_partition):
 )
 def test_pta_same_initial_partition(graph, initial_partition):
     _, q_partition = decorate_nx_graph(graph, initial_partition)
-    rscp = [tuple(block.vertexes) for block in pta(q_partition)]
+    s = [tuple(block.vertexes) for block in rscp_qblocks(q_partition)]
 
     vertex_to_initial_partition_id = [None for _ in graph.nodes]
     for idx, block in enumerate(initial_partition):
         for vertex in block:
             vertex_to_initial_partition_id[vertex] = idx
 
-    for block in rscp:
+    for block in s:
         for vertex in block:
             assert (
                 vertex.initial_partition_block_id
@@ -560,4 +560,4 @@ def test_simp():
     graph.add_edges_from([(0,1)])
     initial_partition = [(0,1)]
 
-    x = pta_rscp(graph, is_integer_graph=True)
+    x = rscp(graph, is_integer_graph=True)

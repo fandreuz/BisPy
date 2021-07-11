@@ -4,7 +4,9 @@ from itertools import islice
 from llist import dllist
 from bispy.utilities.graph_entities import _QBlock as _Block, _Vertex, _XBlock
 from bispy.utilities.graph_decorator import decorate_nx_graph
-from bispy.paige_tarjan.paige_tarjan import pta
+from bispy.paige_tarjan.paige_tarjan import (
+    rscp_qblocks as pt_rscp_qblocks,
+)
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
@@ -120,7 +122,7 @@ def split_upper_ranks(partition: RankedPartition, block: _Block):
         mod_block.split_helper_block = None
 
 
-def fba(
+def rscp_qblocks(
     graph: nx.Graph,
 ) -> Tuple[RankedPartition, List[List[_Vertex]]]:
     """Apply *Dovier-Piazza-Policriti*'s algorithm to the given integer
@@ -177,7 +179,7 @@ def fba(
             # "duplicate" nodes (nodes with the same label in different blocks
             # of the partition). this happens becaus of the SCALING (which is
             # used to pass a normal graph to PTA)
-            rscp = pta(partition[partition_idx])
+            rscp = pt_rscp_qblocks(partition[partition_idx])
 
             # clear the partition at the current rank
             partition.clear_index(partition_idx)
@@ -257,7 +259,7 @@ def rscp(
     else:
         integer_graph = graph
 
-    collapsed_partition, collapse_map = fba(integer_graph)
+    collapsed_partition, collapse_map = rscp_qblocks(integer_graph)
 
     # from the collapsed partition obtained from FBA, build the RSCP (external
     # representation, List[Tuple[int]])

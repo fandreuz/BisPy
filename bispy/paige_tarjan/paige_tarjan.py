@@ -292,7 +292,7 @@ def refine(
 
 
 # returns a list of labels splitted in partitions
-def pta(q_partition: List[_QBlock]) -> List[_QBlock]:
+def rscp_qblocks(q_partition: List[_QBlock]) -> List[_QBlock]:
     """Apply the *Paige-Tarjan* algorithm to the partition :math:`Q`, which
         is considered a labeling set (namely two vertexes in different
         blocks of the initial partition cannot be bisimilar).
@@ -393,7 +393,7 @@ def rscp(
     )
     xblock = q_partition[0].xblock
 
-    rscp = pta(q_partition)
+    rscp = rscp_qblocks(q_partition)
 
     integer_rscp = [
         tuple(map(lambda vertex: vertex.label, block.vertexes))
