@@ -9,7 +9,7 @@ from bispy.utilities.graph_entities import (
 )
 from typing import List, Tuple, Set, Dict, Union
 from .ranked_pta import ranked_split
-from bispy.paige_tarjan.paige_tarjan import rscp_qblocks as pt_rscp_qblocks
+from bispy.paige_tarjan.paige_tarjan import paige_tarjan_qblocks
 from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     build_block_counterimage,
 )
@@ -519,7 +519,7 @@ def merge_split_phase(
 
     # apply PTA and append the blocks to the new partition
     preprocess_initial_partition(X)
-    X2 = pt_rscp_qblocks(X)
+    X2 = paige_tarjan_qblocks(X)
     new_qpartition.extend(X2)
 
     for block in X2:
@@ -690,14 +690,14 @@ def filter_deteached(blocks: List[_Block]) -> List[_Block]:
     return list(filter(lambda block: not block.deteached, blocks))
 
 
-def update_rscp(
+def saha(
     old_rscp: List[_Block],
     vertexes: List[_Vertex],
     new_edge: Union[Tuple[_Vertex, _Vertex], Tuple[int, int]],
 ) -> List[_Block]:
     """
     Update the given RSCP/maximum bisimulation after the addition of the given
-    **new** edge using Saha's incremental algorithm.
+    **new** edge using *Saha*'s incremental algorithm.
 
     The edge must not be already in the *BisPy* representation
     of the graph (namely in the image/counterimage of the instances

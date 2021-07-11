@@ -13,8 +13,10 @@ from bispy.paige_tarjan.paige_tarjan import (
     update_counts,
     build_block_counterimage,
     build_exclusive_B_counterimage,
-    CompoundXBlocksContainer,
     refine,
+)
+from bispy.paige_tarjan.compound_xblocks_container import (
+    CompoundXBlocksContainer,
 )
 from bispy.saha.ranked_compound_xblocks_container import (
     RankedCompoundXBlocksContainer,

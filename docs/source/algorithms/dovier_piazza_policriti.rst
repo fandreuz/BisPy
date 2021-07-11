@@ -33,8 +33,8 @@ Summary
 .. autosummary::
     :nosignatures:
 
-    rscp
-    rscp_qblocks
+    dovier_piazza_policriti
+    dovier_piazza_policriti_qblocks
     collapse
     build_block_counterimage
     split_upper_ranks
@@ -42,8 +42,8 @@ Summary
 Code documentation
 """"""""""""""""""
 
-.. autofunction:: rscp
-.. autofunction:: rscp_qblocks
+.. autofunction:: dovier_piazza_policriti
+.. autofunction:: dovier_piazza_policriti_qblocks
 .. autofunction:: collapse
 .. autofunction:: build_block_counterimage
 .. autofunction:: split_upper_ranks

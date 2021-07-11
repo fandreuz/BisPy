@@ -7,7 +7,7 @@ from bispy.utilities.graph_entities import (
 from typing import Set, Tuple, List
 import networkx as nx
 from bispy.saha.ranked_pta import ranked_split
-from bispy.paige_tarjan.paige_tarjan import rscp
+from bispy.paige_tarjan.paige_tarjan import paige_tarjan
 from bispy.saha.saha import add_edge
 from bispy.utilities.graph_decorator import decorate_nx_graph
 
@@ -34,7 +34,7 @@ def test_resets_aux_count():
 
     vertexes, _ = decorate_nx_graph(g)
 
-    integer_partition = rscp(g)
+    integer_partition = paige_tarjan(g)
     q_partition = integer_to_partition(integer_partition, vertexes)
 
     # now we modify the graph
@@ -61,7 +61,7 @@ def test_ranked_split():
 
     vertexes, _ = decorate_nx_graph(g)
 
-    integer_partition = rscp(g)
+    integer_partition = paige_tarjan(g)
     q_partition = integer_to_partition(integer_partition, vertexes)
 
     # now we modify the graph

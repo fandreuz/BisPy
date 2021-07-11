@@ -3,15 +3,13 @@ from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
 from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     build_block_counterimage,
     split_upper_ranks,
-    rscp as fba_rscp
+    dovier_piazza_policriti
 )
 from .fba_test_cases import graphs, block_counterimaged_block, fba_correctness_graphs
 import networkx as nx
 from tests.pta.rscp_utilities import check_block_stability
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
-from bispy.paige_tarjan.paige_tarjan import (
-    rscp as paige_tarjan,
-)
+from bispy.paige_tarjan.paige_tarjan import paige_tarjan
 from operator import attrgetter, or_
 from functools import reduce
 from bispy.utilities.graph_entities import (
@@ -98,7 +96,7 @@ def test_split_upper_ranks(graph):
     map(lambda tp: tp[0], graph_partition_rscp_tuples),
 )
 def test_fba_rscp_correctness(graph):
-    assert set(frozenset(block) for block in fba_rscp(graph)) == set(
+    assert set(frozenset(block) for block in dovier_piazza_policriti(graph)) == set(
         frozenset(block) for block in paige_tarjan(graph)
     )
 
@@ -108,6 +106,6 @@ def test_fba_rscp_correctness(graph):
     fba_correctness_graphs,
 )
 def test_fba_correctness2(graph):
-    assert set(frozenset(block) for block in fba_rscp(graph)) == set(
+    assert set(frozenset(block) for block in dovier_piazza_policriti(graph)) == set(
         frozenset(block) for block in paige_tarjan(graph)
     )

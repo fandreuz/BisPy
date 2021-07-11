@@ -39,7 +39,7 @@ Summary
 .. autosummary::
     :nosignatures:
 
-    update_rscp
+    saha
     add_edge
     is_in_image
     check_new_scc
@@ -60,7 +60,7 @@ Summary
 Code documentation
 """"""""""""""""""
 
-.. autofunction:: update_rscp
+.. autofunction:: saha
 .. autofunction:: add_edge
 .. autofunction:: is_in_image
 .. autofunction:: check_new_scc

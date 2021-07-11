@@ -292,7 +292,7 @@ def refine(
 
 
 # returns a list of labels splitted in partitions
-def rscp_qblocks(q_partition: List[_QBlock]) -> List[_QBlock]:
+def paige_tarjan_qblocks(q_partition: List[_QBlock]) -> List[_QBlock]:
     """Apply the *Paige-Tarjan* algorithm to the partition :math:`Q`, which
         is considered a labeling set (namely two vertexes in different
         blocks of the initial partition cannot be bisimilar).
@@ -322,7 +322,7 @@ def rscp_qblocks(q_partition: List[_QBlock]) -> List[_QBlock]:
     ]
 
 
-def rscp(
+def paige_tarjan(
     graph: nx.Graph,
     initial_partition: Iterable[Iterable[int]] = None,
     is_integer_graph: bool = False,
@@ -333,7 +333,7 @@ def rscp(
     partition cannot be bisimilar).
 
         >>> graph = networkx.balanced_tree(2,3)
-        >>> rscp(graph)
+        >>> paige_tarjan(graph)
         [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 
     This function works with integer graph (nodes are integers starting from
@@ -393,7 +393,7 @@ def rscp(
     )
     xblock = q_partition[0].xblock
 
-    rscp = rscp_qblocks(q_partition)
+    rscp = paige_tarjan_qblocks(q_partition)
 
     integer_rscp = [
         tuple(map(lambda vertex: vertex.label, block.vertexes))

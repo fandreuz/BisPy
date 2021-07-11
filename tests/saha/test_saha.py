@@ -24,7 +24,7 @@ from bispy.saha.saha import (
     merge_phase,
     merge_split_phase,
     build_well_founded_topological_list,
-    update_rscp,
+    saha,
 )
 from tests.rank.rank_test_cases import graphs
 from .saha_test_cases import (
@@ -40,7 +40,7 @@ from .saha_test_cases import (
     update_rscp_new_edge,
 )
 from tests.pta.pta_test_cases import graph_partition_rscp_tuples
-from bispy.paige_tarjan.paige_tarjan import rscp_qblocks as pt_rscp_qblocks, rscp as paige_tarjan
+from bispy.paige_tarjan.paige_tarjan import paige_tarjan_qblocks, paige_tarjan
 from bispy.utilities.graph_entities import _Edge, _XBlock
 from bispy.saha.ranked_pta import pta as ranked_pta
 from itertools import chain, product
@@ -250,7 +250,7 @@ def test_merge_condition():
     ip = [(0, 1, 2, 3), (4, 5), (6,)]
 
     vertexes, qblocks = decorate_nx_graph(graph, ip)
-    rscp_qblocks = pt_rscp_qblocks(qblocks)
+    rscp_qblocks = paige_tarjan_qblocks(qblocks)
 
     node_to_qblock = [None for _ in graph.nodes]
     for qb in rscp_qblocks:
@@ -521,10 +521,10 @@ def vertexes_to_set(qblocks):
 )
 def test_update_rank_procedures(graph, new_edge, initial_partition):
     vertexes, qblocks = decorate_nx_graph(graph, initial_partition)
-    qblocks = pt_rscp_qblocks(qblocks)
+    qblocks = paige_tarjan_qblocks(qblocks)
 
     # compute incrementally
-    update_rscp(qblocks, vertexes, new_edge)
+    saha(qblocks, vertexes, new_edge)
 
     # compute from scratch
     graph2 = nx.DiGraph()
@@ -561,10 +561,10 @@ def ints_to_set(blocks):
 )
 def test_update_rscp_correctness(graph, new_edge, initial_partition):
     vertexes, qblocks = decorate_nx_graph(graph, initial_partition)
-    qblocks = pt_rscp_qblocks(qblocks)
+    qblocks = paige_tarjan_qblocks(qblocks)
 
     # compute incrementally
-    update_result = update_rscp(qblocks, vertexes, new_edge)
+    update_result = saha(qblocks, vertexes, new_edge)
     update_result = vertexes_to_set(update_result)
 
     # compute from scratch
@@ -573,7 +573,7 @@ def test_update_rscp_correctness(graph, new_edge, initial_partition):
     graph2.add_edges_from(graph.edges)
     graph2.add_edge(*new_edge)
     new_vertexes, new_qblocks = decorate_nx_graph(graph2, initial_partition)
-    new_rscp = pt_rscp_qblocks(new_qblocks)
+    new_rscp = paige_tarjan_qblocks(new_qblocks)
     new_rscp = vertexes_to_set(new_rscp)
 
     assert update_result == new_rscp
@@ -607,7 +607,7 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
         rscp = ints_to_set(rscp)
 
         # compute the rscp incrementally
-        qblocks = update_rscp(qblocks, vertexes, edge)
+        qblocks = saha(qblocks, vertexes, edge)
         qblocks_as_int = [
             tuple(vx.label for vx in block.vertexes) for block in qblocks
         ]
@@ -649,7 +649,7 @@ def test_reverse_incremental_update_rscp_correctness(
         rscp = ints_to_set(rscp)
 
         # compute the rscp incrementally
-        qblocks = update_rscp(qblocks, vertexes, edge)
+        qblocks = saha(qblocks, vertexes, edge)
         qblocks_as_int = [
             tuple(vx.label for vx in block.vertexes) for block in qblocks
         ]

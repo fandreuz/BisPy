@@ -21,8 +21,8 @@ Summary
 .. autosummary::
     :nosignatures:
 
-    rscp
-    rscp_qblocks
+    paige_tarjan
+    paige_tarjan_qblocks
     extract_splitter
     build_block_counterimage
     build_exclusive_B_counterimage
@@ -33,8 +33,8 @@ Summary
 Code documentation
 """"""""""""""""""
 
-.. autofunction:: rscp
-.. autofunction:: rscp_qblocks
+.. autofunction:: paige_tarjan
+.. autofunction:: paige_tarjan_qblocks
 .. autofunction:: extract_splitter
 .. autofunction:: build_block_counterimage
 .. autofunction:: build_exclusive_B_counterimage

@@ -4,9 +4,7 @@ from itertools import islice
 from llist import dllist
 from bispy.utilities.graph_entities import _QBlock as _Block, _Vertex, _XBlock
 from bispy.utilities.graph_decorator import decorate_nx_graph
-from bispy.paige_tarjan.paige_tarjan import (
-    rscp_qblocks as pt_rscp_qblocks,
-)
+from bispy.paige_tarjan.paige_tarjan import paige_tarjan_qblocks
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
@@ -122,7 +120,7 @@ def split_upper_ranks(partition: RankedPartition, block: _Block):
         mod_block.split_helper_block = None
 
 
-def rscp_qblocks(
+def dovier_piazza_policriti_qblocks(
     graph: nx.Graph,
 ) -> Tuple[RankedPartition, List[List[_Vertex]]]:
     """Apply *Dovier-Piazza-Policriti*'s algorithm to the given integer
@@ -179,7 +177,7 @@ def rscp_qblocks(
             # "duplicate" nodes (nodes with the same label in different blocks
             # of the partition). this happens becaus of the SCALING (which is
             # used to pass a normal graph to PTA)
-            rscp = pt_rscp_qblocks(partition[partition_idx])
+            rscp = paige_tarjan_qblocks(partition[partition_idx])
 
             # clear the partition at the current rank
             partition.clear_index(partition_idx)
@@ -213,7 +211,7 @@ def rscp_qblocks(
     return (partition, collapse_map)
 
 
-def rscp(
+def dovier_piazza_policriti(
     graph: nx.Graph,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
@@ -222,7 +220,7 @@ def rscp(
 
     Example:
         >>> graph = networkx.balanced_tree(2,3)
-        >>> rscp(graph)
+        >>> dovier_piazza_policriti(graph)
         [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 
     This function works with integer graph (nodes are integers starting from
@@ -259,7 +257,9 @@ def rscp(
     else:
         integer_graph = graph
 
-    collapsed_partition, collapse_map = rscp_qblocks(integer_graph)
+    collapsed_partition, collapse_map = dovier_piazza_policriti_qblocks(
+        integer_graph
+    )
 
     # from the collapsed partition obtained from FBA, build the RSCP (external
     # representation, List[Tuple[int]])
