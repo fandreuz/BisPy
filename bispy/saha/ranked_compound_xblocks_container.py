@@ -45,6 +45,9 @@ class RankedCompoundXBlocksContainer(CompoundXBlocksContainer):
             self._first_nonempty_index, rank_index
         )
 
+    def append(self, xblock):
+        self.append_at_rank(xblock, xblock.qblocks.first.value.rank)
+
     def extend(self, new_compound_xblocks):
         for xblock in new_compound_xblocks:
             first_qblock_rank = xblock.qblocks.first.value.rank

@@ -26,7 +26,10 @@ setuptools.setup(
         'Topic :: Scientific/Engineering :: Mathematics'
     ],
 
-    package_dir={"": "bispy"},
-    packages=setuptools.find_packages(where="bispy"),
+    packages=setuptools.find_packages(),
     python_requires=">=3.5",
+
+    license='MIT',
+
+    install_requires=['networkx', 'llist'],
 )
