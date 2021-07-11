@@ -222,9 +222,15 @@ def refine(
 ) -> Tuple[List[_XBlock], List[_QBlock]]:
     """Perform a refinement step of the *Paige-Tarjan* algorithm.
 
-    :param compound_xblocks: List of compound blocks of the partition
-        :math:`X`.
-    :param xblocks: The partition :math`X`.
+    :param compound_xblocks: Compound blocks in the partition :math:`X`. This
+        parameter expects an object of type
+        :class:`bispy.paige_tarjan.compound_xblocks_container
+        .CompoundXBlocksContainer`, but it is possible to subclass this class
+        in order to support a different ordering of compound blocks.
+
+        .. seealso:: modules :py:mod:`bispy.saha.ranked_pta`
+
+    :param xblocks: The partition :math:`X`.
     :returns: A tuple whose items are:
 
         0. The new partition :math:`X`;
