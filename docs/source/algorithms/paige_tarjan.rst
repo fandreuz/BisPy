@@ -22,7 +22,7 @@ Summary
     :nosignatures:
 
     rscp
-    pta
+    rscp_qblocks
     extract_splitter
     build_block_counterimage
     build_exclusive_B_counterimage
@@ -34,7 +34,7 @@ Code documentation
 """"""""""""""""""
 
 .. autofunction:: rscp
-.. autofunction:: pta
+.. autofunction:: rscp_qblocks
 .. autofunction:: extract_splitter
 .. autofunction:: build_block_counterimage
 .. autofunction:: build_exclusive_B_counterimage

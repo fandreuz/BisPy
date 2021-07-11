@@ -34,7 +34,7 @@ Summary
     :nosignatures:
 
     rscp
-    fba
+    rscp_qblocks
     collapse
     build_block_counterimage
     split_upper_ranks
@@ -43,7 +43,7 @@ Code documentation
 """"""""""""""""""
 
 .. autofunction:: rscp
-.. autofunction:: fba
+.. autofunction:: rscp_qblocks
 .. autofunction:: collapse
 .. autofunction:: build_block_counterimage
 .. autofunction:: split_upper_ranks
