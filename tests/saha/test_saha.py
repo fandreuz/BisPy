@@ -5,13 +5,15 @@ from bispy.utilities.graph_decorator import (
     decorate_bispy_graph,
 )
 from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
-from bispy.dovier_piazza_policriti.dovier_piazza_policriti import build_block_counterimage, fba
+from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
+    build_block_counterimage,
+    fba,
+)
 from bispy.utilities.rank_computation import (
     scc_finishing_time_list,
 )
 from bispy.saha.saha import (
-    #is_in_image,
-    check_old_blocks_relation,
+    is_in_image,
     add_edge,
     propagate_wf,
     propagate_nwf,
@@ -46,7 +48,7 @@ from itertools import chain, product
 from bispy.utilities.kosaraju import kosaraju
 
 
-""" def test_is_in_image():
+def test_is_in_image():
     graph = nx.DiGraph()
     graph.add_nodes_from(range(5))
     graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
@@ -59,21 +61,7 @@ from bispy.utilities.kosaraju import kosaraju
     assert is_in_image(vertexes[1].qblock, vertexes[2].qblock)
     assert is_in_image(vertexes[2].qblock, vertexes[3].qblock)
     assert not is_in_image(vertexes[0].qblock, vertexes[4].qblock)
-    assert not is_in_image(vertexes[4].qblock, vertexes[0].qblock) """
-def test_check_old_blocks_relation():
-    graph = nx.DiGraph()
-    graph.add_nodes_from(range(5))
-    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (4, 1)])
-
-    vertexes, _ = decorate_nx_graph(graph)
-    RankedPartition(vertexes)
-
-    assert check_old_blocks_relation(vertexes[0], vertexes[1])
-    assert not check_old_blocks_relation(vertexes[1], vertexes[0])
-    assert check_old_blocks_relation(vertexes[1], vertexes[2])
-    assert check_old_blocks_relation(vertexes[2], vertexes[3])
-    assert not check_old_blocks_relation(vertexes[0], vertexes[4])
-    assert not check_old_blocks_relation(vertexes[4], vertexes[0])
+    assert not is_in_image(vertexes[4].qblock, vertexes[0].qblock)
 
 
 def test_add_edge():
@@ -441,9 +429,7 @@ def test_merge_split_resets_visited_allowvisit_oldqblockid():
     partition = [(2, 3), (1, 0), (4,)]
 
     vertexes, _ = decorate_nx_graph(g, partition)
-    qblocks = [
-        block for ls in RankedPartition(vertexes) for block in ls
-    ]
+    qblocks = [block for ls in RankedPartition(vertexes) for block in ls]
 
     finishing_time_list = [vertexes[2], vertexes[1], vertexes[0]]
 
@@ -461,9 +447,7 @@ def test_merge_split_resets_visited_triedmerge_qblocks():
     partition = [(2, 3), (1, 0), (4,)]
 
     vertexes, _ = decorate_nx_graph(g, partition)
-    qblocks = [
-        block for ls in RankedPartition(vertexes) for block in ls
-    ]
+    qblocks = [block for ls in RankedPartition(vertexes) for block in ls]
 
     qblocks[0].visited = True
     qblocks[2].visited = True
@@ -487,9 +471,7 @@ def test_well_founded_topological():
 
     max_rank = max(map(lambda vx: vx.rank, vertexes))
 
-    qpartition = [
-        block for ls in RankedPartition(vertexes) for block in ls
-    ]
+    qpartition = [block for ls in RankedPartition(vertexes) for block in ls]
 
     topo = build_well_founded_topological_list(
         qpartition, vertexes[5], max_rank

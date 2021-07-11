@@ -51,29 +51,6 @@ def add_edge(source: _Vertex, destination: _Vertex) -> _Edge:
     return edge
 
 
-def check_old_blocks_relation(source_vertex, destination_vertex) -> bool:
-    # check if v is already in u's image
-    for edge in source_vertex.image:
-        if edge.destination.label == destination_vertex.label:
-            return True
-
-    # in fact the outer-most for-loop loops 2 times at most
-    for vertex in source_vertex.qblock.vertexes:
-        # we're interested in vertexes which aren't the source vertex of the
-        # new edge.
-        if vertex is not source_vertex:
-            for edge in vertex.image:
-                if edge.destination.qblock == destination_vertex.qblock:
-                    return True
-            # we visited the entire image of a single block (not u) of [u], and
-            # it didn't contain an edge to [v], therefore we conclude (since
-            # the old partition is stable if we don't consider the new edge)
-            # that an edge from [u] to [v] can't exist
-            return False
-    # we didn't find an edge ([u] contains only u)
-    return False
-
-
 def is_in_image(ublock: _Block, vblock: _Block) -> bool:
     """Check if `vblock` is in the image of `ublock`. This is used **before**
     adding a new edge, because if the destination vertex is already in the
@@ -94,13 +71,12 @@ def is_in_image(ublock: _Block, vblock: _Block) -> bool:
     # since we assume that the given blocks are members of an RSCP, we only
     # need to verify if a single vertex of ublock has an edge towards vblock
     vertex = ublock.vertexes.first.value
-
-    for edge in vertex.image:
-        if edge.destination.qblock == destination_vertex.qblock:
-            return True
-
-    # we didn't find an edge ([u] contains only u)
-    return False
+    return any(
+        map(
+            lambda block: block == vblock,
+            map(lambda edge: edge.destination.qblock, vertex.image),
+        )
+    )
 
 
 def check_new_scc(
@@ -749,7 +725,8 @@ def update_rscp(
 
     # if the new edge connects two blocks A,B such that A => B before the edge
     # is added we don't need to do anything
-    if check_old_blocks_relation(source_vertex, destination_vertex):
+    if is_in_image(source_vertex.qblock, destination_vertex.qblock):
+        add_edge(source_vertex, destination_vertex)
         return old_rscp
 
     max_rank = max(map(lambda block: block.rank, old_rscp))
