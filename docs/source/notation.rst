@@ -53,6 +53,6 @@ A *causal splitter* for two blocks :math:`A,B` is a block :math:`C` such that:
 which means that such a block may prevent the two blocks to be merged if we
 want to obtain a **stable** partition.
 
-Bibliography
-------------
+**Bibliography**
+
 .. [1] Cormen, Thomas H., et al. Introduction to algorithms. MIT press, 2009.
