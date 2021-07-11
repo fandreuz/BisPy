@@ -95,7 +95,7 @@ class _Vertex:
         Change the label of this vertex to `scaled_label`. This is usually
         done when we want to apply an algorithm like *Paige-Tarjan* to a
         subgraph of :math:`G`, therefore we need to "scale" the vertexes
-        in that subgraph in order to make the subgraph integral (for a
+        in that subgraph in order to make the subgraph integer (for a
         reference about this topic have a look at the module
         :mod:`bispy.utilities.graph_normalization`).
 

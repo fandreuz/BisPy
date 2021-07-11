@@ -336,15 +336,15 @@ def rscp(
         >>> rscp(graph)
         [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 
-    This function works with integral graph (nodes are integers starting from
-    0 and form an interval without holes). If the given graph is non-integral
-    it is converted to an isomorphic integral graph automatically (unless
+    This function works with integer graph (nodes are integers starting from
+    0 and form an interval without holes). If the given graph is non-integer
+    it is converted to an isomorphic integer graph automatically (unless
     `is_integer_graph` is `True`) and then re-converted to its original form
     after the end of the computation. For this reason nodes of `graph` **must**
     be hashable objects.
 
     .. warning::
-        Using a non integral graph and setting `is_integer_graph` to `True`
+        Using a non integer graph and setting `is_integer_graph` to `True`
         will probably make the function fail with an exception, or, even worse,
         return a wrong output.
 
@@ -353,7 +353,7 @@ def rscp(
         to `None`, in which case the trivial labeling set (one block which
         contains all the nodes) is used.
     :param is_integer_graph: If `True`, the function assumes that
-        the graph is integer, and skips the integrality check (may slightly
+        the graph is integer, and skips the integer check (may slightly
         improve performance). Defaults to `False`.
     :returns: The RSCP/maximum bisimulation of the given labeling set as a
         list of tuples, each of which contains bisimilar nodes.

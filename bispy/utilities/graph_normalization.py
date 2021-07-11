@@ -5,12 +5,12 @@ from typing import Dict, Tuple, Any, List
 def convert_to_integer_graph(
     graph: nx.Graph,
 ) -> Tuple[nx.Graph, Dict[Any, int]]:
-    """Convert the given graph to an isomorphic integral graph.
+    """Convert the given graph to an isomorphic integer graph.
 
     :param graph: The input graph.
     :returns: A tuple whose items are:
 
-        0. The integral ismorphic graph;
+        0. The integer ismorphic graph;
         1. A `dict` which may be used to recover the original graph.
     """
 
@@ -31,7 +31,7 @@ def convert_to_integer_graph(
 
 
 def check_normal_integer_graph(graph: nx.Graph) -> bool:
-    """Check whether the given graph is integral.
+    """Check whether the given graph is integer.
 
     :param graph: The input graph.
     """
@@ -45,11 +45,11 @@ def check_normal_integer_graph(graph: nx.Graph) -> bool:
 def back_to_original(
     partition: List[Tuple[int]], node_to_idx: Tuple[nx.Graph, Dict[Any, int]]
 ) -> List[Tuple[Any]]:
-    """Convert the given partition of the nodes of an integral graph to the
+    """Convert the given partition of the nodes of an integer graph to the
     representation which uses nodes from the original graph using the mapping
     returned by :func:`convert_to_integer_graph`.
 
-    :param partition: The partition of the set of nodes of an integral graph.
+    :param partition: The partition of the set of nodes of an integer graph.
     :param node_to_idx: The mapping returned by
         :func:`convert_to_integer_graph`.
     """

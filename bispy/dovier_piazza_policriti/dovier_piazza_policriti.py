@@ -123,7 +123,8 @@ def split_upper_ranks(partition: RankedPartition, block: _Block):
 def fba(
     graph: nx.Graph,
 ) -> Tuple[RankedPartition, List[List[_Vertex]]]:
-    """Apply the FBA algorithm on the given integer directed graph.
+    """Apply *Dovier-Piazza-Policriti*'s algorithm to the given integer
+    directed graph.
 
     :param graph: An integer directed graph, such that the labels of its nodes
         form an integer interval starting from zero, without holes.
@@ -222,22 +223,22 @@ def rscp(
         >>> rscp(graph)
         [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 
-    This function works with integral graph (nodes are integers starting from
-    0 and form an interval without holes). If the given graph is non-integral
-    it is converted to an isomorphic integral graph automatically (unless
+    This function works with integer graph (nodes are integers starting from
+    0 and form an interval without holes). If the given graph is non-integer
+    it is converted to an isomorphic integer graph automatically (unless
     `is_integer_graph` is `True`) and then re-converted to its original form
     after the end of the computation. For this reason nodes of `graph` **must**
     be hashable objects.
 
     .. warning::
-        Using a non integral graph and setting `is_integer_graph` to `True`
+        Using a non integer graph and setting `is_integer_graph` to `True`
         will probably make the function fail with an exception, or, even worse,
         return a wrong output.
 
     :param graph: The input graph.
-    :param is_integer_graph: If `True`, the check for graph integrality is
-        skipped (saves time). If `is_integer_graph` is `True` but the graph
-        is not integral the output may be wrong. Defaults to False.
+    :param is_integer_graph: If `True`, we do not check if the given graph is
+        integer (saves time). If `is_integer_graph` is `True` but the graph
+        is not integer the output may be wrong. Defaults to False.
     :returns: The RSCP/maximum bisimulation of the given labeling set as a
         list of tuples, each of which contains bisimilar nodes.
     """
