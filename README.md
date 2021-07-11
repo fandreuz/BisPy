@@ -44,17 +44,19 @@ The interface for using *Saha*'s algorithm is a little bit different since we do
 # compute the maximum bisimulation
 > qblocks = paige_tarjan_qblocks(qblocks)
 
-# at this point we can update the maximum bisimulation for an arbitrary
-# number of times
+# from now on we can update the maximum bisimulation incrementally, everytime
+# we add a new edge to the graph
 > new_edges_list = random_edges_generator()
 > for edge in new_edges_list:
 >    qblocks = saha(qblocks, vertexes, edge)
 ```
 
+Note that *Saha*'s algorithm must be applied on a **maximum bisimulation**, otherwise it is going to return wrong results. This is why we called `paige_tarjan_qblocks` (which is just a version of *Paige-Tarjan*'s algorithm which can be applied to the variable `qblocks`) before the call to *Saha*'s algorithm.
+
 You can read more about [Saha](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/algorithms/saha.html#)'s algorithm and the module [graph_decorator](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/utilities/graph_decorator.html) on the documentation.
 
 ## TODO
-- [ ] Improve *Saha*'s algorithm performance (at the moment is much faster for graph having less than ~1000 nodes, but becomes very slow afterwards);
+- [ ] Improve *Saha*'s algorithm performance (at the moment *Saha* is much faster for graph having less than ~1000 nodes, but becomes slow afterwards);
 - [ ] *Labeling set* support for *Dovier-Piazza-Policriti*'s algorithm.;
 - [ ] Implement performance improvements described on the paper which introduced *Dovier-Piazza-Policriti*'s algorithm.
 
@@ -101,16 +103,11 @@ The generated html can be found in `docs/build/html`.
 
 ## Testing
 
-We are using GitHub actions for continuous intergration testing. The current
-status is shown in the following badge: [Python package](https://github.com/fAndreuzzi/BisPy/workflows/Python%20package/badge.svg?branch=master).
-
-To run tests locally (`pytest` is required) use the command:
+We are using **GitHub actions** for continuous intergration testing. To run tests locally (`pytest` is required) use the following command from the root folder of **BisPy**:
 
 ```bash
 > pytest tests
 ```
-
-From the root folder of **BisPy**.
 
 ## Authors and acknowledgements
 **BisPy** is currently developed and mantained by **Francesco Andreuzzi**.
