@@ -28,6 +28,31 @@ Compute the maximum bisimulation of a graph (represented by an object of type `n
 [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 ```
 
+More about the available features (like using a *labeling set*) is discussed in the documentation for [Paige-Tarjan](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/algorithms/paige_tarjan.html)'s and [Dovier-Piazza-Policriti](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/algorithms/dovier_piazza_policriti.html)'s algorithms.
+
+### Saha
+The interface for using *Saha*'s algorithm is a little bit different since we do not want to rebuild the *BisPy* representation of the graph from scratch.
+```python
+> import networkx as nx
+> from bispy import decorate_nx_graph, paige_tarjan_qblocks, saha
+
+# we create the graph
+> graph = networkx.balanced_tree(2,3)
+
+# we build its BisPy representation
+> vertexes, qblocks = decorate_nx_graph(graph)
+# compute the maximum bisimulation
+> qblocks = paige_tarjan_qblocks(qblocks)
+
+# at this point we can update the maximum bisimulation for an arbitrary
+# number of times
+> new_edges_list = random_edges_generator()
+> for edge in new_edges_list:
+>    qblocks = saha(qblocks, vertexes, edge)
+```
+
+You can read more about [Saha](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/algorithms/saha.html#)'s algorithm and the module [graph_decorator](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/utilities/graph_decorator.html) on the documentation.
+
 ## TODO
 - [ ] Improve *Saha*'s algorithm performance (at the moment is much faster for graph having less than ~1000 nodes, but becomes very slow afterwards);
 - [ ] *Labeling set* support for *Dovier-Piazza-Policriti*'s algorithm.;
