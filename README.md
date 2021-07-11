@@ -9,8 +9,28 @@
 
 An brief introduction to the problem can be found [here](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest#a-brief-introduction-to-bisimulation).
 
+## Usage
+### Paige-Tarjan, Dovier-Piazza-Policriti
+Compute the maximum bisimulation of a graph (represented by an object of type `networkx.DiGraph`):
+```python
+> import networkx as nx
+> from bispy import paige_tarjan, dovier_piazza_policriti
+
+# we create the graph
+> graph = networkx.balanced_tree(2,3)
+
+# Paige-Tarjan's algorithm
+> paige_tarjan(graph)
+[(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
+
+# and Dovier-Piazza-Policriti's algorithm
+> dovier_piazza_policriti(graph)
+[(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
+```
+
 ## TODO
 - [ ] Improve *Saha*'s algorithm performance (at the moment is much faster for graph having less than ~1000 nodes, but becomes very slow afterwards);
+- [ ] *Labeling set* support for *Dovier-Piazza-Policriti*'s algorithm.;
 - [ ] Implement performance improvements described on the paper which introduced *Dovier-Piazza-Policriti*'s algorithm.
 
 ## Dependencies and installation
