@@ -60,7 +60,8 @@ You can read more about [Saha](https://bispy-bisimulation-in-python.readthedocs.
 ## TODO
 - [ ] Improve *Saha*'s algorithm performance (at the moment *Saha* is much faster for graph having less than ~1000 nodes, but becomes slow afterwards);
 - [ ] *Labeling set* support for *Dovier-Piazza-Policriti*'s algorithm.;
-- [ ] Implement performance improvements described on the paper which introduced *Dovier-Piazza-Policriti*'s algorithm.
+- [ ] Implement performance improvements described on the paper which introduced *Dovier-Piazza-Policriti*'s algorithm;
+- [ ] Allow *Saha* to get non-integer graphs as input.
 
 ## Dependencies and installation
 **BisPy** requires requires the modules `llist, networkx`. The code is tested

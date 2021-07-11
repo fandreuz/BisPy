@@ -17,7 +17,15 @@ bisimulation after the addition of a new edge. While we may do the same thing
 computing the maximum bisimulation from scratch after the modification,
 *Saha*'s algorithm may be able to take less time on average.
 
-However, the complexity of *Saha*'s algorithm is highly dependent on how much
+.. warning::
+
+    *Saha*'s algorithm works only with integer graphs. You must convert your
+    graph to an isomorphic integer graph before creating the partition of
+    :class:`bispy.utilities.graph_entities._QBlock`.
+
+.. seealso:: :mod:`bispy.utilities.graph_normalization`
+
+The complexity of *Saha*'s algorithm is highly dependent on how much
 the maximum bisimulation changes as a consequence of the addition of the new
 edge:
 
