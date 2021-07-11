@@ -1,13 +1,17 @@
 ![Python package](https://github.com/fAndreuzzi/BisPy/workflows/Python%20package/badge.svg?branch=master) <a href='https://coveralls.io/github/fAndreuzzi/BisPy'><img src='https://coveralls.io/repos/github/fAndreuzzi/BisPy/badge.svg' alt='Coverage Status' /></a>
  [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE) <img src='https://img.shields.io/badge/Code%20style-Black-%23000000'/> [![Documentation Status](https://readthedocs.org/projects/bispy-bisimulation-in-python/badge/?version=latest)](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest)
 
-# Description
+## Description
 **BisPy** is a Python package for the computation of the maximum bisimulation of directed graphs. At the moment it supports the following algorithms:
 - Paige-Tarjan
 - Dovier-Piazza-Policriti
 - Saha
 
 An brief introduction to the problem can be found [here](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest#a-brief-introduction-to-bisimulation).
+
+## TODO
+- [ ] Improve *Saha*'s algorithm performance (at the moment is much faster for graph having less than ~1000 nodes, but becomes very slow afterwards);
+- [ ] Implement performance improvements described on the paper which introduced *Dovier-Piazza-Policriti*'s algorithm.
 
 ## Dependencies and installation
 **BisPy** requires requires the modules `llist, networkx`. The code is tested
