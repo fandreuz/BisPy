@@ -64,12 +64,12 @@ To run tests locally (`pytest` is required) use the command:
 From the root folder of **BisPy**.
 
 ## Authors and acknowledgements
-**BisPy** is currently developed and mantained by me, **Francesco Andreuzzi**.
+**BisPy** is currently developed and mantained by **Francesco Andreuzzi**.
 You can contact me at:
 * [andreuzzi.francesco at gmail.com](mailto:andreuzzi.francesco@gmail.com)
 * [fandreuz at sissa.it](mailto:fandreuz@sissa.it)
 
-**BisPy** has been developed under the supervision of professor
+The project has been developed under the supervision of professor
 **Alberto Casagrande** (*University of Trieste*), which was my advisor for
 my *bachelor thesis*.
 
