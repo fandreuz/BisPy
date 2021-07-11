@@ -14,6 +14,7 @@ from bispy.paige_tarjan.compound_xblocks_container import (
 from bispy.utilities.graph_decorator import (
     decorate_nx_graph,
     preprocess_initial_partition,
+    to_tuple_list
 )
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
@@ -400,11 +401,7 @@ def paige_tarjan(
     xblock = q_partition[0].xblock
 
     rscp = paige_tarjan_qblocks(q_partition)
-
-    integer_rscp = [
-        tuple(map(lambda vertex: vertex.label, block.vertexes))
-        for block in rscp
-    ]
+    integer_rscp = to_tuple_list(rscp)
 
     if original_graph_is_integer:
         return integer_rscp

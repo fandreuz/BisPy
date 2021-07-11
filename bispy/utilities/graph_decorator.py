@@ -392,3 +392,17 @@ def decorate_bispy_graph(
 
     if preprocess:
         return preprocess_initial_partition(vertexes, initial_partition)
+
+
+def to_tuple_list(qblocks: List[_QBlock]) -> List[Tuple]:
+    """Convert the given partition (represented by a list of
+    :class:`bispy.utilities.graph_entities._QBlock`) to a list of tuples. The
+    blocks of the resulting partition contain the labels of the vertexes
+    in the corresponding blocks of `qblocks`.
+
+    :param qblocks: A partition.
+    """
+    return [
+        tuple(map(lambda vertex: vertex.label, block.vertexes))
+        for block in qblocks
+    ]

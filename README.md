@@ -34,21 +34,23 @@ More about the available features (like using a *labeling set*) is discussed in 
 The interface for using *Saha*'s algorithm is a little bit different since we do not want to rebuild the *BisPy* representation of the graph from scratch.
 ```python
 > import networkx as nx
-> from bispy import decorate_nx_graph, paige_tarjan_qblocks, saha
+> from bispy import decorate_nx_graph, to_tuple_list, paige_tarjan_qblocks, saha
 
 # we create the graph
 > graph = networkx.balanced_tree(2,3)
 
 # we build its BisPy representation
 > vertexes, qblocks = decorate_nx_graph(graph)
-# compute the maximum bisimulation
-> qblocks = paige_tarjan_qblocks(qblocks)
+# compute the maximum bisimulation. `maximum_bisimulation is a list of `_QBlock` objects
+> maximum_bisimulation = paige_tarjan_qblocks(qblocks)
 
 # from now on we can update the maximum bisimulation incrementally, everytime
 # we add a new edge to the graph
 > new_edges_list = random_edges_generator()
 > for edge in new_edges_list:
->    qblocks = saha(qblocks, vertexes, edge)
+>    maximum_bisimulation = saha(maximum_bisimulation, vertexes, edge)
+>    # print the current maximum bisimulation
+>    print(to_tuple_list(maximum_bisimulation))
 ```
 
 Note that *Saha*'s algorithm must be applied on a **maximum bisimulation**, otherwise it is going to return wrong results. This is why we called `paige_tarjan_qblocks` (which is just a version of *Paige-Tarjan*'s algorithm which can be applied to the variable `qblocks`) before the call to *Saha*'s algorithm.

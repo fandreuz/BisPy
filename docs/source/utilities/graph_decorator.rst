@@ -5,6 +5,7 @@ Graph decorator
 
 .. autofunction:: decorate_nx_graph
 .. autofunction:: decorate_bispy_graph
+.. autofunction:: to_tuple_list
 .. autofunction:: preprocess_initial_partition
 .. autofunction:: counterimage_dfs
 .. autofunction:: compute_counterimage_finishing_time_list
