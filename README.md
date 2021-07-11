@@ -1,82 +1,146 @@
 ![Python package](https://github.com/fAndreuzzi/BisPy/workflows/Python%20package/badge.svg?branch=master) <a href='https://coveralls.io/github/fAndreuzzi/BisPy'><img src='https://coveralls.io/repos/github/fAndreuzzi/BisPy/badge.svg' alt='Coverage Status' /></a>
  [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE) <img src='https://img.shields.io/badge/Code%20style-Black-%23000000'/> [![Documentation Status](https://readthedocs.org/projects/bispy-bisimulation-in-python/badge/?version=latest)](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest)
 
-# BisPy
+# Description
+**BisPy** is a Python package for the computation of the maximum bisimulation of directed graphs. At the moment it supports the following algorithms:
+- Paige-Tarjan
+- Dovier-Piazza-Policriti
+- Saha
 
-## The problem
-Let's consider a directed graph G=(V,E). A *bisimulation* on G is a binary relation R on V which satisfies the following two properties:
+An brief introduction to the problem can be found [here](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest#a-brief-introduction-to-bisimulation).
 
-![Bisimulation definition](res/bisimulation-definition.png)
+## Dependencies and installation
+**BisPy** requires requires the modules `llist, networkx`. The code is tested
+for *Python 3*, while compatibility with *Python 2* is not guaranteed. It can
+be installed using `pip` or directly from the source code.
 
-This is in fact a condition on the *behavior* of the nodes: two nodes *behave* in the *same way* if for each node reached by one of them, there's a fourth node reached by the other node which *behaves* like the third.
-
-This informal definition of bisimulation is equivalent to the formal one above, but it's somewhat more explicit.
-
-## Algorithmic approach
-The somewhat recursive statement of the problem makes the bisimulation an apparently difficult problem from an algorithmic point of view. However, as Kanellakis C. and Smolka S. shown in their paper published in 1990, computing the *maximum* bisimulation of a graph (namely the *biggest* bisimulation, the one which relates the highest number of nodes) is equivalent to determining the *relational stable coarsest partition*.
-
-The *RSCP* of a set S given a binary relation R, as the name suggests, is the *coarsest* (which contains the fewest number of blocks) *stable partition*, where *stability* is a quality of partitions which is defined as follows for a given partition P:
-
-![Stability definition](res/stability-definition.png)
-
-This statemente is reassuring: in order to verify that two nodes are *bisimilar* (which is quite interesting for the applications) we do not need to visit exhaustively their children, and then the children of the children, and so on. We only need to compute the RSCP of V with respect to the relation E, and check whether the two nodes are in the same block.
-
-## Algorithms
-This library contains the implementation in Python 3 of the following algorithms:
-|  Name        |  Strategy   | Complexity  | Link |
-|------------|:-------------:|:---:| -----------------------|
-| **Paige-Tarjan** | Negative    | ![Loglinear complexity](res/log-linear-complexity.png)  | [Paper](https://scholarsmine.mst.edu/cgi/viewcontent.cgi?article=1348&context=math_stat_facwork) |
-| **Dovier-Piazza-Policriti** | Negative    | ![Loglinear complexity](res/log-linear-complexity.png) | [Paper](https://pdf.sciencedirectassets.com/271538/1-s2.0-S0304397500X05348/1-s2.0-S030439750300361X/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEH8aCXVzLWVhc3QtMSJHMEUCIQD0HTsvtrNKRZ0B59etVuPxRrKlnrF59Jxm1YsQ7rVkCwIgbmetaKcZEuJ5s8qq1zls67pbKcwJ3OMj3tWmJ251RwwqvQMIt%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgwwNTkwMDM1NDY4NjUiDIGG0Avb8O2EJGz%2BESqRA5iL0g3GixhOZG1gNqLdKlywdsgMc29vXar9vInoNowNMXlwJ9Jg0G34qjx4KQJvEgeptuAzMhraNSe5HsOMPTNrQ%2FZz2FL7q8igYLJ3v2xNqTDBKUJGsMz5T4GUJp7q8b0iwEQ3kATAvd8iN7T7g5pIseJFfAyongauePhN0Sp9g8P2J3j5C6MgpZ8GSdPcOnnd8GaEeG2LPY68z7zLWqS6og5CGbNxOvn2AYENnxRqs0i07McmR54CZ7mkb%2FGRxuTaGqCPOZqcQBXzvfCHaO171NN4MG%2F%2B3tBxmEMpUydCcYkMggU5kW8mehEtT1IALYNju64teuCEriKuLnODp1eE62A16sjc08fyBwWBIItJWp4kmUC3UH0%2FfG%2FD7XJ%2BQ8wNCv%2BiR4heGjB1wv1zRz3oFOnVvrCweGMRSqM3KBwNHEZyWZ%2BS9CRojBWSytTK1yTAqDcBJC1l7YtLJABVkltBVU%2BKkagQi6f3EYrmBYQ6Ik%2FmStSV%2F87c476aYYK%2BPAF6prW7kZGU7L69Poe08eiGMP2J5oIGOusBB1u7bA4JCQl9lFRLYAiOzI9ikwqsVPXlJsSMcZZ4hLEK5Xpi0T81L%2BhN076UQEq1QjxQx7VWP0JBFZxYQ12ZaEDFfMiEK85arFYIgDN2L38T6LAmPohMzEc4A%2BF65zQITnoShO05Lb%2Bz9k01rODLQxp0hxu5KM%2BTncTAOnjOlAJUrt7ywld5AVQbI27x5olVDV03OVe83%2BGbVjjB3%2Ba9uAj7xvTLjfTDhG9%2Blg0EZt2NfI2Fd9rUVVociW0iQS7dJGF58R2BvS9r%2BcFgph8UsgMAcr%2BFpXmHn2iHoesHSWeOvIqgDJqwZ6TdUQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20210323T074502Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYVNXX7VHM%2F20210323%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=97fbaf2af0ce8f90407bae54d0667e1e4891a5b60ce7bef0d22e22371a8bad54&hash=bc9051325abb41aa7a3ed91285fb0c9c609ce978a08461e47972cbc8298aa479&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S030439750300361X&tid=spdf-57e77b0e-7d66-4742-a044-ceeb86a8c5e9&sid=cb6c89ab9f04f344098ae8a94138b86b77fdgxrqb&type=client) |
-| **Saha**         | Incremental |  Depends on changes. | [Paper](https://www.researchgate.net/profile/Diptikalyan-Saha/publication/221583570_An_Incremental_Bisimulation_Algorithm/links/57dbbcd508ae72d72ea44ac1/An-Incremental-Bisimulation-Algorithm.pdf) |
-
-## Installation
-The package isn't published, therefore the following steps are needed:
-1. Open a terminal window;
-2. Navigate to a suitable directory;
-3. Clone the repository: `git clone https://github.com/fAndreuzzi/BisPy.git`;
-4. Open the new directory `cd BisPy`;
-5. Install the package in development mode: `pip install -e ./` or `pip3 install -e ./`.
-
-## Usage
-This example shows how to use the PTA algorithm on a given graph. We use [NetworkX](https://networkx.org/) to represent the input.
-
-The following snippet:
-```python
-import networkx as nx
-
-graph = nx.DiGraph()
-graph.add_nodes_from(range(5))
-graph.add_edges_from([(0,1), (0,3), (1,4), (2,3), (4,3)])
+### Installing via *pip*
+To install the package:
+```bash
+> pip install bispy
 ```
-intializes a graph which contains 5 nodes (from 0 to 4) and some edges. We assume that the initial partition is the trivial one:
-`{0,1,2,3,4}`.
-
-We can obtain the RSCP with the Paige-Tarjan Algorithm as follows:
-```python
-from bispy import paige_tarjan
-
-rscp = paige_tarjan(graph)
-print(rscp)
-```
-Output: `[(3,), (1,), (2, 4), (0,)]`
-
-If we wanted to use a different initial partition, like:
-```
-initial_partition = [(0,1,2), (3,4)]
+To uninstall the package:
+```bash
+> pip uninstall bispy
 ```
 
-the code would have been:
-```python
-rscp = paige_tarjan(graph, initial_partition)
-print(rscp)
+### Installing from source
+You can clone this repository on your local machine using:
+```bash
+> git clone https://github.com/fAndreuzzi/BisPy
 ```
-Output: `[(3,), (1,), (2,) (4,), (0,)]`
 
-## Examples
-Initial partition | RSCP
---- | ---
-![](res/pta-before.png) | ![](res/pta-after.png)
-![](res/pta-before2.png) | ![](res/pta-after2.png)
+To install the package:
+```bash
+> cd BisPy
+> python setup.py install
+```
 
-## Applications
-Work in progress.
+## Documentation
+We used [Sphinx](http://www.sphinx-doc.org/en/stable/) and
+[ReadTheDocs](https://readthedocs.org/) for code documentation. You can view
+the documentation [here](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest).
+
+To build the HTML version of the docs locally use:
+
+```bash
+> cd docs
+> make html
+```
+
+The generated html can be found in `docs/build/html`.
+
+## Testing
+
+We are using GitHub actions for continuous intergration testing. The current
+status is shown in the following badge: [Python package](https://github.com/fAndreuzzi/BisPy/workflows/Python%20package/badge.svg?branch=master).
+
+To run tests locally (`pytest` is required) use the command:
+
+```bash
+> pytest tests
+```
+
+From the root folder of **BisPy**.
+
+## Authors and acknowledgements
+**BisPy** is currently developed and mantained by me, **Francesco Andreuzzi**.
+You can contact me at:
+* [andreuzzi.francesco at gmail.com](mailto:andreuzzi.francesco@gmail.com)
+* [fandreuz at sissa.it](mailto:fandreuz@sissa.it)
+
+**BisPy** has been developed under the supervision of professor
+**Alberto Casagrande** (*University of Trieste*), which was my advisor for
+my *bachelor thesis*.
+
+## How to contribute
+Contributors are welcome! We are more than happy to receive contributions on
+tests, documentation and new features. Our
+[Issues](https://github.com/fAndreuzzi/BisPy/issues) section is always full of
+things to do.
+
+Here are the guidelines to submit a patch:
+
+  1. Start by opening a new [issue](https://github.com/fAndreuzzi/BisPy/issues)
+        describing the bug you want to fix, or the feature you want to
+        introduce. This lets us keep track of what is being done at the moment,
+        and possibly avoid writing different solutions for the same problem.
+
+  2. Fork the project, and setup a **new** branch to work in (*fix-issue-22*,
+        for instance). If you do not separate your work in different branches
+        you may have a bad time when trying to push a pull request to fix
+        a particular issue.
+
+  3. Run the [**black**](https://github.com/psf/black) formatter before pushing
+        your code for review.
+
+  4. Any significant changes should almost always be accompanied by tests.  The
+     project already has good test coverage, so look at some of the existing
+     tests if you're unsure how to go about it.
+
+  5. Provide menaningful **commit messages** to help us keeping a good *git*
+        history.
+
+  6. Finally you can submbit your *pull request*!
+
+## References
+During the development we constulted the following resources:
+
+- Saha, Diptikalyan. "An incremental bisimulation algorithm."
+  International Conference on Foundations of Software Technology
+   and Theoretical Computer Science.
+  Springer, Berlin, Heidelberg, 2007.
+  [DOI](https://doi.org/10.1007/978-3-540-77050-3_17)
+- Dovier, Agostino, Carla Piazza, and Alberto Policriti.
+  "A fast bisimulation algorithm." International Conference on
+   Computer Aided Verification.
+  Springer, Berlin, Heidelberg, 2001.
+  [DOI](https://doi.org/10.1007/3-540-44585-4_8)
+- Gentilini, Raffaella, Carla Piazza, and Alberto Policriti.
+  "From bisimulation to simulation: Coarsest partition problems."
+  Journal of Automated Reasoning 31.1 (2003): 73-103.
+  [DOI](https://doi.org/10.1023/A:1027328830731)
+- Paige, Robert, and Robert E. Tarjan.
+  "Three partition refinement algorithms."
+  SIAM Journal on Computing 16.6 (1987): 973-989.
+  [DOI](https://doi.org/10.1137/0216062)
+- Hopcroft, John.
+  "An n log n algorithm for minimizing states in a finite automaton."
+  Theory of machines and computations. Academic Press, 1971. 189-196.
+- Aczel, Peter.
+  "Non-well-founded sets." (1988).
+- Kanellakis, Paris C., and Scott A. Smolka.
+  "CCS expressions, finite state processes, and three problems of equivalence."
+  Information and computation 86.1 (1990): 43-68.
+  [DOI](https://doi.org/10.1016/0890-5401(90)90025-D)
+- Sharir, Micha.
+  "A strong-connectivity algorithm and its applications in data flow analysis."
+  Computers & Mathematics with Applications 7.1 (1981): 67-72.
+  [DOI](https://doi.org/10.1016/0898-1221(81)90008-0)
+- Cormen, Thomas H., et al.
+  Introduction to algorithms. MIT press, 2009.
+  (ISBN: 9780262533058)
+
+## License
+
+See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
