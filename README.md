@@ -66,8 +66,8 @@ From the root folder of **BisPy**.
 ## Authors and acknowledgements
 **BisPy** is currently developed and mantained by **Francesco Andreuzzi**.
 You can contact me at:
-* [andreuzzi.francesco at gmail.com](mailto:andreuzzi.francesco@gmail.com)
-* [fandreuz at sissa.it](mailto:fandreuz@sissa.it)
+* andreuzzi.francesco at gmail.com
+* fandreuz at sissa.it
 
 The project has been developed under the supervision of professor
 **Alberto Casagrande** (*University of Trieste*), which was my advisor for
