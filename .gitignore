@@ -7,3 +7,4 @@ bisimulation_algorithms.egg-info/
 Pipfile*
 .ipynb_checkpoints/
 *.m
+**/.prettierrc
