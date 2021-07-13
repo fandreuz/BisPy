@@ -3,12 +3,18 @@ from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
 from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     build_block_counterimage,
     split_upper_ranks,
-    dovier_piazza_policriti
+    dovier_piazza_policriti,
 )
-from .dovier_piazza_policriti_test_cases import graphs, block_counterimaged_block, fba_correctness_graphs
+from .dovier_piazza_policriti_test_cases import (
+    graphs,
+    block_counterimaged_block,
+    checker_graphs,
+)
 import networkx as nx
 from tests.paige_tarjan.rscp_utilities import check_block_stability
-from tests.paige_tarjan.paige_tarjan_test_cases import graph_partition_rscp_tuples
+from tests.paige_tarjan.paige_tarjan_test_cases import (
+    graph_partition_rscp_tuples,
+)
 from bispy.paige_tarjan.paige_tarjan import paige_tarjan
 from operator import attrgetter, or_
 from functools import reduce
@@ -16,6 +22,9 @@ from bispy.utilities.graph_entities import (
     _QBlock as _Block,
 )
 from bispy.utilities.graph_decorator import decorate_nx_graph, to_set
+
+
+# DPP = Dovier-Piazza-Policriti
 
 
 @pytest.mark.parametrize(
@@ -83,34 +92,44 @@ def test_split_upper_ranks(graph):
         partition = RankedPartition(vertexes)
         split_upper_ranks(partition, partition[idx][0])
         assert all(
-            check_block_stability(
-                partition[idx][0], upper_rank_block
-            )
+            check_block_stability(partition[idx][0], upper_rank_block)
             for upper_idx in range(idx + 1, partition_length)
             for upper_rank_block in partition[upper_idx]
         )
 
-def test_fba_default_trivial_partition():
-    graph = nx.balanced_tree(2,3, create_using=nx.DiGraph)
-    assert to_set(dovier_piazza_policriti(graph, [tuple(range(len(graph.nodes)))])) == to_set(dovier_piazza_policriti(graph))
+
+def test_dpp_default_trivial_partition():
+    graph = nx.balanced_tree(2, 3, create_using=nx.DiGraph)
+    assert to_set(
+        dovier_piazza_policriti(graph, [tuple(range(len(graph.nodes)))])
+    ) == to_set(dovier_piazza_policriti(graph))
+
 
 @pytest.mark.parametrize(
     "graph, initial_partition, expected_q_partition",
     graph_partition_rscp_tuples,
 )
-def test_fba_rscp_correctness(graph, initial_partition, expected_q_partition):
-    assert to_set(dovier_piazza_policriti(graph, initial_partition)) == to_set(paige_tarjan(graph,initial_partition))
+def test_dpp_rscp_correctness(graph, initial_partition, expected_q_partition):
+    assert to_set(dovier_piazza_policriti(graph, initial_partition)) == to_set(
+        paige_tarjan(graph, initial_partition)
+    )
+
 
 # this is for particular cases which aren't covered in PTA tests
 @pytest.mark.parametrize(
     "graph",
-    fba_correctness_graphs,
+    checker_graphs,
 )
-def test_fba_correctness2(graph):
-    assert to_set(dovier_piazza_policriti(graph)) == to_set(paige_tarjan(graph))
+def test_dpp_correctness2(graph):
+    assert to_set(dovier_piazza_policriti(graph)) == to_set(
+        paige_tarjan(graph)
+    )
 
-def test_fba_correctness_all_scc_leaf_with_initial_partition():
+
+def test_dpp_correctness_all_scc_leaf_with_initial_partition():
     graph = nx.DiGraph()
     graph.add_nodes_from(range(3))
-    graph.add_edges_from([(0,1), (1,2), (2,0)])
-    assert to_set(dovier_piazza_policriti(graph, [(0,1), (2,)])) == set([frozenset([0]), frozenset([1]), frozenset([2])])
+    graph.add_edges_from([(0, 1), (1, 2), (2, 0)])
+    assert to_set(dovier_piazza_policriti(graph, [(0, 1), (2,)])) == set(
+        [frozenset([0]), frozenset([1]), frozenset([2])]
+    )

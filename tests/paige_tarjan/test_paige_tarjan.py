@@ -34,6 +34,9 @@ from bispy.utilities.graph_decorator import decorate_nx_graph
 import tests.paige_tarjan.paige_tarjan_test_cases as test_cases
 
 
+# PT = Paige-Tarjan
+
+
 @pytest.mark.parametrize(
     "graph, initial_partition", test_cases.graph_partition_tuples
 )
@@ -470,7 +473,7 @@ def test_refine_updates_compound_xblocks(graph, initial_partition):
 @pytest.mark.parametrize(
     "graph, initial_partition", test_cases.graph_partition_tuples
 )
-def test_pta_result_is_stable_partition(graph, initial_partition):
+def test_pt_result_is_stable_partition(graph, initial_partition):
     vertexes, q_partition = decorate_nx_graph(graph, initial_partition)
     s = paige_tarjan_qblocks(q_partition)
     assert is_stable_partition(s)
@@ -480,20 +483,20 @@ def test_pta_result_is_stable_partition(graph, initial_partition):
     "graph, initial_partition, expected_q_partition",
     test_cases.graph_partition_rscp_tuples,
 )
-def test_pta_correctness(graph, initial_partition, expected_q_partition):
+def test_pt_correctness(graph, initial_partition, expected_q_partition):
     s = paige_tarjan(graph, initial_partition)
     assert set(frozenset(tp) for tp in s) == set(
         frozenset(tp) for tp in expected_q_partition
     )
 
 
-def test_pta_no_initial_partition():
+def test_pt_no_initial_partition():
     graph = test_cases.build_full_graphs(10)
     paige_tarjan(graph)
     assert True
 
 
-def test_pta_no_integer_nodes():
+def test_pt_no_integer_nodes():
     graph = nx.DiGraph()
     graph.add_nodes_from(["a", 0, 1, 2, 3, frozenset("x")])
     graph.add_edges_from([("a", 0), (0, 1), (1, 2), (2, 3)])
@@ -538,7 +541,7 @@ def graph_to_integer_graph(graph, initial_partition):
         test_cases.graph_partition_rscp_tuples,
     ),
 )
-def test_pta_same_initial_partition(graph, initial_partition):
+def test_pt_same_initial_partition(graph, initial_partition):
     _, q_partition = decorate_nx_graph(graph, initial_partition)
     s = [tuple(block.vertexes) for block in paige_tarjan_qblocks(q_partition)]
 

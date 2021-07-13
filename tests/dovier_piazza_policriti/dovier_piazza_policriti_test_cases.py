@@ -32,14 +32,14 @@ block_counterimaged_block.append([1, 2])
 
 # FBA correctness
 # 0
-fba_correctness_graphs = []
+checker_graphs = []
 
 graph0 = nx.DiGraph()
 graph0.add_nodes_from(range(8))
 graph0.add_edges_from(
     [(0, 1), (1, 2), (2, 0), (3, 0), (3, 4), (4, 5), (5, 0), (3, 6), (6, 7)]
 )
-fba_correctness_graphs.append(graph0)
+checker_graphs.append(graph0)
 
 # 1
 graph1 = nx.DiGraph()
@@ -48,7 +48,7 @@ node_map = dict((t, 7 - t) for t in range(8))
 graph1.add_edges_from(
     (node_map[src], node_map[dst]) for src, dst in graph0.edges
 )
-fba_correctness_graphs.append(graph1)
+checker_graphs.append(graph1)
 
 # 2
 graph2 = nx.DiGraph()
@@ -56,4 +56,4 @@ graph2.add_nodes_from(range(7))
 graph2.add_edges_from(
     [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (0, 5), (5, 6)]
 )
-fba_correctness_graphs.append(graph2)
+checker_graphs.append(graph2)
