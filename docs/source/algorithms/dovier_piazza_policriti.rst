@@ -34,7 +34,7 @@ Summary
     :nosignatures:
 
     dovier_piazza_policriti
-    dovier_piazza_policriti_qblocks
+    dovier_piazza_policriti_partition
     collapse
     build_block_counterimage
     split_upper_ranks
@@ -43,7 +43,7 @@ Code documentation
 """"""""""""""""""
 
 .. autofunction:: dovier_piazza_policriti
-.. autofunction:: dovier_piazza_policriti_qblocks
+.. autofunction:: dovier_piazza_policriti_partition
 .. autofunction:: collapse
 .. autofunction:: build_block_counterimage
 .. autofunction:: split_upper_ranks

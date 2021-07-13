@@ -1,6 +1,6 @@
 import networkx as nx
 import pytest
-from tests.pta.rscp_utilities import (
+from tests.paige_tarjan.rscp_utilities import (
     is_stable_partition,
     is_stable_vertexes_partition,
     check_block_stability,

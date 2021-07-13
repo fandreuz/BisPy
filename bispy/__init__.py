@@ -4,7 +4,7 @@ from .paige_tarjan.paige_tarjan import (
 )
 from .dovier_piazza_policriti.dovier_piazza_policriti import (
     dovier_piazza_policriti,
-    dovier_piazza_policriti_qblocks,
+    dovier_piazza_policriti_partition,
 )
 from .saha.saha import saha
 

@@ -1,14 +1,14 @@
 import pytest
 import networkx as nx
 from llist import dllist, dllistnode
-import tests.pta.pta_test_cases as test_cases
+import tests.paige_tarjan.paige_tarjan_test_cases as test_cases
 import itertools
 from bispy.utilities.graph_normalization import (
     check_normal_integer_graph,
     convert_to_integer_graph,
 )
 
-from tests.pta.rscp_utilities import (
+from tests.paige_tarjan.rscp_utilities import (
     check_vertexes_stability,
     check_block_stability,
     is_stable_partition,
@@ -31,7 +31,7 @@ from bispy.paige_tarjan.paige_tarjan import (
     preprocess_initial_partition,
 )
 from bispy.utilities.graph_decorator import decorate_nx_graph
-import tests.pta.pta_test_cases as test_cases
+import tests.paige_tarjan.paige_tarjan_test_cases as test_cases
 
 
 @pytest.mark.parametrize(

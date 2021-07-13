@@ -16,6 +16,8 @@ class RankedPartition:
         :param vertexes: The list of vertexes in the partition.
         """
 
+        self._nvertexes = len(vertexes)
+
         max_rank = max(vertex.rank for vertex in vertexes)
 
         # initialize the initial partition. the first index is for -infty
@@ -39,6 +41,11 @@ class RankedPartition:
                 RankedPartition.rank_to_partition_idx(vertex.rank)
             ][0]
             block.append_vertex(vertex)
+
+    @property
+    def nvertexes(self) -> int:
+        """The number of vertexes in this partition."""
+        return self._nvertexes
 
     @staticmethod
     def rank_to_partition_idx(rank: Union[int, float]) -> int:

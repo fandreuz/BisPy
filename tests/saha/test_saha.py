@@ -39,7 +39,7 @@ from .saha_test_cases import (
     update_rscp_initial_partition,
     update_rscp_new_edge,
 )
-from tests.pta.pta_test_cases import graph_partition_rscp_tuples
+from tests.paige_tarjan.paige_tarjan_test_cases import graph_partition_rscp_tuples
 from bispy.paige_tarjan.paige_tarjan import paige_tarjan_qblocks, paige_tarjan
 from bispy.utilities.graph_entities import _Edge, _XBlock
 from bispy.saha.ranked_pta import pta as ranked_pta

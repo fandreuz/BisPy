@@ -120,25 +120,22 @@ def split_upper_ranks(partition: RankedPartition, block: _Block):
         mod_block.split_helper_block = None
 
 
-def dovier_piazza_policriti_qblocks(
-    graph: nx.Graph,
+def dovier_piazza_policriti_partition(
+    partition: RankedPartition,
 ) -> Tuple[RankedPartition, List[List[_Vertex]]]:
-    """Apply *Dovier-Piazza-Policriti*'s algorithm to the given integer
-    directed graph.
+    """Apply *Dovier-Piazza-Policriti*'s algorithm to the given ranked
+    partition.
 
-    :param graph: An integer directed graph, such that the labels of its nodes
-        form an integer interval starting from zero, without holes.
+    :param partition: A ranked partition (:math:`P` in the paper).
     :returns: A tuple such that the first item is the partition at the end of
         the algorithm (which at this point is made of blocks of size 1
         containing only the vertexes which survived the collapse), and the
         second is a list which maps a survivor nodes to the list of nodes
         collapsed to that survivor node.
     """
-    vertexes, _ = decorate_nx_graph(graph)
-    partition = RankedPartition(vertexes)
 
     # maps each survivor node to a list of nodes collapsed into it
-    collapse_map = [None for _ in range(len(graph.nodes))]
+    collapse_map = [None for _ in range(partition.nvertexes)]
 
     # collapse B_{-infty}
     if len(partition[0]) > 0:
@@ -257,9 +254,11 @@ def dovier_piazza_policriti(
     else:
         integer_graph = graph
 
-    collapsed_partition, collapse_map = dovier_piazza_policriti_qblocks(
-        integer_graph
-    )
+    vertexes, _ = decorate_nx_graph(integer_graph)
+    partition = RankedPartition(vertexes)
+
+    tp = dovier_piazza_policriti_partition(partition)
+    collapsed_partition, collapse_map = tp
 
     # from the collapsed partition obtained from FBA, build the RSCP (external
     # representation, List[Tuple[int]])

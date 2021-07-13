@@ -5,10 +5,10 @@ from bispy.dovier_piazza_policriti.dovier_piazza_policriti import (
     split_upper_ranks,
     dovier_piazza_policriti
 )
-from .fba_test_cases import graphs, block_counterimaged_block, fba_correctness_graphs
+from .dovier_piazza_policriti_test_cases import graphs, block_counterimaged_block, fba_correctness_graphs
 import networkx as nx
-from tests.pta.rscp_utilities import check_block_stability
-from tests.pta.pta_test_cases import graph_partition_rscp_tuples
+from tests.paige_tarjan.rscp_utilities import check_block_stability
+from tests.paige_tarjan.paige_tarjan_test_cases import graph_partition_rscp_tuples
 from bispy.paige_tarjan.paige_tarjan import paige_tarjan
 from operator import attrgetter, or_
 from functools import reduce

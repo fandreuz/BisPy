@@ -1,6 +1,6 @@
 import pytest
 from bispy.dovier_piazza_policriti.ranked_partition import RankedPartition
-from .fba_test_cases import graphs
+from .dovier_piazza_policriti_test_cases import graphs
 from bispy.utilities.graph_decorator import decorate_nx_graph
 
 @pytest.mark.parametrize(
