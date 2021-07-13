@@ -14,12 +14,13 @@ def test_create_initial_partition(graph):
     vertexes, _ = decorate_nx_graph(graph)
     partition = RankedPartition(vertexes)
 
-    # at most one block per rank
-    assert all(len(partition[idx]) for idx in range(len(partition)))
+    # at least block per rank
+    assert all(len(partition[idx]) for idx in range(1,len(partition)))
 
     # right vertexes in the right place
     for idx in range(len(partition)):
         rank = float("-inf") if idx == 0 else idx - 1
+
         # right number of vertexes
         assert partition[idx][0].vertexes.size == [
             vertex.rank == rank for vertex in vertexes

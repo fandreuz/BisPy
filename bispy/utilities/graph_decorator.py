@@ -6,12 +6,16 @@ from bispy.utilities.graph_entities import (
     _QBlock,
     _XBlock,
 )
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Set
 from bispy.utilities.rank_computation import compute_rank as func_compute_rank
 
 _BLACK = 10
 _GRAY = 11
 _WHITE = 12
+
+
+def _trivial_initial_partition(nvertexes):
+    return [tuple(range(nvertexes))]
 
 
 # this is a FUNDAMENTAL part of the PTA algorithm: we need a stable initial
@@ -156,6 +160,9 @@ def as_bispy_graph(
         Both the items are in *BisPy* representation.
     """
 
+    if initial_partition is None:
+        initial_partition = _trivial_initial_partition(len(graph.nodes))
+
     # instantiate QBlocks and Vertexes, put Vertexes into QBlocks and set their
     # initial block id
     vertexes = [None for _ in graph.nodes]
@@ -254,9 +261,8 @@ def decorate_nx_graph(
 
     :param graph: The graph, in *NetworkX* representation.
     :param initial_partition: The initial partition, or labeling set, imposed
-        on the nodes of the graph. Defaults to `None`, in which case the
-        trivial labeling set is considered (one block which contains all the
-        nodes).
+        on the nodes of the graph. Defaults to the trivial labeling set (one
+        block which contains all the nodes in the graph).
     :param set_count: If `True`, we set the attribute `count` of each vertex
         to an appropriate instance of
         :class:`bispy.utilities.graph_entities._Count`. If `False`, the
@@ -285,7 +291,7 @@ def decorate_nx_graph(
     """
 
     if initial_partition is None:
-        initial_partition = [tuple(i for i in range(len(graph.nodes)))]
+        initial_partition = _trivial_initial_partition(len(graph.nodes))
 
     tp = as_bispy_graph(
         graph,
@@ -297,9 +303,6 @@ def decorate_nx_graph(
 
     qpartition = decorate_bispy_graph(
         tp[0],
-        # we have already done everything about initial_partition data into
-        # vertexes
-        set_initial_partition_data=False,
         initial_partition=initial_partition,
         set_count=False,
         topological_sorted_images=topological_sorted_images,
@@ -316,7 +319,6 @@ def decorate_nx_graph(
 def decorate_bispy_graph(
     vertexes: List[_Vertex],
     initial_partition: List[Tuple[int]] = None,
-    set_initial_partition_data: bool = False,
     set_count: bool = True,
     topological_sorted_images: bool = True,
     compute_rank: bool = True,
@@ -327,13 +329,8 @@ def decorate_bispy_graph(
 
     :param vertexes: The vertexes of the graph, in *BisPy* representation.
     :param initial_partition: The initial partition, or labeling set, imposed
-        on the nodes of the graph. Defaults to `None`, in which case the
-        trivial labeling set is considered (one block which contains all the
-        nodes).
-    :param set_initial_partition_data: If `True`, for each vertex we set the
-        attribute `initial_partition_block_id` to remember the block of the
-        initial partition to which that vertex belongs. May be used by some
-        algorithms (like *Saha*, in :func:`bispy.saha.saha.merge_condition`).
+        on the nodes of the graph. Defaults to the trivial labeling set (one
+        block which contains all the nodes in the graph).
     :param set_count: If `True`, we set the attribute `count` of each vertex
         to an appropriate instance of
         :class:`bispy.utilities.graph_entities._Count`. If `False`, the
@@ -358,20 +355,15 @@ def decorate_bispy_graph(
         Both items are in *BisPy* representation.
     """
 
-    # if initial_partition is False we do not loop over vertexes to set
-    # the ID of initial partition (saves time)
-    if set_initial_partition_data:
-        if initial_partition is not None:
-            # set Vertexes initial block id
-            for idx, block in enumerate(initial_partition):
-                for vx in block:
-                    vertexes[vx].initial_partition_block_id = idx
-        else:
-            for vx in vertexes:
-                vx.initial_partition_block_id = None
-
     if initial_partition is None:
-        initial_partition = [tuple(v.label for v in vertexes)]
+        initial_partition = _trivial_initial_partition(len(vertexes))
+
+    # TODO: is it possible that a vertex is created with graph_decorator
+    # and it doesn't have this attribute set to something which is not None?
+    if vertexes[0].initial_partition_block_id is None:
+        for idx, block in enumerate(initial_partition):
+            for vx in block:
+                vertexes[vx].initial_partition_block_id = idx
 
     if set_count:
         # set count reference
@@ -406,3 +398,7 @@ def to_tuple_list(qblocks: List[_QBlock]) -> List[Tuple]:
         tuple(map(lambda vertex: vertex.label, block.vertexes))
         for block in qblocks
     ]
+
+
+def to_set(qblocks: List[Tuple[int]]) -> Set:
+    return set(frozenset(block) for block in qblocks)

@@ -15,7 +15,7 @@ from functools import reduce
 from bispy.utilities.graph_entities import (
     _QBlock as _Block,
 )
-from bispy.utilities.graph_decorator import decorate_nx_graph
+from bispy.utilities.graph_decorator import decorate_nx_graph, to_set
 
 
 @pytest.mark.parametrize(
@@ -90,15 +90,16 @@ def test_split_upper_ranks(graph):
             for upper_rank_block in partition[upper_idx]
         )
 
+def test_fba_default_trivial_partition():
+    graph = nx.balanced_tree(2,3, create_using=nx.DiGraph)
+    assert to_set(dovier_piazza_policriti(graph, [tuple(range(len(graph.nodes)))])) == to_set(dovier_piazza_policriti(graph))
 
 @pytest.mark.parametrize(
-    "graph",
-    map(lambda tp: tp[0], graph_partition_rscp_tuples),
+    "graph, initial_partition, expected_q_partition",
+    graph_partition_rscp_tuples,
 )
-def test_fba_rscp_correctness(graph):
-    assert set(frozenset(block) for block in dovier_piazza_policriti(graph)) == set(
-        frozenset(block) for block in paige_tarjan(graph)
-    )
+def test_fba_rscp_correctness(graph, initial_partition, expected_q_partition):
+    assert to_set(dovier_piazza_policriti(graph, initial_partition)) == to_set(paige_tarjan(graph,initial_partition))
 
 # this is for particular cases which aren't covered in PTA tests
 @pytest.mark.parametrize(
@@ -106,6 +107,10 @@ def test_fba_rscp_correctness(graph):
     fba_correctness_graphs,
 )
 def test_fba_correctness2(graph):
-    assert set(frozenset(block) for block in dovier_piazza_policriti(graph)) == set(
-        frozenset(block) for block in paige_tarjan(graph)
-    )
+    assert to_set(dovier_piazza_policriti(graph)) == to_set(paige_tarjan(graph))
+
+def test_fba_correctness_all_scc_leaf_with_initial_partition():
+    graph = nx.DiGraph()
+    graph.add_nodes_from(range(3))
+    graph.add_edges_from([(0,1), (1,2), (2,0)])
+    assert to_set(dovier_piazza_policriti(graph, [(0,1), (2,)])) == set([frozenset([0]), frozenset([1]), frozenset([2])])

@@ -7,40 +7,55 @@ class RankedPartition:
         """
         Manages a partition of nodes which are kept in separate classes
         according to their rank. Each vertex should already have a non-`None`
-        `vertex.rank` field.
+        `vertex.rank` field. The partition created by this constructor
+        respects the constraints (if any) imposed with the attribute
+        `initial_partition_block_id` in each vertex.
 
         This object is iterable (returns the classes of vertexes ordered
         by rank) and may be accessed with the operator `[i]` (returns the
         `i`-th class in the list). Also, the length of this object is defined
         as the number of classes of vertexes.
+
         :param vertexes: The list of vertexes in the partition.
         """
 
         self._nvertexes = len(vertexes)
 
         max_rank = max(vertex.rank for vertex in vertexes)
+        list_positions = RankedPartition.rank_to_partition_idx(max_rank) + 1
 
-        # initialize the initial partition. the first index is for -infty
-        # partition contains is a list of lists, each sub-list contains the
-        # sub-blocks of nodes at the i-th rank. there's an XBlock for each
-        # rank.
-        if max_rank != float("-inf"):
-            self._partition = [
-                [_Block([], _XBlock())] for i in range(max_rank + 2)
-            ]
-        else:
-            # there's a single possible rank, -infty
-            self._partition = [[_Block([], _XBlock())]]
+        # a list of dicts, one dict for each rank index. in each dict there
+        # are different blocks for different blocks of the labeling set
+        rank_label = [{} for _ in range(list_positions)]
 
-        # populate the blocks of the partition according to the ranks
         for vertex in vertexes:
-            # put this node in the (only) list at partition_idx in partition
-            # (there's only one block for each rank at the moment in the
-            # partition)
-            block = self._partition[
-                RankedPartition.rank_to_partition_idx(vertex.rank)
-            ][0]
-            block.append_vertex(vertex)
+            rank_idx = RankedPartition.rank_to_partition_idx(vertex.rank)
+
+            if vertex.initial_partition_block_id not in rank_label[rank_idx]:
+                # we want to reuse the same xblock for all the vertexes
+                # having the same rank
+                if len(rank_label[rank_idx]) == 0:
+                    xblock = _XBlock()
+                else:
+                    xblock = list(rank_label[rank_idx].values())[0].xblock
+
+                rank_label[rank_idx][
+                    vertex.initial_partition_block_id
+                ] = _Block([], xblock)
+            rank_label[rank_idx][
+                vertex.initial_partition_block_id
+            ].append_vertex(vertex)
+
+        # we may not have leafs whith rank -inf, we create a shallow block to
+        # fix the issue
+        if len(rank_label[0]) == 0:
+            rank_label[0][-1] = _Block([], _XBlock())
+
+        # at this point there's no need to keep the blocks in a dictionary,
+        # therefore we flatten the innermost dimension
+        self._partition = [
+            list(rank_idx_dict.values()) for rank_idx_dict in rank_label
+        ]
 
     @property
     def nvertexes(self) -> int:
@@ -106,3 +121,10 @@ class RankedPartition:
 
     def __iter__(self):
         return filter(lambda rank: len(rank) > 0, self._partition)
+
+    def __repr__(self):
+        def f(tp):
+            idx, ls = tp
+            return '{} : {}'.format(idx, ls)
+
+        return '\n'.join(map(f, enumerate(self._partition)))

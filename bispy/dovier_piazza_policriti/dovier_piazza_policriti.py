@@ -137,24 +137,19 @@ def dovier_piazza_policriti_partition(
     # maps each survivor node to a list of nodes collapsed into it
     collapse_map = [None for _ in range(partition.nvertexes)]
 
-    # collapse B_{-infty}
-    if len(partition[0]) > 0:
-        # there's only one block in partition[0] (B_{-infty}) at the moment,
-        # namely partition[0][0].
-        survivor_vertex, collapsed_vertexes = collapse(partition[0][0])
-
-        if survivor_vertex is not None:
-            # update the collapsed nodes map
-            collapse_map[survivor_vertex.label] = collapsed_vertexes
-
-            # update the partition
-            split_upper_ranks(partition, partition[0][0])
-
     # loop over the ranks
-    for partition_idx in range(1, len(partition)):
+    for partition_idx in range(len(partition)):
+        if len(partition[partition_idx]) == 1:
+            block = partition[partition_idx][0]
+            survivor_vertex, collapsed_vertexes = collapse(block)
+            if survivor_vertex is not None:
+                # update the collapsed nodes map
+                collapse_map[survivor_vertex.label] = collapsed_vertexes
+                # update the partition
+                split_upper_ranks(partition, block)
         # OPTIMIZATION: if at the current rank we only have blocks of single
         # vertexes, skip this step.
-        if any(map(lambda block: block.size > 1, partition[partition_idx])):
+        elif any(map(lambda block: block.size > 1, partition[partition_idx])):
             current_label = 0
             for block in partition[partition_idx]:
                 for vertex in block.vertexes:
@@ -210,6 +205,7 @@ def dovier_piazza_policriti_partition(
 
 def dovier_piazza_policriti(
     graph: nx.Graph,
+    initial_partition: List[Tuple[int]] = None,
     is_integer_graph: bool = False,
 ) -> List[Tuple]:
     """Compute the RSCP/maximum bisimulation of the given graph using
@@ -233,6 +229,9 @@ def dovier_piazza_policriti(
         return a wrong output.
 
     :param graph: The input graph.
+    :param initial_partition: The initial partition (or labeling set). Defaults
+        to `None`, in which case the trivial labeling set (one block which
+        contains all the nodes) is used.
     :param is_integer_graph: If `True`, we do not check if the given graph is
         integer (saves time). If `is_integer_graph` is `True` but the graph
         is not integer the output may be wrong. Defaults to False.
@@ -254,7 +253,7 @@ def dovier_piazza_policriti(
     else:
         integer_graph = graph
 
-    vertexes, _ = decorate_nx_graph(integer_graph)
+    vertexes, _ = decorate_nx_graph(integer_graph, initial_partition)
     partition = RankedPartition(vertexes)
 
     tp = dovier_piazza_policriti_partition(partition)
