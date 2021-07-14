@@ -3,6 +3,7 @@
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 <img src='https://img.shields.io/badge/Code%20style-Black-%23000000'/>
 [![Documentation Status](https://readthedocs.org/projects/bispy-bisimulation-in-python/badge/?version=latest)](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest)
+[![status](https://joss.theoj.org/papers/9d9c3ca0715d482938b5a450525cefa0/status.svg)](https://joss.theoj.org/papers/9d9c3ca0715d482938b5a450525cefa0)
 
 ## Description
 
