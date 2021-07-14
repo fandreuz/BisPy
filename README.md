@@ -32,11 +32,12 @@ package _NetworkX_, which we use to represent graphs:
 We then create a simple graph:
 
 ```python
->>> graph = networkx.balanced_tree(2,3)
+>>> graph = nx.balanced_tree(2,3, create_using=nx.DiGraph)
 ```
 
-And we are ready to compute the _maximum bisimulation_ using _Paige-Tarjan_'s
-algorithm:
+It's important to set `create_using=nx.DiGraph` since **BisPy** works only with
+_directed_ graphs. Now we can compute the _maximum bisimulation_ using
+_Paige-Tarjan_'s algorithm:
 
 ```python
 >>> paige_tarjan(graph)
@@ -61,8 +62,8 @@ We may also introduce a _labeling set_ (or _initial partition_):
 
 ### Saha
 
-The interface to _Saha_'s algorithm is a little bit different since we
-do not want to rebuild the **BisPy** representation of the graph from scratch
+The interface to _Saha_'s algorithm is a little bit different since we do not
+want to rebuild the **BisPy** representation of the graph from scratch
 everytime we add a new edge. We are going to consider the same `graph` object
 which we created in the example above:
 
