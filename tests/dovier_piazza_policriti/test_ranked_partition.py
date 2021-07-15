@@ -88,3 +88,16 @@ def test_clear_index():
     partition = RankedPartition(vertexes)
     partition.clear_index(1)
     assert len(partition[1]) == 0
+
+def test_iter():
+    vertexes, _ = decorate_nx_graph(nx.balanced_tree(2, 3))
+    partition = RankedPartition(vertexes)
+    idx = 0
+    for r in partition:
+        assert r == partition._partition[idx]
+        idx += 1
+
+def test_get_item():
+    vertexes, _ = decorate_nx_graph(nx.balanced_tree(2, 3))
+    partition = RankedPartition(vertexes)
+    assert partition[1] == partition._partition[1]
