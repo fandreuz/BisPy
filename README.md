@@ -94,13 +94,13 @@ _NetworkX_ to our representation.
 ```
 
 We can now use _Saha_'s algorithm to update the maximum bisimulation
-incrementally. We assumed to have some method `random_edges_generator` to
-generate new edges to be added to the graph:
+incrementally. Edges are represented by 2-tuples where the first item is the
+source and the second item is the destination:
 
 ```python
->>> for edge in random_edges_generator():
->>>    maximum_bisimulation = saha(maximum_bisimulation, vertexes, edge)
->>>    print(to_tuple_list(maximum_bisimulation))
+>>> for edge in [(1,0), (4,0)]:
+...    maximum_bisimulation = saha(maximum_bisimulation, vertexes, edge)
+...    print(to_tuple_list(maximum_bisimulation))
 ```
 
 The function `to_tuple_list` converts a list in **BisPy** representation to a
