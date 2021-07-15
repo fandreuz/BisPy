@@ -36,7 +36,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         export PATH="/home/runner/.local/bin:$PATH"
-        coveralls || true
+        coveralls
     - name: PEP8
       run: |
         pycodestyle bispy/
