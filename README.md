@@ -70,49 +70,32 @@ We may also introduce a _labeling set_ (or _initial partition_):
 
 ### Saha
 
-The interface to _Saha_'s algorithm is a little bit different since we do not
-want to rebuild the **BisPy** representation of the graph from scratch
-everytime we add a new edge. We are going to consider the same `graph` object
-which we created in the example above:
+In order to use *Saha*'s algorithm we only need to import the following
+function:
 
 ```python
->>> from bispy import decorate_nx_graph, to_tuple_list, paige_tarjan_qblocks, saha
+>>> from bispy import saha
 ```
 
-We build the **BisPy** representation of the graph, once and forever:
+We call that function to obtain an object of type `SahaPartition`, which has
+a method called `add_edge`. This method adds a new edge to the graph and
+recomputes the maximum bisimulation incrementally:
 
 ```python
->>> vertexes, qblocks = decorate_nx_graph(graph)
+saha_partition = saha(graph)
 ```
 
-We now need to compute the maximum bisimulation of the graph, since as you can
-read from the
-[documentation](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/algorithms/saha.html#)
-_Saha_'s algorithm needs to receive a maximum bisimulation in order to work.
-
-You may notice that we're using the function `paige_tarjan_qblocks` instead of
-`paige_tarjan`. We did so because `paige_tarjan_qblocks` works on graphs in
-**BisPy** representation, and returns a partition which is in **BisPy**
-representation as well. This allows us to avoid going back and forth from
-_NetworkX_ to our representation.
-
-```python
->>> maximum_bisimulation = paige_tarjan_qblocks(qblocks)
-```
-
-We can now use _Saha_'s algorithm to update the maximum bisimulation
-incrementally. Edges are represented by 2-tuples where the first item is the
-source and the second item is the destination:
+(We reused the `graph` object which we defined in the previous paragraph).
+We can now use the aforementioned method `add_edge` (note that when you call
+this method the instance of `graph` which you passed is **not** modified):
 
 ```python
 >>> for edge in [(1,0), (4,0)]:
-...    maximum_bisimulation = saha(maximum_bisimulation, vertexes, edge)
-...    print(to_tuple_list(maximum_bisimulation))
+...    maximum_bisimulation = saha_partition.add_edge(edge)
+...    print(maximum_bisimulation)
+[(3, 4, 5, 6), (7, 8, 9, 10, 11, 12, 13, 14), (0,), (2,), (1,)]
+[(3, 5, 6), (7, 8, 9, 10, 11, 12, 13, 14), (0,), (2,), (1,), (4,)]
 ```
-
-The function `to_tuple_list` converts a list in **BisPy** representation to a
-human-readable list of tuples of `int`s, each `int` is the label of a node, and
-each tuple represents a block of the current maximum bisimulation.
 
 ## Dependencies and installation
 

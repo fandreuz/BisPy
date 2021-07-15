@@ -24,7 +24,7 @@ See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
 
 setuptools.setup(
     name="BisPy",
-    version="0.2.0",
+    version="0.2.1",
 
     author="Francesco Andreuzzi",
     author_email="andreuzzi.francesco@gmail.com",

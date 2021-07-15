@@ -6,7 +6,7 @@ from .dovier_piazza_policriti.dovier_piazza_policriti import (
     dovier_piazza_policriti,
     dovier_piazza_policriti_partition,
 )
-from .saha.saha import saha
+from .saha.saha_partition import saha
 
 from .utilities.graph_decorator import (
     decorate_bispy_graph,
