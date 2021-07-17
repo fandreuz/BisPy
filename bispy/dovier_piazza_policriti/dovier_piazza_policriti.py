@@ -93,8 +93,7 @@ def split_upper_ranks(partition: RankedPartition, block: _Block):
         # if this is an upper-rank node with respect to the collapsed block, we
         # need to split. the split is not needed if the block is a singoletto.
         if vertex.rank > block.rank and not (
-            vertex.qblock.split_helper_block is None
-            and vertex.qblock.size <= 1
+            vertex.qblock.split_helper_block is None and vertex.qblock.size <= 1
         ):
             # if needed, create the aux block to help during the splitting
             # phase
@@ -243,9 +242,7 @@ def dovier_piazza_policriti(
         raise Exception("graph should be a directed graph (nx.DiGraph)")
 
     # if True, the input graph is already an integer graph
-    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
-        graph
-    )
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(graph)
 
     if not original_graph_is_integer:
         # convert the graph to an "integer" graph

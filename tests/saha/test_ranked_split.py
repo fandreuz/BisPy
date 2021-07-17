@@ -11,6 +11,7 @@ from bispy.paige_tarjan.paige_tarjan import paige_tarjan
 from bispy.saha.saha import add_edge
 from bispy.utilities.graph_decorator import decorate_nx_graph
 
+
 def partition_to_integer(partition: List[_QBlock]) -> Set[Set[int]]:
     return set(
         frozenset(vertex.label for vertex in block.vertexes)
@@ -51,7 +52,7 @@ def test_resets_aux_count():
     ranked_split(q_partition, modified_destination_block, 2)
 
     for vx in vertexes:
-        assert not hasattr(vx, 'aux_count') or vx.aux_count is None
+        assert not hasattr(vx, "aux_count") or vx.aux_count is None
 
 
 def test_ranked_split():

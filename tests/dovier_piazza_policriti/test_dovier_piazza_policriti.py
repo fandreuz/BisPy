@@ -69,10 +69,7 @@ def test_prepare_graph_vertexes(graph):
 
     # counterimage
     my_counterimage = [
-        [
-            counterimage_edge.source.label
-            for counterimage_edge in vertex.counterimage
-        ]
+        [counterimage_edge.source.label for counterimage_edge in vertex.counterimage]
         for vertex in vertexes
     ]
     for edge in graph.edges:
@@ -121,9 +118,7 @@ def test_dpp_rscp_correctness(graph, initial_partition, expected_q_partition):
     checker_graphs,
 )
 def test_dpp_correctness2(graph):
-    assert to_set(dovier_piazza_policriti(graph)) == to_set(
-        paige_tarjan(graph)
-    )
+    assert to_set(dovier_piazza_policriti(graph)) == to_set(paige_tarjan(graph))
 
 
 def test_dpp_correctness_all_scc_leaf_with_initial_partition():

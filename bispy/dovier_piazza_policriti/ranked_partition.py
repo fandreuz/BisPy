@@ -39,12 +39,12 @@ class RankedPartition:
                 else:
                     xblock = list(rank_label[rank_idx].values())[0].xblock
 
-                rank_label[rank_idx][
-                    vertex.initial_partition_block_id
-                ] = _Block([], xblock)
-            rank_label[rank_idx][
-                vertex.initial_partition_block_id
-            ].append_vertex(vertex)
+                rank_label[rank_idx][vertex.initial_partition_block_id] = _Block(
+                    [], xblock
+                )
+            rank_label[rank_idx][vertex.initial_partition_block_id].append_vertex(
+                vertex
+            )
 
         # we may not have leafs whith rank -inf, we create a shallow block to
         # fix the issue
@@ -53,9 +53,7 @@ class RankedPartition:
 
         # at this point there's no need to keep the blocks in a dictionary,
         # therefore we flatten the innermost dimension
-        self._partition = [
-            list(rank_idx_dict.values()) for rank_idx_dict in rank_label
-        ]
+        self._partition = [list(rank_idx_dict.values()) for rank_idx_dict in rank_label]
 
     @property
     def nvertexes(self) -> int:
@@ -85,9 +83,7 @@ class RankedPartition:
         :param rank: The input rank.
         """
 
-        self.append_at_index(
-            block, RankedPartition.rank_to_partition_idx(rank)
-        )
+        self.append_at_index(block, RankedPartition.rank_to_partition_idx(rank))
 
     def append_at_index(self, block, index: int):
         """Append a new block in the `index`-th class.
@@ -125,6 +121,6 @@ class RankedPartition:
     def __repr__(self):
         def f(tp):
             idx, ls = tp
-            return '{} : {}'.format(idx, ls)
+            return "{} : {}".format(idx, ls)
 
-        return '\n'.join(map(f, enumerate(self._partition)))
+        return "\n".join(map(f, enumerate(self._partition)))

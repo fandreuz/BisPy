@@ -8,6 +8,7 @@ from tests.paige_tarjan.rscp_utilities import (
 )
 from bispy.utilities.graph_decorator import decorate_nx_graph
 
+
 def build_test_partition(graph, partition, expected):
     vertexes, _ = decorate_nx_graph(graph, partition)
     return (
