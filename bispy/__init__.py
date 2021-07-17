@@ -13,3 +13,5 @@ from .utilities.graph_decorator import (
     decorate_nx_graph,
     to_tuple_list
 )
+
+from .api.api import MaxBisimAlgorithm, find_max_bisimulation, saha_iter, total_saha
