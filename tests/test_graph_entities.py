@@ -2,6 +2,7 @@ import pytest
 import networkx as nx
 from bispy.utilities.graph_entities import _Vertex, _QBlock
 
+
 def test_fast_mitosis():
     vxs = list(map(_Vertex, range(10)))
     qb = _QBlock(vxs, None)

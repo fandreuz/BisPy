@@ -6,9 +6,7 @@ import networkx as nx
 from bispy.utilities.graph_entities import _QBlock
 
 
-@pytest.mark.parametrize(
-    "rank, expected", zip([float("-inf"), *(range(5))], range(6))
-)
+@pytest.mark.parametrize("rank, expected", zip([float("-inf"), *(range(5))], range(6)))
 def test_rank_to_partition_idx(rank, expected):
     assert RankedPartition.rank_to_partition_idx(rank) == expected
 
@@ -30,9 +28,7 @@ def test_create_initial_partition(graph):
             vertex.rank == rank for vertex in vertexes
         ].count(True)
         # right rank
-        assert all(
-            vertex.rank == rank for vertex in partition[idx][0].vertexes
-        )
+        assert all(vertex.rank == rank for vertex in partition[idx][0].vertexes)
 
 
 @pytest.mark.parametrize("graph", graphs)
@@ -89,6 +85,7 @@ def test_clear_index():
     partition.clear_index(1)
     assert len(partition[1]) == 0
 
+
 def test_iter():
     vertexes, _ = decorate_nx_graph(nx.balanced_tree(2, 3))
     partition = RankedPartition(vertexes)
@@ -96,6 +93,7 @@ def test_iter():
     for r in partition:
         assert r == partition._partition[idx]
         idx += 1
+
 
 def test_get_item():
     vertexes, _ = decorate_nx_graph(nx.balanced_tree(2, 3))

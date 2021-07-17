@@ -358,9 +358,9 @@ class _QBlock:
         block2.deteached = True
 
     def __repr__(self):
-        return "Q({})".format(
-            ",".join([str(vertex) for vertex in self.vertexes])
-        ) + ("DET" if self.deteached else "")
+        return "Q({})".format(",".join([str(vertex) for vertex in self.vertexes])) + (
+            "DET" if self.deteached else ""
+        )
 
     def fast_mitosis(self, extract_vertexes: List[_Vertex]):
         """Extract a subset of vertexes from this block to create a new block.
@@ -533,9 +533,7 @@ class _SCC:
                     # field of successors, since it may not be the truth
                     # if not edge.destination.wf:
                     #    self._wf = False
-                    self._image[
-                        edge.destination.scc.label
-                    ] = edge.destination.scc
+                    self._image[edge.destination.scc.label] = edge.destination.scc
 
     def compute_counterimage(self):
         """Compute the counterimage of this SCC."""
@@ -570,6 +568,4 @@ class _SCC:
         other.destroy()
 
     def __repr__(self):
-        return "SCC({})".format(
-            ",".join([str(vertex) for vertex in self._vertexes])
-        )
+        return "SCC({})".format(",".join([str(vertex) for vertex in self._vertexes]))

@@ -27,9 +27,7 @@ def is_stable_vertexes_partition(partition: List[List[_Vertex]]) -> bool:
 
 
 def is_stable_partition(partition: List[_QBlock]) -> bool:
-    return is_stable_vertexes_partition(
-        [list(block.vertexes) for block in partition]
-    )
+    return is_stable_vertexes_partition([list(block.vertexes) for block in partition])
 
 
 # return True if A_block \subseteq R^{-1}(B_block) or

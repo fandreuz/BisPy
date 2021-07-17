@@ -86,8 +86,6 @@ def ranked_split(
         max_rank = -1
 
     # note that only new compound xblock are compound xblocks
-    compound_xblocks = RankedCompoundXBlocksContainer(
-        new_compound_xblocks, max_rank
-    )
+    compound_xblocks = RankedCompoundXBlocksContainer(new_compound_xblocks, max_rank)
 
     return pta(x_partition, q_partition, compound_xblocks)

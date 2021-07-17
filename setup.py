@@ -25,14 +25,11 @@ See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
 setuptools.setup(
     name="BisPy",
     version="0.2.1",
-
     author="Francesco Andreuzzi",
     author_email="andreuzzi.francesco@gmail.com",
-
     description="A bisimulation library for Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-
     url="https://github.com/fAndreuzzi/BisPy",
     project_urls={
         "Bug Tracker": "https://github.com/fAndreuzzi/BisPy/issues",
@@ -41,14 +38,11 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Mathematics'
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Mathematics",
     ],
-
     packages=setuptools.find_packages(),
     python_requires=">=3.5",
-
-    license='MIT',
-
-    install_requires=['networkx', 'llist'],
+    license="MIT",
+    install_requires=["networkx", "llist"],
 )

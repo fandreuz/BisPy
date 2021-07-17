@@ -37,7 +37,9 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
         g.add_edges_from(edges)
 
         # compute its rscp
-        rscp = set(map(frozenset, paige_tarjan(g, initial_partition, is_integer_graph=True)))
+        rscp = set(
+            map(frozenset, paige_tarjan(g, initial_partition, is_integer_graph=True))
+        )
 
         # compute the rscp incrementally
         rscp2 = partition.add_edge(edge)
@@ -47,11 +49,13 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
 
 def test_graph_normalization():
     graph = nx.DiGraph()
-    nodes = ['nodo1', 'nodo2', 'nodo3']
-    edges = [(0,1), (2,0)]
+    nodes = ["nodo1", "nodo2", "nodo3"]
+    edges = [(0, 1), (2, 0)]
     graph.add_nodes_from(nodes)
     graph.add_edges_from(map(lambda tp: (nodes[tp[0]], nodes[tp[1]]), edges))
 
     partition = saha_partition(graph)
 
-    assert set(map(frozenset, partition.add_edge(('nodo2', 'nodo3')))) == set([frozenset(nodes)])
+    assert set(map(frozenset, partition.add_edge(("nodo2", "nodo3")))) == set(
+        [frozenset(nodes)]
+    )
