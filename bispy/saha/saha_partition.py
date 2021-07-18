@@ -62,6 +62,26 @@ class SahaPartition:
             else:
                 return back_to_original(max_bisi, self.node_to_idx)
 
+    def add_edges(
+        self, edges: List[Tuple[Any, Any]], verbose: bool = True
+    ) -> Union[None, List[Tuple[Any]]]:
+        """Add multiple edges and compute the maximum bisimulation
+        incrementally.
+
+        :param edges: A list of edges, represented by 2-tuples.
+        :param verbose: If `True`, the maximum bisimulation will be returned
+            after the last iteration. Otherwise the method returns `None`.
+            Defaults to `True`.
+        :return: The maximim bisimulation after the addition of the last edge
+            if `verbose` is `True`.
+        """
+
+        for idx, edge in enumerate(edges):
+            if idx == len(edges) - 1 and verbose:
+                return self.add_edge(edge)
+            else:
+                self.add_edge(edge, verbose=False)
+
 
 def saha(
     graph, initial_partition=None, is_integer_graph=False

@@ -85,7 +85,9 @@ class RankedPartition:
         :param rank: The input rank.
         """
 
-        self.append_at_index(block, RankedPartition.rank_to_partition_idx(rank))
+        self.append_at_index(
+            block, RankedPartition.rank_to_partition_idx(rank)
+        )
 
     def append_at_index(self, block, index: int):
         """Append a new block in the `index`-th class.

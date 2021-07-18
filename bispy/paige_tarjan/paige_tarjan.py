@@ -324,7 +324,8 @@ def paige_tarjan_qblocks(q_partition: List[_QBlock]) -> List[_QBlock]:
         q_partition.extend(new_qblocks)
 
     return [
-        qblock for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
+        qblock
+        for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
     ]
 
 
