@@ -34,7 +34,7 @@ package _NetworkX_, which we use to represent graphs:
 
 ```python
 >>> import networkx as nx
->>> from bispy import paige_tarjan, dovier_piazza_policriti
+>>> from bispy import compute_maximum_bisimulation, Algorithms
 ```
 
 We then create a simple graph:
@@ -45,17 +45,18 @@ We then create a simple graph:
 
 It's important to set `create_using=nx.DiGraph` since **BisPy** works only with
 _directed_ graphs. Now we can compute the _maximum bisimulation_ using
-_Paige-Tarjan_'s algorithm:
+_Paige-Tarjan_'s algorithm, which is the default for the function
+`compute_maximum_bisimulation`:
 
 ```python
->>> paige_tarjan(graph)
+>>> compute_maximum_bisimulation(graph)
 [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6), (1, 2), (0,)]
 ```
 
-as well as _Dovier-Piazza-Policriti_'s algorithm.
+We can use _Dovier-Piazza-Policriti_'s algorithm as well:
 
 ```python
->>> dovier_piazza_policriti(graph)
+>>> compute_maximum_bisimulation(graph, algorithm=Algorithms.DovierPiazzaPolicriti)
 [(7, 8, 9, 10, 11, 12, 13, 14), (3, 4, 5, 6),  (1, 2), (0,)]
 
 ```
@@ -63,31 +64,31 @@ as well as _Dovier-Piazza-Policriti_'s algorithm.
 We may also introduce a _labeling set_ (or _initial partition_):
 
 ```python
->>> dovier_piazza_policriti(graph, initial_partition=[(0,7,10), (1,2,3,4,5,6,8,9,11,12,13,14)])
+>>> compute_maximum_bisimulation(graph, initial_partition=[(0,7,10), (1,2,3,4,5,6,8,9,11,12,13,14)])
 [(7, 10), (8, 9, 11, 12, 13, 14), (3, 4, 5, 6),  (1, 2), (0,)]
 
 ```
 
 ### Saha
 
-In order to use *Saha*'s algorithm we only need to import the following
+In order to use _Saha_'s algorithm we only need to import the following
 function:
 
 ```python
 >>> from bispy import saha
 ```
 
-We call that function to obtain an object of type `SahaPartition`, which has
-a method called `add_edge`. This method adds a new edge to the graph and
+We call that function to obtain an object of type `SahaPartition`, which has a
+method called `add_edge`. This method adds a new edge to the graph and
 recomputes the maximum bisimulation incrementally:
 
 ```python
 saha_partition = saha(graph)
 ```
 
-(We reused the `graph` object which we defined in the previous paragraph).
-We can now use the aforementioned method `add_edge` (note that when you call
-this method the instance of `graph` which you passed is **not** modified):
+(We reused the `graph` object which we defined in the previous paragraph). We
+can now use the aforementioned method `add_edge` (note that when you call this
+method the instance of `graph` which you passed is **not** modified):
 
 ```python
 >>> for edge in [(1,0), (4,0)]:
