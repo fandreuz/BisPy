@@ -61,7 +61,9 @@ def test_back_to_original():
     _, node_to_idx = convert_to_integer_graph(graph)
 
     partition = [("a", "b"), (0, 1, 2), (frozenset([5]),)]
-    integer_partition = [(node_to_idx[node] for node in block) for block in partition]
+    integer_partition = [
+        (node_to_idx[node] for node in block) for block in partition
+    ]
 
     assert set(
         frozenset(tp) for tp in back_to_original(integer_partition, node_to_idx)

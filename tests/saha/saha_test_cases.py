@@ -1,5 +1,8 @@
 import networkx as nx
-from bispy.utilities.graph_decorator import decorate_bispy_graph, decorate_nx_graph
+from bispy.utilities.graph_decorator import (
+    decorate_bispy_graph,
+    decorate_nx_graph,
+)
 
 # new scc
 new_scc_graphs = []
@@ -75,7 +78,9 @@ exists_causal_splitter_result_map = []
 # 0
 g0 = nx.DiGraph()
 g0.add_nodes_from(range(6))
-g0.add_edges_from([(5, 0), (5, 5), (6, 5), (0, 3), (1, 3), (2, 4), (3, 3), (4, 3)])
+g0.add_edges_from(
+    [(5, 0), (5, 5), (6, 5), (0, 3), (1, 3), (2, 4), (3, 3), (4, 3)]
+)
 ip0 = [(0, 1, 2), (3, 4), (5,), (6,)]
 
 vertexes0, qblocks0 = decorate_nx_graph(g0, ip0)

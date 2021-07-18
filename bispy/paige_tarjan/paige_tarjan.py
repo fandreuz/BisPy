@@ -275,7 +275,9 @@ def refine(
 
     # note that, since we are employing the strategy proposed in the paper,
     # we don't even need to pass the XBlock S
-    second_splitter_counterimage = build_exclusive_B_counterimage(B_qblock_vertexes)
+    second_splitter_counterimage = build_exclusive_B_counterimage(
+        B_qblock_vertexes
+    )
 
     # step 6
     new_qblocks_from_split2, new_compound_xblocks, _ = split(
@@ -321,7 +323,9 @@ def paige_tarjan_qblocks(q_partition: List[_QBlock]) -> List[_QBlock]:
         )
         q_partition.extend(new_qblocks)
 
-    return [qblock for qblock in filter(lambda qblock: qblock.size > 0, q_partition)]
+    return [
+        qblock for qblock in filter(lambda qblock: qblock.size > 0, q_partition)
+    ]
 
 
 def paige_tarjan(
@@ -365,7 +369,9 @@ def paige_tarjan(
         raise Exception("graph should be a directed graph (nx.DiGraph)")
 
     # if True, the input graph is already an integer graph
-    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(graph)
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
+        graph
+    )
 
     # if initial_partition is None, then it's the trivial partition
     if initial_partition is None:
@@ -378,7 +384,8 @@ def paige_tarjan(
 
         # convert the initial partition to a integer partition
         integer_initial_partition = [
-            [node_to_idx[old_node] for old_node in block] for block in initial_partition
+            [node_to_idx[old_node] for old_node in block]
+            for block in initial_partition
         ]
     else:
         integer_graph = graph

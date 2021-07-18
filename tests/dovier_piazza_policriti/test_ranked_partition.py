@@ -6,7 +6,9 @@ import networkx as nx
 from bispy.utilities.graph_entities import _QBlock
 
 
-@pytest.mark.parametrize("rank, expected", zip([float("-inf"), *(range(5))], range(6)))
+@pytest.mark.parametrize(
+    "rank, expected", zip([float("-inf"), *(range(5))], range(6))
+)
 def test_rank_to_partition_idx(rank, expected):
     assert RankedPartition.rank_to_partition_idx(rank) == expected
 

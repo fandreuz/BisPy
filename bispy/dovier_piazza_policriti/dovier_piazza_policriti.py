@@ -242,7 +242,9 @@ def dovier_piazza_policriti(
         raise Exception("graph should be a directed graph (nx.DiGraph)")
 
     # if True, the input graph is already an integer graph
-    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(graph)
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
+        graph
+    )
 
     if not original_graph_is_integer:
         # convert the graph to an "integer" graph

@@ -69,7 +69,10 @@ def test_prepare_graph_vertexes(graph):
 
     # counterimage
     my_counterimage = [
-        [counterimage_edge.source.label for counterimage_edge in vertex.counterimage]
+        [
+            counterimage_edge.source.label
+            for counterimage_edge in vertex.counterimage
+        ]
         for vertex in vertexes
     ]
     for edge in graph.edges:

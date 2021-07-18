@@ -21,7 +21,9 @@ def test_compute_rank(graph, node_rank_dict: dict):
 def test_rank2():
     graph = nx.DiGraph()
     graph.add_nodes_from(range(7))
-    graph.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (0, 5), (5, 6)])
+    graph.add_edges_from(
+        [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (0, 5), (5, 6)]
+    )
     vertexes, _ = decorate_nx_graph(graph)
 
 

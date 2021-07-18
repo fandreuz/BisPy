@@ -71,7 +71,10 @@ def assign_scc(node: _Vertex, scc_instance: _SCC, based_scc_tree: bool):
         source = edge.source
         if edge.source.scc is None and (
             not based_scc_tree
-            or (hasattr(source, "reachable_from_base") and source.reachable_from_base)
+            or (
+                hasattr(source, "reachable_from_base")
+                and source.reachable_from_base
+            )
         ):
             assign_scc(edge.source, scc_instance, based_scc_tree)
 
@@ -106,7 +109,10 @@ def visit(
         dest = edge.destination
         if not dest.visited and (
             not based_scc_tree
-            or (hasattr(dest, "reachable_from_base") and dest.reachable_from_base)
+            or (
+                hasattr(dest, "reachable_from_base")
+                and dest.reachable_from_base
+            )
         ):
             visit(
                 edge.destination,

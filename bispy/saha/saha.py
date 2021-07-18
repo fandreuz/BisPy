@@ -222,7 +222,9 @@ def both_blocks_go_or_dont_go_to_block(
     return block1_goes == block2_goes
 
 
-def exists_causal_splitter(block1: _Block, block2: _Block, check_visited) -> bool:
+def exists_causal_splitter(
+    block1: _Block, block2: _Block, check_visited
+) -> bool:
     """Check if there is a *causal splitter* for blocks `block1` and `block2`.
     A causal splitter is a block :math:`C` such that
 
@@ -291,7 +293,10 @@ def merge_condition(
     :param check_visited: See the documentation of
         :func:`exists_causal_splitter`.
     """
-    if block1.initial_partition_block_id() != block2.initial_partition_block_id():
+    if (
+        block1.initial_partition_block_id()
+        != block2.initial_partition_block_id()
+    ):
         return False
     elif block1 == block2:
         return False
@@ -392,7 +397,9 @@ def merge_step(vertex, X, visited_vertexes, cant_merge_dict):
             if not merged:
                 # if this blocks wasn't merged with anyone, add this block to
                 # the dict
-                cant_merge_dict[initial_partition_block_id].append(vertex.qblock)
+                cant_merge_dict[initial_partition_block_id].append(
+                    vertex.qblock
+                )
                 # no merge, therefore we append the block to X
                 X.append(vertex.qblock)
         else:

@@ -39,12 +39,12 @@ class RankedPartition:
                 else:
                     xblock = list(rank_label[rank_idx].values())[0].xblock
 
-                rank_label[rank_idx][vertex.initial_partition_block_id] = _Block(
-                    [], xblock
-                )
-            rank_label[rank_idx][vertex.initial_partition_block_id].append_vertex(
-                vertex
-            )
+                rank_label[rank_idx][
+                    vertex.initial_partition_block_id
+                ] = _Block([], xblock)
+            rank_label[rank_idx][
+                vertex.initial_partition_block_id
+            ].append_vertex(vertex)
 
         # we may not have leafs whith rank -inf, we create a shallow block to
         # fix the issue
@@ -53,7 +53,9 @@ class RankedPartition:
 
         # at this point there's no need to keep the blocks in a dictionary,
         # therefore we flatten the innermost dimension
-        self._partition = [list(rank_idx_dict.values()) for rank_idx_dict in rank_label]
+        self._partition = [
+            list(rank_idx_dict.values()) for rank_idx_dict in rank_label
+        ]
 
     @property
     def nvertexes(self) -> int:

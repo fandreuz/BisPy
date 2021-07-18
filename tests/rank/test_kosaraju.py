@@ -28,7 +28,9 @@ def test_scc1():
 
     vertexes, _ = decorate_nx_graph(graph)
     result = kosaraju(vertexes, return_sccs=True)
-    result = set([frozenset([v.label for v in scc._vertexes]) for scc in result])
+    result = set(
+        [frozenset([v.label for v in scc._vertexes]) for scc in result]
+    )
 
     assert set([0, 1, 2]) in result
     assert set([3, 4]) in result
@@ -57,7 +59,9 @@ def test_scc2():
 
     vertexes, _ = decorate_nx_graph(graph)
     result = kosaraju(vertexes, return_sccs=True)
-    result = set([frozenset([v.label for v in scc._vertexes]) for scc in result])
+    result = set(
+        [frozenset([v.label for v in scc._vertexes]) for scc in result]
+    )
 
     assert set([0, 1, 2, 3, 4]) in result
     assert set([5]) in result
@@ -71,7 +75,9 @@ def test_scc3():
 
     vertexes, _ = decorate_nx_graph(graph)
     result = kosaraju(vertexes, return_sccs=True)
-    result = set([frozenset([v.label for v in scc._vertexes]) for scc in result])
+    result = set(
+        [frozenset([v.label for v in scc._vertexes]) for scc in result]
+    )
 
     assert (
         set(
@@ -131,7 +137,9 @@ def test_scc4():
 
     vertexes, _ = decorate_nx_graph(graph)
     result = kosaraju(vertexes, return_sccs=True)
-    result = set([frozenset([v.label for v in scc._vertexes]) for scc in result])
+    result = set(
+        [frozenset([v.label for v in scc._vertexes]) for scc in result]
+    )
 
     assert (
         set(
@@ -191,7 +199,9 @@ def test_scc5():
 
     vertexes, _ = decorate_nx_graph(graph)
     result = kosaraju(vertexes, return_sccs=True)
-    result = set([frozenset([v.label for v in scc._vertexes]) for scc in result])
+    result = set(
+        [frozenset([v.label for v in scc._vertexes]) for scc in result]
+    )
 
     assert (
         set(
