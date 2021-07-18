@@ -374,7 +374,9 @@ def decorate_bispy_graph(
                 edge.count.value += 1
 
     if topological_sorted_images:
-        finishing_time_list = compute_counterimage_finishing_time_list(vertexes)
+        finishing_time_list = compute_counterimage_finishing_time_list(
+            vertexes
+        )
         build_vertexes_image(finishing_time_list)
 
     if compute_rank:

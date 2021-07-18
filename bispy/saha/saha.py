@@ -806,7 +806,9 @@ def saha(
                         if source_vertex.rank < destination_vertex.rank:
                             source_vertex.rank = destination_vertex.rank
 
-                            propagate_nwf(source_vertex.scc, scc_finishing_time)
+                            propagate_nwf(
+                                source_vertex.scc, scc_finishing_time
+                            )
                 else:
                     if source_vertex.rank < destination_vertex.rank:
                         source_vertex.rank = destination_vertex.rank

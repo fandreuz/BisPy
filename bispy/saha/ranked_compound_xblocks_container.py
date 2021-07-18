@@ -12,7 +12,9 @@ class RankedCompoundXBlocksContainer(CompoundXBlocksContainer):
             first_nonempty_index = -1
 
         for compound_xblock in compound_xblocks:
-            rank = compound_xblock.qblocks.first.value.vertexes.first.value.rank
+            rank = (
+                compound_xblock.qblocks.first.value.vertexes.first.value.rank
+            )
             if rank == float("-inf"):
                 self._xblocks[0].append(compound_xblock)
                 first_nonempty_index = 0
@@ -39,7 +41,9 @@ class RankedCompoundXBlocksContainer(CompoundXBlocksContainer):
     def append_at_rank(self, xblock, rank):
         rank_index = 0 if rank == float("-inf") else rank + 1
         self._xblocks[rank_index].append(xblock)
-        self._first_nonempty_index = min(self._first_nonempty_index, rank_index)
+        self._first_nonempty_index = min(
+            self._first_nonempty_index, rank_index
+        )
 
     def append(self, xblock):
         self.append_at_rank(xblock, xblock.qblocks.first.value.rank)
