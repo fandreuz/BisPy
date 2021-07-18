@@ -140,13 +140,14 @@ def dovier_piazza_policriti_partition(
     # loop over the ranks
     for partition_idx in range(len(partition)):
         if len(partition[partition_idx]) == 1:
-            block = partition[partition_idx][0]
-            survivor_vertex, collapsed_vertexes = collapse(block)
-            if survivor_vertex is not None:
-                # update the collapsed nodes map
-                collapse_map[survivor_vertex.label] = collapsed_vertexes
-                # update the partition
-                split_upper_ranks(partition, block)
+            if len(partition[partition_idx][0].vertexes):
+                block = partition[partition_idx][0]
+                survivor_vertex, collapsed_vertexes = collapse(block)
+                if survivor_vertex is not None:
+                    # update the collapsed nodes map
+                    collapse_map[survivor_vertex.label] = collapsed_vertexes
+                    # update the partition
+                    split_upper_ranks(partition, block)
         # OPTIMIZATION: if at the current rank we only have blocks of single
         # vertexes, skip this step.
         elif any(map(lambda block: block.size > 1, partition[partition_idx])):
@@ -180,6 +181,7 @@ def dovier_piazza_policriti_partition(
                 block_vertexes = []
                 for scaled_vertex in block.vertexes:
                     scaled_vertex.back_to_original_label()
+                    scaled_vertex.back_to_original_graph()
                     block_vertexes.append(scaled_vertex)
 
                 # we can set XBlock to None because PTA won't be called again

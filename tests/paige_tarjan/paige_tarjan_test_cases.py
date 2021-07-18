@@ -176,19 +176,25 @@ graph_partition_tuples.append((graph9, initial_partitions[len(graph9.nodes)]))
 graph10 = nx.DiGraph()
 graph10.add_nodes_from(range(3))
 graph10.add_edges_from([(0, 1), (0, 2), (1, 0), (1, 2)])
-graph_partition_tuples.append((graph10, initial_partitions[len(graph10.nodes)]))
+graph_partition_tuples.append(
+    (graph10, initial_partitions[len(graph10.nodes)])
+)
 
 # 11
 graph11 = nx.DiGraph()
 graph11.add_nodes_from(range(3))
 graph11.add_edges_from([(0, 1), (1, 2), (2, 0), (2, 1)])
-graph_partition_tuples.append((graph11, initial_partitions[len(graph11.nodes)]))
+graph_partition_tuples.append(
+    (graph11, initial_partitions[len(graph11.nodes)])
+)
 
 # 12
 graph12 = nx.DiGraph()
 graph12.add_nodes_from(range(3))
 graph12.add_edges_from([(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)])
-graph_partition_tuples.append((graph12, initial_partitions[len(graph12.nodes)]))
+graph_partition_tuples.append(
+    (graph12, initial_partitions[len(graph12.nodes)])
+)
 
 graph_partition_rscp_tuples = []
 

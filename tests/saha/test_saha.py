@@ -117,7 +117,8 @@ def test_check_new_scc(graph, new_edge, value):
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
     assert (
-        check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], []) == value
+        check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], [])
+        == value
     )
 
 
@@ -133,7 +134,7 @@ def test_check_new_scc_cleans(graph, new_edge, value):
     check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], [])
 
     for vertex in vertexes:
-        assert vertex.visited == False
+        assert not vertex.visited
 
 
 @pytest.mark.parametrize(
