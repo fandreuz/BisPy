@@ -39,7 +39,9 @@ from .saha_test_cases import (
     update_rscp_initial_partition,
     update_rscp_new_edge,
 )
-from tests.paige_tarjan.paige_tarjan_test_cases import graph_partition_rscp_tuples
+from tests.paige_tarjan.paige_tarjan_test_cases import (
+    graph_partition_rscp_tuples,
+)
 from bispy.paige_tarjan.paige_tarjan import paige_tarjan_qblocks, paige_tarjan
 from bispy.utilities.graph_entities import _Edge, _XBlock
 from bispy.saha.ranked_pta import pta as ranked_pta
@@ -114,7 +116,9 @@ def test_check_new_scc(graph, new_edge, value):
 
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
-    assert check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], []) == value
+    assert (
+        check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], []) == value
+    )
 
 
 @pytest.mark.parametrize(
@@ -142,7 +146,9 @@ def test_check_new_scc_qblocks_visited(graph, new_edge, value):
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
     finishing_time_list = []
-    check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], finishing_time_list)
+    check_new_scc(
+        vertexes[new_edge[0]], vertexes[new_edge[1]], finishing_time_list
+    )
 
     for vx in finishing_time_list:
         assert vx.qblock.visited
@@ -168,7 +174,9 @@ def test_check_new_scc_computes_finishing_time(
     add_edge(vertexes[new_edge[0]], vertexes[new_edge[1]])
 
     finishing_time_list = []
-    check_new_scc(vertexes[new_edge[0]], vertexes[new_edge[1]], finishing_time_list)
+    check_new_scc(
+        vertexes[new_edge[0]], vertexes[new_edge[1]], finishing_time_list
+    )
 
     assert len(finishing_time_list) == len(correct_finishing_time)
 
@@ -465,7 +473,9 @@ def test_well_founded_topological():
 
     qpartition = [block for ls in RankedPartition(vertexes) for block in ls]
 
-    topo = build_well_founded_topological_list(qpartition, vertexes[5], max_rank)
+    topo = build_well_founded_topological_list(
+        qpartition, vertexes[5], max_rank
+    )
 
     assert len(topo) == 6
 
@@ -485,7 +495,10 @@ def all_possible_new_edges(graph, initial_partition):
 
 def vertexes_to_set(qblocks):
     return set(
-        [frozenset(map(lambda vx: vx.label, block.vertexes)) for block in qblocks]
+        [
+            frozenset(map(lambda vx: vx.label, block.vertexes))
+            for block in qblocks
+        ]
     )
 
 
@@ -596,7 +609,9 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
 
         # compute the rscp incrementally
         qblocks = saha(qblocks, vertexes, edge)
-        qblocks_as_int = [tuple(vx.label for vx in block.vertexes) for block in qblocks]
+        qblocks_as_int = [
+            tuple(vx.label for vx in block.vertexes) for block in qblocks
+        ]
         qblocks_as_int = ints_to_set(qblocks_as_int)
 
         assert qblocks_as_int == rscp
@@ -612,7 +627,9 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
         ),
     ),
 )
-def test_reverse_incremental_update_rscp_correctness(goal_graph, initial_partition):
+def test_reverse_incremental_update_rscp_correctness(
+    goal_graph, initial_partition
+):
     initial_graph = nx.DiGraph()
     initial_graph.add_nodes_from(goal_graph.nodes)
     vertexes, qblocks = decorate_nx_graph(initial_graph, initial_partition)
@@ -634,7 +651,9 @@ def test_reverse_incremental_update_rscp_correctness(goal_graph, initial_partiti
 
         # compute the rscp incrementally
         qblocks = saha(qblocks, vertexes, edge)
-        qblocks_as_int = [tuple(vx.label for vx in block.vertexes) for block in qblocks]
+        qblocks_as_int = [
+            tuple(vx.label for vx in block.vertexes) for block in qblocks
+        ]
         qblocks_as_int = ints_to_set(qblocks_as_int)
 
         assert qblocks_as_int == rscp

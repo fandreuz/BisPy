@@ -45,7 +45,9 @@ checker_graphs.append(graph0)
 graph1 = nx.DiGraph()
 graph1.add_nodes_from(range(8))
 node_map = dict((t, 7 - t) for t in range(8))
-graph1.add_edges_from((node_map[src], node_map[dst]) for src, dst in graph0.edges)
+graph1.add_edges_from(
+    (node_map[src], node_map[dst]) for src, dst in graph0.edges
+)
 checker_graphs.append(graph1)
 
 # 2

@@ -393,7 +393,8 @@ def to_tuple_list(qblocks: List[_QBlock]) -> List[Tuple]:
     :param qblocks: A partition.
     """
     return [
-        tuple(map(lambda vertex: vertex.label, block.vertexes)) for block in qblocks
+        tuple(map(lambda vertex: vertex.label, block.vertexes))
+        for block in qblocks
     ]
 
 

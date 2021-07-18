@@ -29,7 +29,9 @@ def saha_generator_non_updating(graph: nx.Graph, initial_edges=None):
     vertexes, qblocks = decorate_nx_graph(graph)
     maximum_bisimulation = paige_tarjan_qblocks(qblocks)
     for edge in initial_edges:
-        maximum_bisimulation = saha_internal(maximum_bisimulation, vertexes, edge)
+        maximum_bisimulation = saha_internal(
+            maximum_bisimulation, vertexes, edge
+        )
         yield maximum_bisimulation
 
 
@@ -54,7 +56,9 @@ class SahaIterator:
     def __init__(self, graph: nx.Graph, initial_edges=None):
         self.graph = graph
         self.next_edges = []
-        self.current_iter = saha_generator_non_updating(self.graph, initial_edges)
+        self.current_iter = saha_generator_non_updating(
+            self.graph, initial_edges
+        )
 
     def __iter__(self):
         return self

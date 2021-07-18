@@ -5,7 +5,9 @@ from .saha_test_cases import (
     update_rscp_graphs,
     update_rscp_initial_partition,
 )
-from tests.paige_tarjan.paige_tarjan_test_cases import graph_partition_rscp_tuples
+from tests.paige_tarjan.paige_tarjan_test_cases import (
+    graph_partition_rscp_tuples,
+)
 from bispy.utilities.graph_decorator import to_set, to_tuple_list
 from itertools import chain
 import networkx as nx
@@ -38,7 +40,10 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
 
         # compute its rscp
         rscp = set(
-            map(frozenset, paige_tarjan(g, initial_partition, is_integer_graph=True))
+            map(
+                frozenset,
+                paige_tarjan(g, initial_partition, is_integer_graph=True),
+            )
         )
 
         # compute the rscp incrementally

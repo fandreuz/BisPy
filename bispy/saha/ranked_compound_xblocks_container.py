@@ -29,7 +29,9 @@ class RankedCompoundXBlocksContainer(CompoundXBlocksContainer):
             # fmt: on
         ):
             if len(rank_list) > 0:
-                self._first_nonempty_index = idx + self._first_nonempty_index + 1
+                self._first_nonempty_index = (
+                    idx + self._first_nonempty_index + 1
+                )
                 return
         # if we get here, there are no more compound xblocks
         self._first_nonempty_index = -1

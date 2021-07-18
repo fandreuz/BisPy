@@ -63,7 +63,9 @@ class SahaPartition:
                 return back_to_original(max_bisi, self.node_to_idx)
 
 
-def saha(graph, initial_partition=None, is_integer_graph=False) -> SahaPartition:
+def saha(
+    graph, initial_partition=None, is_integer_graph=False
+) -> SahaPartition:
     """
     Returns an instance of the class :class:`SahaPartition` which can be used
     to recompute the maximum bisimulation incrementally.
@@ -82,7 +84,9 @@ def saha(graph, initial_partition=None, is_integer_graph=False) -> SahaPartition
         raise Exception("graph should be a directed graph (nx.DiGraph)")
 
     # if True, the input graph is already an integer graph
-    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(graph)
+    original_graph_is_integer = is_integer_graph or check_normal_integer_graph(
+        graph
+    )
     if not original_graph_is_integer:
         # convert the graph to an "integer" graph
         integer_graph, node_to_idx = convert_to_integer_graph(graph)

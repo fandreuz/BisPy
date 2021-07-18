@@ -5,14 +5,20 @@ import networkx as nx
 import tests.api.api_test_cases as test_cases
 
 
-@pytest.mark.parametrize("graph, initial_edges, correct_results", test_cases.ins_n_outs)
+@pytest.mark.parametrize(
+    "graph, initial_edges, correct_results", test_cases.ins_n_outs
+)
 def test_non_updating_generator_works(graph, initial_edges, correct_results):
-    for i, max_bisim in enumerate(saha_generator_non_updating(graph, initial_edges)):
+    for i, max_bisim in enumerate(
+        saha_generator_non_updating(graph, initial_edges)
+    ):
         res = to_tuple_list(max_bisim)
         assert correct_results[i] == res
 
 
-@pytest.mark.parametrize("graph, initial_edges, correct_results", test_cases.ins_n_outs)
+@pytest.mark.parametrize(
+    "graph, initial_edges, correct_results", test_cases.ins_n_outs
+)
 def test_iterator_works(graph, initial_edges, correct_results):
     def update(i, it):
         it.add_edge(initial_edges[i + 1])

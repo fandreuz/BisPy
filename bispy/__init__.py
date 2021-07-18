@@ -14,4 +14,9 @@ from .utilities.graph_decorator import (
     to_tuple_list,
 )
 
-from .api.api import MaxBisimAlgorithm, find_max_bisimulation, saha_iter, total_saha
+from .api.api import (
+    MaxBisimAlgorithm,
+    find_max_bisimulation,
+    saha_iter,
+    total_saha,
+)
