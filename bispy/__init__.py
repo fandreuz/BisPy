@@ -20,7 +20,7 @@ class Algorithms(Enum):
 
 def compute_maximum_bisimulation(
     graph: nx.DiGraph,
-    initial_partition,
+    initial_partition=None,
     algorithm=Algorithms.PaigeTarjan,
 ):
     """Compute the maximum bisimulation of the given graph, possibly using

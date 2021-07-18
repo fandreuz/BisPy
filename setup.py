@@ -24,7 +24,7 @@ See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
 
 setuptools.setup(
     name="BisPy",
-    version="0.2.1",
+    version="0.2.2",
     author="Francesco Andreuzzi",
     author_email="andreuzzi.francesco@gmail.com",
     description="A bisimulation library for Python",
