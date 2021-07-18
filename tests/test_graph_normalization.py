@@ -66,5 +66,6 @@ def test_back_to_original():
     ]
 
     assert set(
-        frozenset(tp) for tp in back_to_original(integer_partition, node_to_idx)
+        frozenset(tp)
+        for tp in back_to_original(integer_partition, node_to_idx)
     ) == set(frozenset(tp) for tp in partition)

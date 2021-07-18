@@ -30,7 +30,7 @@ from bispy.paige_tarjan.paige_tarjan import (
     paige_tarjan_qblocks,
     preprocess_initial_partition,
 )
-from bispy.utilities.graph_decorator import decorate_nx_graph
+from bispy.utilities.graph_decorator import decorate_nx_graph, to_set
 import tests.paige_tarjan.paige_tarjan_test_cases as test_cases
 
 
@@ -210,7 +210,8 @@ def test_build_block_counterimage_aux_count(graph, initial_partition):
             vertex.aux_count = None
 
 
-# error "dllistnode belongs to another list" triggered by split when using the result of build_block_counterimage
+# error "dllistnode belongs to another list" triggered by split when using the
+# result of build_block_counterimage
 # error "dllistnode doesn't belong to a list"
 @pytest.mark.parametrize(
     "graph, initial_partition", test_cases.graph_partition_tuples
@@ -227,7 +228,8 @@ def test_vertex_taken_from_right_list(graph, initial_partition):
         assert True
 
 
-# error "dllistnode belongs to another list" triggered by split when using the result of build_block_counterimage
+# error "dllistnode belongs to another list" triggered by split when using the
+# result of build_block_counterimage
 # error "dllistnode doesn't belong to a list"
 @pytest.mark.parametrize(
     "graph, initial_partition", test_cases.graph_partition_tuples
@@ -237,7 +239,7 @@ def test_can_remove_any_vertex_from_its_list(graph, initial_partition):
 
     for qblock in q_partition:
         vertex = qblock.vertexes.first
-        while vertex != None:
+        while vertex is not None:
             qblock.vertexes.remove(vertex)
             vertex = vertex.next
             # check that this doesn't raise an exception
@@ -252,23 +254,27 @@ def test_split(graph, initial_partition):
     xblock = q_partition[0].xblock
 
     qblock_splitter = q_partition[0]
-    # qblock_splitter may be modified by split, therefore we need to keep a copy
+    # qblock_splitter may be modified by split, therefore we need to keep a
+    # copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
     block_counterimage = build_block_counterimage(qblock_splitter)
     split(block_counterimage)
 
-    # after split the partition should be stable with respect to the block chosen for the split
+    # after split the partition should be stable with respect to the block
+    # chosen for the split
     for qblock in xblock.qblocks:
         assert check_vertexes_stability(
             [vertex for vertex in qblock.vertexes], splitter_vertexes
         )
 
-    # test if the size of the qblocks after the split is equal to the number of vertexes
+    # test if the size of the qblocks after the split is equal to the number of
+    # vertexes
     for qblock in xblock.qblocks:
         assert qblock.size == len(qblock.vertexes)
 
-    # check if the qblock a vertex belongs to corresponds to the value vertex.qblock for each of its vertexes
+    # check if the qblock a vertex belongs to corresponds to the value
+    # vertex.qblock for each of its vertexes
     for qblock in xblock.qblocks:
         for vertex in qblock.vertexes:
             assert vertex.qblock == qblock
@@ -283,7 +289,9 @@ def test_split_helper_block_right_xblock(graph, initial_partition):
     new_blocks, _, _ = split(vertexes[3:7])
 
     for new_block in new_blocks:
-        assert any([qblock == new_block for qblock in new_block.xblock.qblocks])
+        assert any(
+            [qblock == new_block for qblock in new_block.xblock.qblocks]
+        )
 
     for old_block in q_partition:
         assert old_block.size == 0 or any(
@@ -291,7 +299,8 @@ def test_split_helper_block_right_xblock(graph, initial_partition):
         )
 
 
-# second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
+# second_splitter should be E^{-1}(B) - E^{-1}(S-B), namely there should only
+# be vertexes in E^{-1}(B) but not in E^{-1}(S-B)
 @pytest.mark.parametrize(
     "graph, initial_partition", test_cases.graph_partition_tuples
 )
@@ -301,7 +310,8 @@ def test_second_splitter_counterimage(graph, initial_partition):
 
     qblock_splitter = q_partition[0]
 
-    # qblock_splitter may be modified by split, therefore we need to keep a copy
+    # qblock_splitter may be modified by split, therefore we need to keep a
+    # copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
     block_counterimage = build_block_counterimage(qblock_splitter)
@@ -334,7 +344,8 @@ def test_second_split(graph, initial_partition):
     xblock = q_partition[0].xblock
 
     qblock_splitter = q_partition[0]
-    # qblock_splitter may be modified by split, therefore we need to keep a copy
+    # qblock_splitter may be modified by split, therefore we need to keep a
+    # copy
     splitter_vertexes = [vertex for vertex in qblock_splitter.vertexes]
 
     block_counterimage = build_block_counterimage(qblock_splitter)
@@ -352,7 +363,8 @@ def test_second_split(graph, initial_partition):
     new_qblocks, _, _ = split(second_splitter_counterimage)
     q_partition.extend(new_qblocks)
 
-    # after split the partition should be stable with respect to the block chosen for the split
+    # after split the partition should be stable with respect to the block
+    # chosen for the split
     for qblock in xblock.qblocks:
         assert check_vertexes_stability(
             [vertex for vertex in qblock.vertexes], second_splitter_vertexes
@@ -390,7 +402,7 @@ def test_reset_aux_count_after_refinement(graph, initial_partition):
     refine([xblock], [xblock])
 
     for vertex in vertexes:
-        assert vertex.aux_count == None
+        assert vertex.aux_count is None
 
 
 def test_count_after_refinement():
@@ -451,7 +463,7 @@ def test_no_negative_edge_counts(graph, initial_partition):
 
     for vertex in vertexes:
         for edge in vertex.image:
-            assert edge.count == None or edge.count.value > 0
+            assert edge.count is None or edge.count.value > 0
 
 
 @pytest.mark.parametrize(
@@ -557,12 +569,3 @@ def test_pt_same_initial_partition(graph, initial_partition):
                 vertex.initial_partition_block_id
                 == vertex_to_initial_partition_id[vertex.label]
             )
-
-
-def test_simp():
-    graph = nx.DiGraph()
-    graph.add_nodes_from(range(2))
-    graph.add_edges_from([(0, 1)])
-    initial_partition = [(0, 1)]
-
-    x = paige_tarjan(graph, is_integer_graph=True)

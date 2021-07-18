@@ -52,6 +52,22 @@ def test_incremental_update_rscp_correctness(goal_graph, initial_partition):
         assert to_set(rscp2) == rscp
 
 
+def test_add_edges():
+    graph = nx.balanced_tree(2, 3, create_using=nx.DiGraph)
+    partition = saha_partition(graph)
+
+    edges = [(1, 0), (8, 1)]
+
+    new_graph = nx.balanced_tree(2, 3, create_using=nx.DiGraph)
+    new_graph.add_nodes_from(range(len(graph.nodes)))
+    new_graph.add_edges_from(graph.edges)
+    new_graph.add_edges_from(edges)
+
+    assert to_set(paige_tarjan(new_graph)) == set(
+        map(frozenset, partition.add_edges(edges))
+    )
+
+
 def test_graph_normalization():
     graph = nx.DiGraph()
     nodes = ["nodo1", "nodo2", "nodo3"]

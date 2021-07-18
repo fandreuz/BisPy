@@ -1,10 +1,6 @@
-from .paige_tarjan.paige_tarjan import (
-    paige_tarjan,
-    paige_tarjan_qblocks,
-)
+from .paige_tarjan.paige_tarjan import paige_tarjan
 from .dovier_piazza_policriti.dovier_piazza_policriti import (
     dovier_piazza_policriti,
-    dovier_piazza_policriti_partition,
 )
 from .saha.saha_partition import saha
 
@@ -13,6 +9,8 @@ from .utilities.graph_decorator import (
     decorate_nx_graph,
     to_tuple_list,
 )
+from enum import Enum, auto
+import networkx as nx
 
 
 class Algorithms(Enum):
@@ -23,7 +21,7 @@ class Algorithms(Enum):
 def compute_maximum_bisimulation(
     graph: nx.DiGraph,
     initial_partition,
-    algorithm=Algorithm.PaigeTarjan,
+    algorithm=Algorithms.PaigeTarjan,
 ):
     """Compute the maximum bisimulation of the given graph, possibly using
     an initial partition (or labeling set). The preferred algorithm may be

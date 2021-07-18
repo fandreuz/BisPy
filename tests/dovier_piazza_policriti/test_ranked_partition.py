@@ -30,7 +30,9 @@ def test_create_initial_partition(graph):
             vertex.rank == rank for vertex in vertexes
         ].count(True)
         # right rank
-        assert all(vertex.rank == rank for vertex in partition[idx][0].vertexes)
+        assert all(
+            vertex.rank == rank for vertex in partition[idx][0].vertexes
+        )
 
 
 @pytest.mark.parametrize("graph", graphs)
@@ -101,3 +103,21 @@ def test_get_item():
     vertexes, _ = decorate_nx_graph(nx.balanced_tree(2, 3))
     partition = RankedPartition(vertexes)
     assert partition[1] == partition._partition[1]
+
+
+def test_different_blocks_initial_partition():
+    graph = nx.balanced_tree(2, 3, create_using=nx.DiGraph)
+    initial_partition = [
+        (0, 1, 2),
+        (3, 4),
+        (5, 6),
+        (7, 8, 9, 10),
+        (11, 12, 13),
+        (14,),
+    ]
+    vertexes, _ = decorate_nx_graph(nx.balanced_tree(2, 3), initial_partition)
+
+    partition = RankedPartition(vertexes)
+
+    assert len(partition[1]) == 3
+    assert len(partition[2]) == 2

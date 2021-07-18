@@ -3,6 +3,7 @@ from typing import List, Iterable
 
 from bispy.utilities.graph_entities import _Vertex, _QBlock
 
+
 # check if the given partition is stable with respect to the given block, or if
 # it's stable if the block isn't given
 def is_stable_vertexes_partition(partition: List[List[_Vertex]]) -> bool:
