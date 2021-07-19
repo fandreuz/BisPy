@@ -61,20 +61,20 @@ implemented in a monolithic block of code, in order to improve readability and
 testability. Moreover, this kind of modularity allowed us to reuse functions in
 multiple algorithms, since several procedures are shared (e.g.,
 $\texttt{split}$, or the computation of rank), and for the same reason we think
-that the addition of new functionalities may be very easy, since we already
-have a solid set of common functions implemented.
+that the addition of new functionalities would be straightforward since we
+already have a solid set of common functions implemented.
 
 # Statement of need
 
 To the best of our knowledge, there is not another project which addresses
 bisimulation and fulfills the needs of a serious open source project. We found
-some parse implementations of _Paige-Tarjan_'s algorithm, but there was neither
-documentation nor test cases. We think that our project may be a useful tool to
-study practical cases for people who are approaching the field — since the
-notion of bisimulation may be somewhat counterintuitive at first glance — as
-well as to established researchers in the field, who may use $\texttt{BisPy}$
-to study improvements on particular types of graphs, and to compare new
-algorithms with the state of the art.
+some sparse implementations of _Paige-Tarjan_'s algorithm, but the source code
+lacked documentation and test cases. We think that our project may be a useful
+tool to study practical cases for people who are approaching the field — since
+the notion of bisimulation may be somewhat counterintuitive at first glance —
+as well as to established researchers in the field, who may use
+$\texttt{BisPy}$ to study improvements on particular types of graphs, and to
+compare new algorithms with the state of the art.
 
 # Acknowledgements
 
