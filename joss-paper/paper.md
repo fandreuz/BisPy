@@ -19,15 +19,34 @@ bibliography: paper.bib
 
 # Summary
 
-The notion of _bisimulation_ in directed graphs, and in particular of _maximum
-bisimulation_, has applications in modal logic, formal verification and
-concurrency theory [@kanellakis], and is used for graph reduction as well
-[@gentilini]. The fact that _graphs_ may be used to create digital models of a
-wide span of complex systems makes bisimulation a useful tool in many different
-cases. For this reason several algorithms for the computation of maximum
-bisimulation have been studied throughout the years, and it is now widely known
-that the problem has an $O(|E| \log |V|)$ algorithmic solution, where $V$ is
-the set of nodes in the graph, and $E$ is the set of edges of the graph.
+A binary relation $\mathcal{B}$ on the set $V$ of the nodes of a directed graph
+is a bisimulation if the following condition is satisfied [@gentilini]:
+
+\begin{gather} (a,b) \in \mathcal{B} \implies \begin{cases} a \to a' &\implies
+\exists b' \in V \mid (a',b') \in \mathcal{B} \land b \to b'\\ b \to b'
+&\implies \exists a' \in V \mid (a',b') \in \mathcal{B} \land a \to a'
+\end{cases} \end{gather}
+
+A _labeling function_ $\ell : V \to L$ may be introduced, in which case the
+graph becomes a _Kripke structure_ and the additional condition
+$(a,b) \in \mathcal{B} \implies \ell(a) = \ell(b)$ must be satisfied.
+
+<p style="text-align: center;">
+
+![On the left, a balanced tree paired with a labeling function which induces a partition on $V$ of cardinality 2. We represented visually the corresponding maximum bisimulation on the right, computed using \texttt{BisPy}.](example.png)
+
+</p>
+
+The notion of _bisimulation_ and in particular of _maximum bisimulation_ —
+namely the bisimulation which contains all the other bisimulations on the graph
+— has applications in modal logic, formal verification and concurrency theory
+[@kanellakis], and is used for graph reduction as well [@gentilini]. The fact
+that _graphs_ may be used to create digital models of a wide span of complex
+systems makes bisimulation a useful tool in many different cases. For this
+reason several algorithms for the computation of maximum bisimulation have been
+studied throughout the years, and it is now widely known that the problem has
+an $O(|E| \log |V|)$ algorithmic solution, where $V$ is the set of nodes in the
+graph, and $E$ is the set of edges of the graph.
 
 The first procedure to match this time complexity was _Paige-Tarjan_'s
 algorithm [-@paigetarjan], whose authors obtained an efficient solution
@@ -66,15 +85,17 @@ already have a solid set of common functions implemented.
 
 # Statement of need
 
-To the best of our knowledge, there is not another project which addresses
-bisimulation and fulfills the needs of a serious open source project. We found
-some sparse implementations of _Paige-Tarjan_'s algorithm, but the source code
-lacked documentation and test cases. We think that our project may be a useful
-tool to study practical cases for people who are approaching the field — since
-the notion of bisimulation may be somewhat counterintuitive at first glance —
-as well as to established researchers in the field, who may use
-$\texttt{BisPy}$ to study improvements on particular types of graphs, and to
-compare new algorithms with the state of the art.
+To the best of our knowledge \texttt{BisPy} is the first Python project to
+address the problem of bisimulation and to fulfill the needs of an healthy open
+source project. We found some sparse implementations of _Paige-Tarjan_'s
+algorithm, however the source code lacked documentation and test cases, and did
+not seem to be intended for distribution.
+
+We think that our project may be a useful tool to study practical cases for
+people who are approaching the field — since the notion of bisimulation may be
+somewhat counterintuitive at first glance — as well as to established
+researchers, who may use \texttt{BisPy} to study improvements on particular
+types of graphs and to compare new algorithms with the state of the art.
 
 # Acknowledgements
 
