@@ -33,7 +33,7 @@ $(a,b) \in \mathcal{B} \implies \ell(a) = \ell(b)$ must be satisfied.
 
 <p style="text-align: center;">
 
-![On the left, a balanced tree paired with a labeling function which induces a partition on $V$ of cardinality 2. We represented visually the corresponding maximum bisimulation on the right, computed using \texttt{BisPy}.](example.png)
+![On the left, a balanced tree paired with a labeling function which induces a partition on $V$ of cardinality 2. We represented visually the corresponding maximum bisimulation on the right, computed using \texttt{BisPy}.\label{fig:example}](example.png)
 
 </p>
 
@@ -82,6 +82,40 @@ multiple algorithms, since several procedures are shared (e.g.,
 $\texttt{split}$, or the computation of rank), and for the same reason we think
 that the addition of new functionalities would be straightforward since we
 already have a solid set of common functions implemented.
+
+# Example
+
+We present the code which we used to generate the example shown in
+\autoref{fig:example}. First of all we import the modules needed
+to generate the graph (\texttt{BisPy} takes \texttt{NetworkX} directed graphs
+in input) and to compute the maximum bisimulation.
+
+```python
+>>> import networkx as nx
+>>> from bispy import compute_maximum_bisimulation
+```
+
+After that we generate the graph, which as we mentioned before is a balanced
+tree with _branching-factor_=2 and _depth_=3. We also create a list of tuples
+which represents the labeling function which we employed in the example.
+
+```python
+>>> graph = nx.balanced_tree(2,3, create_using=nx.DiGraph)
+>>> labels = [(0,1,2,3,4,5,6,7,9,10,11,12,13),(8,14)]
+```
+
+We can now compute the maximum bisimulation of the Kripke structure taken into
+account as follows:
+
+```python
+>>> compute_maximum_bisimulation(graph, labels)
+[(4,5),(7,9,10,11,12,13),(8,14),(3,6),(0,),(1,2)]
+```
+
+The visualization shown above has been drawn using the library
+\texttt{PyGraphviz}. \texttt{BisPy} provides the requested output in the form
+of a list of tuples, each of which contains the labels of all the nodes
+which are members of an equivalence class of the maximum bisimulation.
 
 # Statement of need
 
