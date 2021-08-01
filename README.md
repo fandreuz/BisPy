@@ -100,7 +100,7 @@ method the instance of `graph` which you passed is **not** modified):
 
 ## Dependencies and installation
 
-**BisPy** requires requires the modules `llist, networkx`. The code is tested
+**BisPy** requires the modules `llist, networkx`. The code is tested
 for _Python 3_, while compatibility with _Python 2_ is not guaranteed. It can
 be installed using `pip` or directly from the source code.
 
@@ -171,12 +171,18 @@ The project has been developed under the supervision of professor **Alberto
 Casagrande** (_University of Trieste_), which was my advisor for my _bachelor
 thesis_.
 
+## Reporting a bug
+
+The best way to report a bug is using the 
+[Issues](https://github.com/fAndreuzzi/BisPy/issues) section. Please, be clear,
+and give detailed examples on how to reproduce the bug (the best option would
+be the graph which triggered the error you are reporting).
+
 ## How to contribute
 
-Contributors are welcome! We are more than happy to receive contributions on
-tests, documentation and new features. Our
-[Issues](https://github.com/fAndreuzzi/BisPy/issues) section is always full of
-things to do.
+We are more than happy to receive contributions on tests, documentation and 
+new features. Our [Issues](https://github.com/fAndreuzzi/BisPy/issues) 
+section is always full of things to do.
 
 Here are the guidelines to submit a patch:
 
@@ -190,7 +196,7 @@ Here are the guidelines to submit a patch:
    have a bad time when trying to push a pull request to fix a particular
    issue.
 
-3. Run the [**black**](https://github.com/psf/black) formatter before pushing
+3. Run [black](https://github.com/psf/black) before pushing
    your code for review.
 
 4. Any significant changes should almost always be accompanied by tests. The
