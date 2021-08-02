@@ -18,7 +18,7 @@ binary relation on :math:`V` which satisfies the following condition:
         \forall b' \mid \langle b,b' \rangle \in E, \,\, \exists a' \mid \langle a,a' \rangle \in E \land (a',b') \in \mathcal{B}
     \end{cases}
 
-The definition may be read as follows: given a couple of nodes which is in
+The definition may be read as follows: given a pair of two nodes which are in
 relation with respect to :math:`\mathcal{B}`, each child of the first node is
 in relation with at least one child of the second node, and viceversa.
 
@@ -26,7 +26,7 @@ The following image shows an example of a bisimulation:
 
 .. image:: _static/bisimulation_example.png
 
-In the image you can observe an interesting property of bisimulation: two
+In the image an interesting property of bisimulation emerges: two
 *bisimilar* nodes (namely two nodes in relation for at least one bisimulation
 on the graph) *behave* in a similar way. This is equivalent to saying that all
 their children behave in a similar way, which is exactly the condition stated
@@ -34,20 +34,26 @@ above. Let's look at another example:
 
 .. image:: _static/bisimulation_example_2.png
 
-Again, the two nodes are almost indistinguishable: we may switch :math:`b` and
-:math:`b`, and unless :math:`a` resents the node :math:`c` for some reason
-nobody would notice. This is a consequence of the fact (which can be proved)
-that two bisimilar nodes represent the same set.
+Again, the two nodes are almost indistinguishable: we may switch :math:`a` and
+:math:`b`, and apart from the name of the nodes nobody would notice. This is a
+consequence of the fact (which can be proved) that two bisimilar nodes
+represent the same set.
 
-If you are convinced of the last statements, it is easy to convince that
+If you are convinced of the last statements, it is easy to understand that
 the maximum bisimulation (namely the bisimulation which contains all
-the bisimulations of the graph) tells us a lot about the nodes and how they
-behave. First of all, the maximum bisimulation is an equivalence relation,
-therefore it divides the set of nodes in equivalence classes of *bisimilar*
-nodes. Moreover, its equivalence classes are the maximal sets of *bisimilar*
-nodes (this wasn't true in the first image, since as you can see nodes
-:math:`d,g` are bisimilar, but are not in relation with respect to
-:math:`\mathcal{B}`).
+the bisimulations of the graph) tells a lot about the nodes of the graph and
+how they behave. First of all, the maximum bisimulation is an equivalence
+relation, therefore it divides the set of nodes in equivalence classes of
+*bisimilar* nodes. Moreover, its equivalence classes are the maximal sets of
+*bisimilar* nodes.
+
+The bisimulation depicted in the first image, since nodes :math:`d,g` are
+bisimilar, but are not in relation with respect to :math:`\mathcal{B}`. The
+maximum bisimulation is in fact:
+
+.. math::
+
+  \mathcal{B}=\{(a),(b,c),(d,e,f,g)\}.
 
 **Applications**
 
