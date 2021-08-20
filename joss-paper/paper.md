@@ -44,9 +44,9 @@ namely the bisimulation which contains all the other bisimulations on the graph
 that _graphs_ may be used to create digital models of a wide span of complex
 systems makes bisimulation a useful tool in many different cases. For this
 reason several algorithms for the computation of maximum bisimulation have been
-studied throughout the years, and it is now widely known that the problem has
-an $O(|E| \log |V|)$ algorithmic solution, where $V$ is the set of nodes in the
-graph, and $E$ is the set of edges of the graph.
+studied throughout the years, and it is now known that the problem has an
+$O(|E| \log |V|)$ algorithmic solution [@paigetarjan], where $V$ is the set of
+nodes in the graph, and $E$ is the set of edges of the graph.
 
 $\texttt{BisPy}$ is a Python package for the computation of maximum
 bisimulation.
@@ -77,16 +77,17 @@ problem.
 
 Our package contains the implementation of the following algorithms:
 
-+ Paige-Tarjan [-@paigetarjan], which employs an insight from the famous
+- Paige-Tarjan [-@paigetarjan], which employs an insight from the famous
   algorithm for the minimization of finite states automata [@hopcroft];
-+ Dovier-Piazza-Policriti [-@dovier], which uses the notion of _rank_ to
+- Dovier-Piazza-Policriti [-@dovier], which uses the notion of _rank_ to
   optimize the overhead of splitting the initial partition, and can be computed
   — prior the execution of the algorithm — using an $O(|V|+|E|)$ procedure
   [@sharir; @tarjan];
-+ Saha [-@saha], which can be used to update the maximum bisimulation of a
+- Saha [-@saha], which can be used to update the maximum bisimulation of a
   graph after the addition of a new edge, and is more efficient than the
   computation _from scratch_ in some cases (the computational complexity
-  depends on how much the maximum bisimulation changes due to the modification).
+  depends on how much the maximum bisimulation changes due to the
+  modification).
 
 Other algorithms to compute the maximum bisimulation are available, but for
 what we could see they are slight variations of one of those mentioned above,
@@ -94,19 +95,19 @@ or tailored on particular cases.
 
 Our implementations have been tested and documented deeply; moreover we
 splitted the algorithms in smaller functions, which we preferred over having a
-monolithic block of code in order to improve readability and testability.
-This kind of modularity allowed us to reuse functions across multiple
-algorithms, since several procedures are shared (e.g., $\texttt{split}$, or the
-computation of rank), and for the same reason we think that the addition of new
+monolithic block of code in order to improve readability and testability. This
+kind of modularity allowed us to reuse functions across multiple algorithms,
+since several procedures are shared (e.g., $\texttt{split}$, or the computation
+of rank), and for the same reason we think that the addition of new
 functionalities would be straightforward since we already have a significant
 set of common functions implemented.
 
 # Example
 
 We present the code which we used to generate the example shown in
-\autoref{fig:example}. First of all we import the modules needed
-to generate the graph (\texttt{BisPy} takes \texttt{NetworkX} directed graphs
-in input) and to compute the maximum bisimulation.
+\autoref{fig:example}. First of all we import the modules needed to generate
+the graph (\texttt{BisPy} takes \texttt{NetworkX} directed graphs in input) and
+to compute the maximum bisimulation.
 
 ```python
 >>> import networkx as nx
@@ -132,8 +133,8 @@ account as follows:
 
 The visualization shown above has been drawn using the library
 \texttt{PyGraphviz}. \texttt{BisPy} provides the requested output in the form
-of a list of tuples, each of which contains the labels of all the nodes
-which are members of an equivalence class of the maximum bisimulation.
+of a list of tuples, each of which contains the labels of all the nodes which
+are members of an equivalence class of the maximum bisimulation.
 
 # Acknowledgements
 
