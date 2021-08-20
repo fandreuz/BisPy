@@ -98,6 +98,20 @@ method the instance of `graph` which you passed is **not** modified):
 [(3, 5, 6), (7, 8, 9, 10, 11, 12, 13, 14), (0,), (2,), (1,), (4,)]
 ```
 
+## Documentation
+
+You can read the documentation (hosted on ReadTheDocs) at this
+[link](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest).
+
+To build the HTML version of the docs locally use:
+
+```bash
+> cd docs
+> make html
+```
+
+The generated html can be found in `docs/build/html`.
+
 ## Dependencies and installation
 
 **BisPy** requires the modules `llist, networkx`. The code is tested
@@ -133,21 +147,6 @@ To install the package:
 > python setup.py install
 ```
 
-## Documentation
-
-We used [Sphinx](http://www.sphinx-doc.org/en/stable/) and
-[ReadTheDocs](https://readthedocs.org/) for code documentation. You can view
-the documentation
-[here](https://bispy-bisimulation-in-python.readthedocs.io/en/latest/?badge=latest).
-
-To build the HTML version of the docs locally use:
-
-```bash
-> cd docs
-> make html
-```
-
-The generated html can be found in `docs/build/html`.
 
 ## Testing
 
@@ -173,15 +172,15 @@ thesis_.
 
 ## Reporting a bug
 
-The best way to report a bug is using the 
+The best way to report a bug is using the
 [Issues](https://github.com/fAndreuzzi/BisPy/issues) section. Please, be clear,
 and give detailed examples on how to reproduce the bug (the best option would
 be the graph which triggered the error you are reporting).
 
 ## How to contribute
 
-We are more than happy to receive contributions on tests, documentation and 
-new features. Our [Issues](https://github.com/fAndreuzzi/BisPy/issues) 
+We are more than happy to receive contributions on tests, documentation and
+new features. Our [Issues](https://github.com/fAndreuzzi/BisPy/issues)
 section is always full of things to do.
 
 Here are the guidelines to submit a patch:
