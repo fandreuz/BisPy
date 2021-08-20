@@ -26,34 +26,42 @@ The following image shows an example of a bisimulation:
 
 .. image:: _static/bisimulation_example.png
 
-In the image an interesting property of bisimulation emerges: two
+In the image above an interesting property of bisimulation emerges: two
 *bisimilar* nodes (namely two nodes in relation for at least one bisimulation
-on the graph) *behave* in a similar way. This is equivalent to saying that all
-their children behave in a similar way, which is exactly the condition stated
-above. Let's look at another example:
+on the graph) always *behave* in a similar way, in the sense that all their
+children behave in a similar way, which is exactly the condition stated above.
+
+Another (simpler) example:
 
 .. image:: _static/bisimulation_example_2.png
 
 Again, the two nodes are almost indistinguishable: we may switch :math:`a` and
-:math:`b`, and apart from the name of the nodes nobody would notice. This is a
-consequence of the fact (which can be proved) that two bisimilar nodes
+:math:`b`, and (apart from the name) nobody would notice the difference. This
+is a consequence of the fact (which can be proved) that two bisimilar nodes
 represent the same set.
 
-If you are convinced of the last statements, it is easy to understand that
-the maximum bisimulation (namely the bisimulation which contains all
-the bisimulations of the graph) tells a lot about the nodes of the graph and
-how they behave. First of all, the maximum bisimulation is an equivalence
-relation, therefore it divides the set of nodes in equivalence classes of
-*bisimilar* nodes. Moreover, its equivalence classes are the maximal sets of
-*bisimilar* nodes.
+It's easy to see that in general there are more than one bisimulations on a
+graph. For instance the empty relation (:math:`\mathcal{B} = \emptyset`) or any
+trivial reflexive relation :math:`(\mathcal{B} = \{(a,a), (b,b), \dots\}`) are
+all bisimulations. The *maximum bisimulation* of a graph is the bisimulation
+which results from the union of all the other bisimulations on that graph. It
+can be shown that this binary relation is still a bisimulation, and also an
+*equivalence relation*.
 
-The bisimulation depicted in the first image, since nodes :math:`d,g` are
-bisimilar, but are not in relation with respect to :math:`\mathcal{B}`. The
-maximum bisimulation is in fact:
+For the reasons which we stated above, we see that the maximum bisimulation
+conveys a lot of information about the nodes of the graph and how they behave.
+Its equivalence classes contain nodes which are equivalent two by two in the
+sense of bisimulation. Therefore they all behave in the same way, and we
+remark that this means that all their children behave in the same way.
+
+The bisimulation depicted in the first image is not the maximum bisimulation,
+since even though nodes :math:`d,g` are bisimilar they are not in relation
+with respect to :math:`\mathcal{B}`. In fact, the maximum bisimulation is the
+following relation:
 
 .. math::
 
-  \mathcal{B}=\{(a),(b,c),(d,e,f,g)\}.
+  \mathcal{B}_m=\{(a),(b,c),(d,e,f,g)\}.
 
 **Applications**
 
