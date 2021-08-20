@@ -65,7 +65,7 @@ We may also introduce a _labeling set_ (or _initial partition_):
 
 ```python
 >>> compute_maximum_bisimulation(graph, initial_partition=[(0,7,10), (1,2,3,4,5,6,8,9,11,12,13,14)])
-[(7, 10), (8, 9, 11, 12, 13, 14), (3, 4, 5, 6),  (1, 2), (0,)]
+[(7, 10), (5, 6), (8, 9, 11, 12, 13, 14), (3, 4), (2,), (1,), (0,)]
 
 ```
 
