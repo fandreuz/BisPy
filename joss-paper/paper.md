@@ -134,10 +134,10 @@ are members of an equivalence class of the maximum bisimulation.
 
 We briefly examine some performance results on two different kinds of graphs:
 
-+ _Balanced trees_ with variable branching factor $r$ and height $h$, for which
-  we are going to use the notation $B_T(r,h)$;
-+ _Erdős-Rényi graphs_, also called _binomial graphs_, whose set $E$ of edges
-  is generated randomly (the cardinality $|E|$ is roughly $p|V|$).
++ _Balanced trees_ [@clrs] with variable branching factor $r$ and height $h$,
+  for which we are going to use the notation $B_T(r,h)$;
++ _Erdős-Rényi graphs_ [-@clrs], also called _binomial graphs_, whose set $E$
+  of edges is generated randomly (the cardinality $|E|$ is roughly $p|V|$).
 
 The first experiment involves balanced trees, and consists in the computation
 of the maximum bisimulation of trees with variable dimensions. The labeling set
@@ -183,8 +183,8 @@ this improvement. The results are shown in the right side of
 We ran the experiments on a workstation with operative system _CentOS Linux_,
 (x86_64), processor Intel(R) Core(TM) i7-4790 CPU (4 cores, 3.60GHz), and 16 GB
 RAM. Graphs have been generated using functions from the Python package
-_NetworkX_ [-@networkx]. We measured time using the Python module _timeit_
-[-@pythondocs].
+_NetworkX_ [@networkx]. We measured time using the Python module _timeit_
+[@pythondocs].
 
 # Acknowledgements
 
