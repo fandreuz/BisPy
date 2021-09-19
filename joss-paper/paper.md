@@ -130,6 +130,62 @@ The visualization shown above has been drawn using the library
 of a list of tuples, each of which contains the labels of all the nodes which
 are members of an equivalence class of the maximum bisimulation.
 
+# Performance
+
+We briefly examine some performance results on two different kinds of graphs:
+
++ _Balanced trees_ with variable branching factor $r$ and height $h$, for which
+  we are going to use the notation $B_T(r,h)$;
++ _Erdős-Rényi graphs_, also called _binomial graphs_, whose set $E$ of edges
+  is generated randomly (the cardinality $|E|$ is roughly $p|V|$).
+
+The first experiment involves balanced trees, and consists in the computation
+of the maximum bisimulation of trees with variable dimensions. The labeling set
+is the trivial partition of the set $V$. The results are shown in the left
+side of \autoref{fig:performance}. The quantity which varies along the x-axis
+is $|E| \log |V|$, since this allows the presentation of data in a more
+natural way.
+
+The performance complies with the expected complexity $|E| \log |V|$: for
+instance our implementation of Dovier-Piazza-Policriti takes about 1.425
+seconds to compute the maximum bisimulation on $B_T(3,10)$, and 12.596 seconds
+on $B_T(3,12)$. The value of the ratio $\frac{|E_{B_T(3,12)}| \log |V_{B_T(3,12)}|}{|E_{B_T(3,10)}| \log |V_{B_T(3,10)}|}$
+is approximately 10.7, therefore the growth of the time function respects
+approximately the predicted behavior.
+
+Concerning binomial graphs, we fixed $p=0.0005$ in order to obtain a graph of
+some practical interest (as $p \to 1$ the graph becomes complete, as $p \to 0$
+also $|E| \to 0$). This time we also consider Saha's incremental algorithm, and
+we conduct the experiment as follows:
+
+1. Generate a binomial graph with the aforementioned features;
+2. Compute the maximum bisimulation using Paige-Tarjan's algorithm;
+3. Add a random edge to the graph;
+4. Compute the updated maximum bisimulation three times, using the three
+  algorithms taken into account, and verify the time taken by each one.
+
+Since the experiment is not deterministic (the graph and the new edge are
+generated randomly) we evaluate and visualize the mean time taken by step 4.
+on a sample of 1000 iterations of steps 1-4.
+
+The knowledge of the old maximum bisimulation is of no interests for
+non-incremental algorithms. However Saha's algorithm uses this input to reduce
+the number of steps: the goal of the second experiment is in fact to remark
+this improvement. The results are shown in the right side of
+\autoref{fig:performance}.
+
+<p style="text-align: center;">
+
+![On the left side of the figure, the time taken by our implementations of Paige-Tarjan and Dovier-Piazza-Policriti to compute the maximum bisimulation of balanced trees with variable branching factor and height. On the right side, the time needed to update the maximum bisimulation of a binomial graph after the addition of a random edge (for this experiment we also consider Saha's incremental algorithm).\label{fig:performance}](performance.png)
+
+</p>
+
+We ran the experiments on a workstation with operative system _CentOS Linux_,
+(x86_64), processor Intel(R) Core(TM) i7-4790 CPU (4 cores, 3.60GHz), and 16 GB
+RAM. Graphs have been generated using functions from the Python package
+_NetworkX_ [-@networkx]. We measured time using the Python module _timeit_
+[-@pythondocs].
+
 # Acknowledgements
 
 We acknowledge the support received from Alberto Casagrande during the
