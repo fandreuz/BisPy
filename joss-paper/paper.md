@@ -55,10 +55,8 @@ bisimulation.
 
 To the best of our knowledge \texttt{BisPy} is the first Python project to
 address the problem presented above, and to fulfill the needs of an healthy
-open source project. We found some sparse implementations of the most famous
-algorithm for the computation of the maximum bisimulation (_Paige-Tarjan_),
-however the source code lacked documentation and test cases, and did not seem
-to be intended for distribution.
+open source software, namely extensive testing, documentation and intuitive
+code commenting.
 
 We think that our project may be a useful tool to study practical cases for
 students approaching the field — since the notion of bisimulation may be
@@ -88,10 +86,6 @@ Our package contains the implementation of the following algorithms:
   computation _from scratch_ in some cases (the computational complexity
   depends on how much the maximum bisimulation changes due to the
   modification).
-
-Other algorithms to compute the maximum bisimulation are available, but for
-what we could see they are slight variations of one of those mentioned above,
-or tailored on particular cases.
 
 Our implementations have been tested and documented deeply; moreover we
 splitted the algorithms in smaller functions, which we preferred over having a
