@@ -209,7 +209,7 @@ Here are the guidelines to submit a patch:
 
 ## References
 
-During the development we constulted the following resources:
+We consulted the following resources during the development of **BisPy**:
 
 - Saha, Diptikalyan. "An incremental bisimulation algorithm." International
   Conference on Foundations of Software Technology and Theoretical Computer
