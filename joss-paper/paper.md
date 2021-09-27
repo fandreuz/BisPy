@@ -87,8 +87,8 @@ Our package contains the implementation of the following algorithms:
   depends on how much the maximum bisimulation changes due to the
   modification).
 
-Our implementations have been tested and documented deeply; moreover we
-splitted the algorithms in smaller functions, which we preferred over having a
+Our implementations have been tested and documented deeply; moreover we split
+the algorithms into smaller functions, which we preferred over having a
 monolithic block of code in order to improve readability and testability. This
 kind of modularity allowed us to reuse functions across multiple algorithms,
 since several procedures are shared (e.g., $\texttt{split}$, or the computation
@@ -134,22 +134,23 @@ are members of an equivalence class of the maximum bisimulation.
 
 We briefly examine some performance results on two different kinds of graphs:
 
-+ _Balanced trees_ [@clrs] with variable branching factor $r$ and height $h$,
+- _Balanced trees_ [@clrs] with variable branching factor $r$ and height $h$,
   for which we are going to use the notation $B_T(r,h)$;
-+ _Erdős-Rényi graphs_ [-@clrs], also called _binomial graphs_, whose set $E$
+- _Erdős-Rényi graphs_ [-@clrs], also called _binomial graphs_, whose set $E$
   of edges is generated randomly (the cardinality $|E|$ is roughly $p|V|$).
 
 The first experiment involves balanced trees, and consists in the computation
 of the maximum bisimulation of trees with variable dimensions. The labeling set
-is the trivial partition of the set $V$. The results are shown in the left
-side of \autoref{fig:performance}. The quantity which varies along the x-axis
-is $|E| \log |V|$, since this allows the presentation of data in a more
-natural way.
+is the trivial partition of the set $V$. The results are shown in the left side
+of \autoref{fig:performance}. The quantity which varies along the x-axis is
+$|E| \log |V|$, since this allows the presentation of data in a more natural
+way.
 
 The performance complies with the expected complexity $|E| \log |V|$: for
 instance our implementation of Dovier-Piazza-Policriti takes about 1.425
 seconds to compute the maximum bisimulation on $B_T(3,10)$, and 12.596 seconds
-on $B_T(3,12)$. The value of the ratio $\frac{|E_{B_T(3,12)}| \log |V_{B_T(3,12)}|}{|E_{B_T(3,10)}| \log |V_{B_T(3,10)}|}$
+on $B_T(3,12)$. The value of the ratio
+$\frac{|E_{B_T(3,12)}| \log |V_{B_T(3,12)}|}{|E_{B_T(3,10)}| \log |V_{B_T(3,10)}|}$
 is approximately 10.7, therefore the growth of the time function respects
 approximately the predicted behavior.
 
@@ -162,15 +163,15 @@ we conduct the experiment as follows:
 2. Compute the maximum bisimulation using Paige-Tarjan's algorithm;
 3. Add a random edge to the graph;
 4. Compute the updated maximum bisimulation three times, using the three
-  algorithms taken into account, and verify the time taken by each one.
+   algorithms taken into account, and verify the time taken by each one.
 
 Since the experiment is not deterministic (the graph and the new edge are
-generated randomly) we evaluate and visualize the mean time taken by step 4.
-on a sample of 1000 iterations of steps 1-4.
+generated randomly) we evaluate and visualize the mean time taken by step 4 on
+a sample of 1000 iterations of steps 1-4.
 
-The knowledge of the old maximum bisimulation is of no interests for
+The knowledge of the old maximum bisimulation is of no interest for
 non-incremental algorithms. However Saha's algorithm uses this input to reduce
-the number of steps: the goal of the second experiment is in fact to remark
+the number of steps: the goal of the second experiment is in fact to illustrate
 this improvement. The results are shown in the right side of
 \autoref{fig:performance}.
 
@@ -180,16 +181,16 @@ this improvement. The results are shown in the right side of
 
 </p>
 
-We ran the experiments on a workstation with operative system _CentOS Linux_,
-(x86_64), processor Intel(R) Core(TM) i7-4790 CPU (4 cores, 3.60GHz), and 16 GB
+We ran the experiments on a workstation with operating system _CentOS Linux_,
+(x86*64), processor Intel(R) Core(TM) i7-4790 CPU (4 cores, 3.60GHz), and 16 GB
 RAM. Graphs have been generated using functions from the Python package
-_NetworkX_ [@networkx]. We measured time using the Python module _timeit_
+\_NetworkX* [@networkx]. We measured time using the Python module _timeit_
 [@pythondocs].
 
 # Acknowledgements
 
 We acknowledge the support received from Alberto Casagrande during the
 preliminar theoretical study of the topic, as well as SISSA mathLab for
-providing the hardware to perform experiments on large graphs.
+providing the hardware used to perform experiments on large graphs.
 
 # References
