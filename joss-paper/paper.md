@@ -91,10 +91,11 @@ Our implementations have been tested and documented deeply; moreover we split
 the algorithms into smaller functions, which we preferred over having a
 monolithic block of code in order to improve readability and testability. This
 kind of modularity allowed us to reuse functions across multiple algorithms,
-since several procedures are shared (e.g., $\texttt{split}$, or the computation
-of rank), and for the same reason we think that the addition of new
-functionalities would be straightforward since we already have a significant
-set of common functions implemented.
+since several procedures are shared (e.g., $\texttt{split}$ is used in all the
+three algorithms which we mentioned above, while the computation of rank is
+carried out only in the last two), and for the same reason we think that the
+addition of new functionalities would be straightforward since we already have
+a significant set of common functions implemented.
 
 # Example
 
