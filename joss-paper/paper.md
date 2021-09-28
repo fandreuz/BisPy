@@ -33,13 +33,13 @@ $(a,b) \in \mathcal{B} \implies \ell(a) = \ell(b)$ must be satisfied.
 
 <p style="text-align: center;">
 
-![On the left, a balanced tree paired with a labeling function which induces a partition on $V$ of cardinality 2. We represented visually the corresponding maximum bisimulation on the right, computed using \texttt{BisPy}.\label{fig:example}](example.png)
+![On the left, a balanced tree paired with a labeling function, which induces a partition on $V$ of cardinality 2. We visually represent the corresponding maximum bisimulation on the right, computed using \texttt{BisPy}.\label{fig:example}](example.png)
 
 </p>
 
 The notion of _bisimulation_ and in particular of _maximum bisimulation_ —
 namely the bisimulation which contains all the other bisimulations on the graph
-— has applications in modal logic, formal verification and concurrency theory
+— has applications in modal logic, formal verification, and concurrency theory
 [@kanellakis], and is used for graph reduction as well [@gentilini]. The fact
 that _graphs_ may be used to create digital models of a wide span of complex
 systems makes bisimulation a useful tool in many different cases. For this
@@ -53,21 +53,21 @@ bisimulation.
 
 # Statement of need
 
-To the best of our knowledge \texttt{BisPy} is the first Python project to
-address the problem presented above, and to fulfill the needs of an healthy
-open source software, namely extensive testing, documentation and intuitive
+To the best of our knowledge, \texttt{BisPy} is the first Python project to
+address the problem presented above, and to meet the objectives of healthy
+open source software, namely extensive testing, documentation, and intuitive
 code commenting.
 
 We think that our project may be a useful tool to study practical cases for
 students approaching the field — since the notion of bisimulation may be
-somewhat counterintuitive at first glance — as well as to established
+somewhat counterintuitive at first glance — as well as for established
 researchers, who may use \texttt{BisPy} to study improvements on particular
 types of graphs and to compare new algorithms with the state of the art.
 
 It is interesting to observe that the package \texttt{BisPy}, briefly presented
 below, contains the implementation of more than one algorithm for the
 computation of maximum bisimulation, and every algorithm uses a peculiar
-strategy to obtain the result. For this reason we think that our package may be
+strategy to obtain the result. For this reason, we think that our package may be
 useful to assess the performance of different approaches on a particular
 problem.
 
@@ -88,18 +88,18 @@ Our package contains the implementation of the following algorithms:
   modification).
 
 Our implementations have been tested and documented deeply; moreover we split
-the algorithms into smaller functions, which we preferred over having a
+the algorithms into smaller functions, which we prefer to having a
 monolithic block of code in order to improve readability and testability. This
-kind of modularity allowed us to reuse functions across multiple algorithms,
-since several procedures are shared (e.g., $\texttt{split}$ is used in all the
-three algorithms which we mentioned above, while the computation of rank is
+kind of modularity allows us to reuse functions across multiple algorithms,
+since several procedures are shared (e.g., $\texttt{split}$ is used in all
+three of the algorithms that we mentioned above, while the computation of rank is
 carried out only in the last two), and for the same reason we think that the
-addition of new functionalities would be straightforward since we already have
-a significant set of common functions implemented.
+addition of new functionalities would be straightforward since we have already
+implemented a significant set of common functions.
 
 # Example
 
-We present the code which we used to generate the example shown in
+We present the code that we used to generate the example shown in
 \autoref{fig:example}. First of all we import the modules needed to generate
 the graph (\texttt{BisPy} takes \texttt{NetworkX} directed graphs in input) and
 to compute the maximum bisimulation.
@@ -111,7 +111,7 @@ to compute the maximum bisimulation.
 
 After that we generate the graph, which as we mentioned before is a balanced
 tree with _branching-factor_=2 and _depth_=3. We also create a list of tuples
-which represents the labeling function which we employed in the example.
+that represents the labeling function which we employed in the example.
 
 ```python
 >>> graph = nx.balanced_tree(2,3, create_using=nx.DiGraph)
@@ -128,7 +128,7 @@ account as follows:
 
 The visualization shown above has been drawn using the library
 \texttt{PyGraphviz}. \texttt{BisPy} provides the requested output in the form
-of a list of tuples, each of which contains the labels of all the nodes which
+of a list of tuples, each of which contains the labels of all the nodes that
 are members of an equivalence class of the maximum bisimulation.
 
 # Performance
@@ -140,10 +140,10 @@ We briefly examine some performance results on two different kinds of graphs:
 - _Erdős-Rényi graphs_ [-@clrs], also called _binomial graphs_, whose set $E$
   of edges is generated randomly (the cardinality $|E|$ is roughly $p|V|$).
 
-The first experiment involves balanced trees, and consists in the computation
+The first experiment involves balanced trees, and consists of the computation
 of the maximum bisimulation of trees with variable dimensions. The labeling set
 is the trivial partition of the set $V$. The results are shown in the left side
-of \autoref{fig:performance}. The quantity which varies along the x-axis is
+of \autoref{fig:performance}. The quantity that varies along the x-axis is
 $|E| \log |V|$, since this allows the presentation of data in a more natural
 way.
 
