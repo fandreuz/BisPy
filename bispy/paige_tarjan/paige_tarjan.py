@@ -317,7 +317,7 @@ def paige_tarjan_qblocks(q_partition: List[_QBlock]) -> List[_QBlock]:
     else:
         compound_xblocks = CompoundXBlocksContainer([])
 
-    while len(compound_xblocks) > 0:
+    while compound_xblocks:
         x_partition, new_qblocks = refine(
             compound_xblocks=compound_xblocks, xblocks=x_partition
         )
